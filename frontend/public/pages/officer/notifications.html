@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARMS – Notifications</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+
+  :root {
+    --navy:          #0e2240;
+    --navy-mid:      #1a3560;
+    --navy-light:    #e8edf6;
+    --navy-xlight:   #f4f6fb;
+    --gold:          #c8a040;
+    --gold-mid:      #b8902e;
+    --gold-dark:     #9a7420;
+    --gold-light:    #fdf6e3;
+    --gold-xlight:   #fefbf3;
+    --text-primary:  #111827;
+    --text-secondary:#4b5568;
+    --text-muted:    #8a94a6;
+    --border:        #e8e3d8;
+    --border-mid:    #d6ceba;
+    --bg-page:       #faf7f2;
+    --bg-card:       #ffffff;
+    --bg-input:      #fbfaf7;
+    --radius:        6px;
+    --radius-lg:     10px;
+    --shadow-sm:     0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+    --shadow-card:   0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+    --focus-ring:    0 0 0 3px rgba(200,160,64,0.15);
+    --sidebar-w:     220px;
+    --header-h:      66px;
+    /* status semantics */
+    --approved-bg:   #ecfdf5;
+    --approved-fg:   #166534;
+    --approved-brd:  #bbf7d0;
+    --rejected-bg:   #fef2f2;
+    --rejected-fg:   #991b1b;
+    --rejected-brd:  #fecaca;
+    --flagged-bg:    #fffaeb;
+    --flagged-fg:    #92400e;
+    --flagged-brd:   #fde68a;
+    --info-bg:       #eff6ff;
+    --info-fg:       #1e40af;
+    --info-brd:      #bfdbfe;
+  }
+
+  body {
+    display: flex; flex-direction: column;
+    background: var(--bg-page);
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 13px; color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── TOP BAR ── */
+  .top-bar {
+    background: var(--navy);
+    display: flex; justify-content: space-between; align-items: stretch;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    height: var(--header-h); flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(14,34,64,0.08); position: relative; z-index: 50;
+  }
+  .logo-block {
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 24px; min-width: 360px; height: 100%;
+    flex-shrink: 0; background: var(--navy);
+  }
+  .logo-emblem {
+    width: 40px; height: 40px; border-radius: 8px;
+    background: var(--gold); display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; overflow: hidden;
+  }
+  .logo-emblem img { width: 100%; height: 100%; object-fit: cover; }
+  .logo-text h2 { font-size: 12.5px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+  .logo-text p  { font-size: 10.5px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+  .top-right { display: flex; align-items: center; gap: 14px; padding-right: 20px; }
+  .user-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--gold-light); border: 1.5px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--navy); flex-shrink: 0;
+    overflow: hidden; position: relative;
+  }
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+  .top-user-name { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.2; }
+  .top-user-role { font-size: 10.5px; color: rgba(255,255,255,0.7); line-height: 1; }
+  .btn-signout {
+    background: transparent; border: 1px solid rgba(255,255,255,0.25);
+    color: #fff; padding: 5px 13px;
+    border-radius: var(--radius); font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; font-family: inherit;
+  }
+  .btn-signout:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+  /* ── LAYOUT ── */
+  .dashboard-container { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w); background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    padding: 14px 0 12px; flex-shrink: 0; height: 100%;
+    overflow-y: auto; display: flex; flex-direction: column;
+  }
+  .sidebar-section-title {
+    font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--text-muted); font-weight: 700; padding: 10px 16px 4px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 16px; color: var(--text-secondary);
+    text-decoration: none; font-size: 12.5px;
+    transition: all 0.13s; border-left: 2px solid transparent; margin: 1px 0;
+    border-radius: 0 8px 8px 0;
+  }
+  .sidebar-item:hover { background: var(--gold-xlight); color: var(--navy); }
+  .sidebar-item.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+  .sidebar-item i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-item.active i { opacity: 1; }
+  .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+  .sidebar-item.signout { color: #ef4444; }
+  .sidebar-item.signout:hover { background: #fef2f2; }
+  .sidebar-item.signout i { opacity: 1; }
+  .badge-notif {
+    margin-left: auto; background: #dc2626; color: #fff;
+    font-size: 10px; font-weight: 700; min-width: 18px; height: 18px;
+    border-radius: 99px; display: inline-flex; align-items: center;
+    justify-content: center; padding: 0 5px;
+  }
+
+  /* ── MAIN ── */
+  .main-content { flex: 1; min-height: 0; padding: 24px 28px; overflow-y: auto; overflow-x: hidden; background: var(--bg-page); }
+  .page-header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+  .page-title { font-size: 20px; font-weight: 600; color: var(--navy); margin-bottom: 4px; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+  .page-subtitle { font-size: 12.5px; color: var(--text-secondary); max-width: 640px; }
+
+  .btn-register {
+    background: var(--bg-card); color: var(--text-secondary);
+    border: 1px solid var(--border-mid); padding: 0 16px; height: 36px;
+    border-radius: var(--radius); font-size: 12.5px; font-weight: 500;
+    font-family: inherit; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s;
+  }
+  .btn-register:hover { background: var(--bg-page); color: var(--text-primary); }
+
+  .btn-custom-primary {
+    background: var(--gold); color: var(--navy); border: none;
+    padding: 0 18px; height: 38px; border-radius: var(--radius);
+    font-size: 12.5px; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: inherit; transition: background 0.15s; white-space: nowrap;
+  }
+  .btn-custom-primary:hover { background: var(--gold-mid); }
+
+  /* ── STATUS TABS (filter tabs) ── */
+  .status-tabs { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .status-tab {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px; border-radius: var(--radius-lg);
+    border: 1px solid var(--border); background: var(--bg-card);
+    color: var(--text-secondary); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; font-family: inherit;
+  }
+  .status-tab:hover:not(.active) { background: var(--bg-page); color: var(--text-primary); }
+  .status-tab .tab-count {
+    background: var(--bg-page); color: var(--text-muted);
+    font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 99px;
+  }
+  .status-tab.active[data-filter="unread"]   { background: var(--info-bg);     color: var(--info-fg); }
+  .status-tab.active[data-filter="unread"] .tab-count   { background: #fff; color: var(--info-fg); }
+  .status-tab.active[data-filter="APPROVED"] { background: var(--approved-bg); color: var(--approved-fg); }
+  .status-tab.active[data-filter="APPROVED"] .tab-count { background: #fff; color: var(--approved-fg); }
+  .status-tab.active[data-filter="REJECTED"] { background: var(--rejected-bg); color: var(--rejected-fg); }
+  .status-tab.active[data-filter="REJECTED"] .tab-count { background: #fff; color: var(--rejected-fg); }
+  .status-tab.active[data-filter="FLAGGED"]  { background: var(--flagged-bg);  color: var(--flagged-fg); }
+  .status-tab.active[data-filter="FLAGGED"] .tab-count  { background: #fff; color: var(--flagged-fg); }
+  .status-tab.active[data-filter="all"]      { background: var(--navy-xlight); color: var(--navy); }
+  .status-tab.active[data-filter="all"] .tab-count      { background: #fff; color: var(--navy); }
+
+  /* ── TOOLBAR ── */
+  .toolbar-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 2px 2px 12px; margin-bottom: 4px;
+  }
+  .notif-count-label { font-size: 12px; color: var(--text-muted); }
+
+  /* ── NOTIFICATIONS CARD ── */
+  .table-card {
+    background: var(--bg-card); border-radius: var(--radius-lg);
+    border: 1px solid var(--border); overflow: hidden;
+    margin-bottom: 20px; box-shadow: 0 1px 2px rgba(14,34,64,0.04);
+  }
+  .table-header {
+    background: var(--bg-card); border-bottom: 1px solid var(--border);
+    padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .table-header h6 {
+    margin: 0; font-size: 13.5px; font-weight: 600;
+    color: var(--navy); display: flex; align-items: center; gap: 8px;
+  }
+  .table-header h6 i {
+    width: 28px; height: 28px; border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; background: var(--info-bg); color: var(--info-fg);
+  }
+  .records-badge {
+    font-size: 11px; font-weight: 600; color: var(--navy);
+    background: var(--gold-xlight); border: 1px solid var(--border);
+    padding: 4px 12px; border-radius: 99px;
+  }
+
+  /* Date group label */
+  .date-group-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.07em; color: var(--text-muted);
+    padding: 14px 20px 6px; background: var(--bg-page);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Notification rows */
+  .notification-item {
+    border-bottom: 1px solid var(--border); padding: 14px 20px;
+    cursor: pointer; background: var(--bg-card); transition: background 0.13s;
+  }
+  .notification-item:last-child { border-bottom: none; }
+  .notification-item:hover { background: var(--gold-xlight); }
+  .notification-item.unread { background: linear-gradient(90deg, rgba(200,160,64,0.05), rgba(255,255,255,0)); }
+  .notification-item.unread:hover { background: linear-gradient(90deg, rgba(200,160,64,0.09), var(--gold-xlight)); }
+
+  .notif-inner { display: flex; gap: 13px; align-items: flex-start; }
+  .notif-icon {
+    width: 38px; height: 38px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; border: 1px solid transparent;
+  }
+  .notif-icon.approved { background: var(--approved-bg); color: var(--approved-fg); border-color: var(--approved-brd); }
+  .notif-icon.rejected { background: var(--rejected-bg); color: var(--rejected-fg); border-color: var(--rejected-brd); }
+  .notif-icon.flagged  { background: var(--flagged-bg);  color: var(--flagged-fg);  border-color: var(--flagged-brd); }
+  .notif-icon.info-type{ background: var(--info-bg);     color: var(--info-fg);     border-color: var(--info-brd); }
+
+  .notif-body { flex: 1; min-width: 0; }
+  .notif-row1 { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .notif-title { font-weight: 600; color: var(--navy); font-size: 13px; margin-bottom: 3px; }
+  .notif-meta { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+  .unread-dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; display: inline-block; }
+  .notif-message { color: var(--text-secondary); font-size: 12.5px; margin: 5px 0 8px; line-height: 1.45; }
+  .notif-row3 { display: flex; gap: 8px; align-items: center; }
+
+  .notif-ref {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+    color: var(--navy); background: var(--navy-xlight);
+    padding: 2px 8px; border-radius: 4px;
+  }
+
+  .badge-status-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px; border-radius: 99px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.03em;
+    white-space: nowrap; border: 1px solid transparent;
+  }
+  .badge-status-pill.approved { background: var(--approved-bg); color: var(--approved-fg); border-color: var(--approved-brd); }
+  .badge-status-pill.rejected { background: var(--rejected-bg); color: var(--rejected-fg); border-color: var(--rejected-brd); }
+  .badge-status-pill.flagged  { background: var(--flagged-bg);  color: var(--flagged-fg);  border-color: var(--flagged-brd); }
+  .badge-status-pill.info-type{ background: var(--info-bg);     color: var(--info-fg);     border-color: var(--info-brd); }
+
+  /* Detail pane */
+  .notif-detail { display: none; padding: 14px 20px 4px 71px; }
+  .notif-detail.open { display: block; }
+  .detail-inner { display: flex; flex-direction: column; gap: 12px; }
+  .detail-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; padding: 12px 14px; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius); }
+  .detail-field .detail-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 5px; font-weight: 700; }
+  .detail-value { font-weight: 600; font-size: 12.5px; color: var(--text-primary); }
+  .detail-value.mono { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .detail-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+  .btn-action {
+    padding: 5px 12px; font-size: 11.5px;
+    border: 1px solid var(--border-mid); background: var(--bg-card);
+    border-radius: var(--radius); cursor: pointer;
+    color: var(--text-secondary); font-family: inherit; font-weight: 500;
+    transition: all 0.13s; display: inline-flex; align-items: center; gap: 5px;
+  }
+  .btn-action:hover { background: var(--navy); color: white; border-color: var(--navy); }
+  .btn-action.primary { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+  .btn-action.primary:hover { background: var(--gold-mid); color: var(--navy); border-color: var(--gold-mid); }
+
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+  .empty-state i { font-size: 2rem; margin-bottom: 10px; opacity: 0.4; display: block; }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--bg-card); color: var(--text-muted);
+    padding: 10px 24px; display: flex;
+    justify-content: space-between; align-items: center;
+    font-size: 11px; border-top: 1px solid var(--border); flex-shrink: 0;
+  }
+  .footer-session { display: flex; align-items: center; gap: 6px; }
+  .session-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+  /* ── TOAST ── */
+  .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+  .toast-msg {
+    background: var(--navy); color: white; padding: 10px 16px;
+    border-radius: var(--radius); margin-top: 8px; font-size: 12.5px;
+    animation: slideIn 0.25s ease; display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 14px rgba(14,34,64,0.25);
+  }
+  .toast-msg.success { border-left: 3px solid #22c55e; }
+  .toast-msg.error   { border-left: 3px solid #ef4444; }
+  .toast-msg.info    { border-left: 3px solid var(--gold); }
+
+  @keyframes slideIn {
+    from { transform: translateX(60px); opacity: 0; }
+    to   { transform: translateX(0);   opacity: 1; }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .notif-detail { padding-left: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../../images/coat-of-arms.png" alt="Zambian Coat of Arms" class="nav-seal" width="42" height="42" />
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar" id="userAvatarInitials" aria-label="Current user"></div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="topUserName">Loading profile...</div>
+      <div class="top-user-role" id="topUserDetails">Land Officer</div>
+    </div>
+    <button class="btn-signout" id="signOutBtn">Sign Out</button>
+  </div>
+</div>
+
+<!-- ── LAYOUT ── -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Main Menu</div>
+    <a href="/pages/officer/dashboard.html"        class="sidebar-item"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="/pages/officer/parcel-registry.html"   class="sidebar-item"><i class="bi bi-collection"></i> Parcel Registry</a>
+    <a href="/pages/officer/register-parcel.html"   class="sidebar-item"><i class="bi bi-plus-circle"></i> Register Parcel</a>
+    <a href="/pages/officer/transfer-requests.html" class="sidebar-item"><i class="bi bi-arrow-left-right"></i> Transfer Requests</a>
+    <a href="/pages/officer/parcel-status.html"  class="sidebar-item"><i class="bi bi-x-circle"></i> Parcel Status</a>
+    <a href="/pages/officer/notifications.html"     class="sidebar-item active">
+      <i class="bi bi-bell"></i> Notifications
+      <span class="badge-notif" id="sidebarNotifCount" style="display:none">0</span>
+    </a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Reports</div>
+    <a href="monthly-report.html" class="sidebar-item" id="monthlyReportBtn"><i class="bi bi-file-earmark-bar-graph"></i> Monthly Report</a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Account</div>
+    <a href="/pages/officer/manage-profile.html" class="sidebar-item"><i class="bi bi-person-circle"></i> My Profile</a>
+
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" id="signOutSidebarBtn"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">
+          <i class="bi bi-bell" style="color:var(--gold-dark);"></i>
+          <span>Notifications</span>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-custom-primary" id="markAllReadBtn"><i class="bi bi-check2-all"></i> Mark all as read</button>
+        <a href="/pages/officer/dashboard.html" class="btn-register"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+      </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="status-tabs" id="filterTabsBar">
+      <button class="status-tab active" data-filter="all">
+        <i class="bi bi-collection"></i> All <span class="tab-count" id="tabCountAll">0</span>
+      </button>
+      <button class="status-tab" data-filter="unread">
+        <i class="bi bi-envelope"></i> Unread <span class="tab-count" id="tabCountUnread">0</span>
+      </button>
+      <button class="status-tab" data-filter="APPROVED">
+        <i class="bi bi-check-circle"></i> Approved <span class="tab-count" id="tabCountApproved">0</span>
+      </button>
+      <button class="status-tab" data-filter="REJECTED">
+        <i class="bi bi-x-circle"></i> Rejected <span class="tab-count" id="tabCountRejected">0</span>
+      </button>
+      <button class="status-tab" data-filter="FLAGGED">
+        <i class="bi bi-flag"></i> Flagged <span class="tab-count" id="tabCountFlagged">0</span>
+      </button>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar-row">
+      <span class="notif-count-label" id="toolbarLabel">Loading…</span>
+    </div>
+
+    <!-- Notifications Card -->
+    <div class="table-card">
+      <div class="table-header">
+        <h6><i class="bi bi-bell"></i> Notification Centre</h6>
+        <span class="records-badge" id="recordsCount">0 notifications</span>
+      </div>
+      <div id="notificationsListContainer">
+        <div class="empty-state">
+          <i class="bi bi-hourglass-split"></i>
+          <p>Loading notifications…</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script type="module">
+  import { api } from '/js/api.js';
+  import { requireLogin, getSession, logout, showLogoutConfirmation } from '/js/auth.js';
+
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast-msg ${type}`;
+    toast.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle-fill' : type === 'error' ? 'exclamation-triangle-fill' : 'info-circle-fill'}"></i> ${message}`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+
+  let notifications = [];
+  let activeFilter = 'all';
+  let openId = null;
+
+  /* ── HELPERS ── */
+  function formatTime(dateStr) {
+    if (!dateStr) return '—';
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now - date;
+    const minutes = Math.floor(diff / 60000);
+    const hours   = Math.floor(diff / 3600000);
+    const days    = Math.floor(diff / 86400000);
+    if (minutes < 1)  return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24)   return `${hours}h ago`;
+    if (days < 7)     return `${days}d ago`;
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  function groupLabel(dateStr) {
+    if (!dateStr) return 'Earlier';
+    const date = new Date(dateStr);
+    const now  = new Date();
+    const diff = now - date;
+    if (diff < 86400000) return 'Today';
+    if (diff < 172800000) return 'Yesterday';
+    if (diff < 604800000) return 'This Week';
+    return date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  }
+
+  function getIconClass(type) {
+    if (!type) return 'info-type';
+    if (type.includes('APPROVED')) return 'approved';
+    if (type.includes('REJECTED')) return 'rejected';
+    if (type.includes('FLAGGED') || type.includes('MISMATCH')) return 'flagged';
+    return 'info-type';
+  }
+
+  function getIconHtml(type) {
+    if (type?.includes('APPROVED')) return '<i class="bi bi-check-circle-fill"></i>';
+    if (type?.includes('REJECTED')) return '<i class="bi bi-x-circle-fill"></i>';
+    if (type?.includes('FLAGGED') || type?.includes('MISMATCH')) return '<i class="bi bi-flag-fill"></i>';
+    return '<i class="bi bi-bell-fill"></i>';
+  }
+
+  function getBadgeClass(type) {
+    if (type?.includes('APPROVED')) return 'approved';
+    if (type?.includes('REJECTED')) return 'rejected';
+    if (type?.includes('FLAGGED') || type?.includes('MISMATCH')) return 'flagged';
+    return 'info-type';
+  }
+
+  function getTitle(type) {
+    const map = {
+      'TRANSFER_APPROVED_L1':       'Transfer Approved — Level 1',
+      'TRANSFER_APPROVED_FINAL':    'Transfer Approved — Final',
+      'TRANSFER_REJECTED':          'Transfer Rejected',
+      'TRANSFER_MISMATCH_DETECTED': 'Data Mismatch Detected',
+      'PARCEL_REGISTERED':          'Parcel Registered',
+      'TRANSFER_SUBMITTED':         'Transfer Submitted'
+    };
+    return map[type] || (type ? type.replace(/_/g, ' ') : 'Notification');
+  }
+
+  /* ── FILTER LOGIC ── */
+  function filterNotifications(notifs, filter) {
+    if (filter === 'all')    return notifs;
+    if (filter === 'unread') return notifs.filter(n => !n.isRead);
+    return notifs.filter(n => n.notificationType?.includes(filter));
+  }
+
+  function updateTabCounts() {
+    document.getElementById('tabCountAll').textContent      = notifications.length;
+    document.getElementById('tabCountUnread').textContent   = notifications.filter(n => !n.isRead).length;
+    document.getElementById('tabCountApproved').textContent = notifications.filter(n => n.notificationType?.includes('APPROVED')).length;
+    document.getElementById('tabCountRejected').textContent = notifications.filter(n => n.notificationType?.includes('REJECTED')).length;
+    document.getElementById('tabCountFlagged').textContent  = notifications.filter(n => n.notificationType?.includes('FLAGGED') || n.notificationType?.includes('MISMATCH')).length;
+
+    const unread = notifications.filter(n => !n.isRead).length;
+    const sn = document.getElementById('sidebarNotifCount');
+    sn.textContent = unread > 0 ? unread : '';
+    sn.style.display = unread > 0 ? 'inline' : 'none';
+  }
+
+  /* ── RENDER ── */
+  function renderNotifications() {
+    const filtered = filterNotifications(notifications, activeFilter);
+    const container = document.getElementById('notificationsListContainer');
+
+    const unreadCount = notifications.filter(n => !n.isRead).length;
+    const shownCount  = filtered.length;
+    document.getElementById('toolbarLabel').innerHTML =
+      `Showing <strong>${shownCount}</strong> notification${shownCount !== 1 ? 's' : ''}`
+      + (unreadCount > 0 ? ` &nbsp;·&nbsp; <strong>${unreadCount}</strong> unread` : '');
+    document.getElementById('recordsCount').textContent = `${shownCount} notification${shownCount !== 1 ? 's' : ''}`;
+
+    if (!filtered.length) {
+      container.innerHTML = `<div class="empty-state"><i class="bi bi-inbox"></i><p>No notifications in this category</p></div>`;
+      return;
+    }
+
+    /* group by date */
+    const groups = {};
+    filtered.forEach(n => {
+      const lbl = groupLabel(n.createdAt);
+      if (!groups[lbl]) groups[lbl] = [];
+      groups[lbl].push(n);
+    });
+
+    let html = '';
+    for (const [label, items] of Object.entries(groups)) {
+      html += `<div class="date-group-label">${label}</div>`;
+      items.forEach(n => {
+        const isOpen = openId === n.notificationId;
+        const parcelRef = n.relatedParcelId || n.relatedParcelNumber || null;
+        html += `
+          <div class="notification-item ${!n.isRead ? 'unread' : ''}" data-id="${n.notificationId}">
+            <div class="notif-inner">
+              <div class="notif-icon ${getIconClass(n.notificationType)}">${getIconHtml(n.notificationType)}</div>
+              <div class="notif-body">
+                <div class="notif-row1">
+                  <div class="notif-title">${getTitle(n.notificationType)}</div>
+                  <div class="notif-meta">
+                    ${!n.isRead ? '<span class="unread-dot"></span>' : ''}
+                    <span class="notif-time">${formatTime(n.createdAt)}</span>
+                    <i class="bi bi-chevron-${isOpen ? 'up' : 'down'}" style="font-size:10px; color:var(--text-muted);"></i>
+                  </div>
+                </div>
+                <div class="notif-message">${n.message || '—'}</div>
+                <div class="notif-row3">
+                  <span class="badge-status-pill ${getBadgeClass(n.notificationType)}">${(n.notificationType || 'INFO').replace(/_/g, ' ')}</span>
+                  ${parcelRef ? `<span class="notif-ref">${parcelRef}</span>` : ''}
+                </div>
+              </div>
+            </div>
+            <div class="notif-detail ${isOpen ? 'open' : ''}" id="detail-${n.notificationId}">
+              <div class="detail-inner">
+                <div class="detail-cols">
+                  <div class="detail-field">
+                    <div class="detail-label">Notification Type</div>
+                    <div class="detail-value">${(n.notificationType || '—').replace(/_/g, ' ')}</div>
+                  </div>
+                  <div class="detail-field">
+                    <div class="detail-label">Related Parcel</div>
+                    <div class="detail-value">${parcelRef ? `<span class="detail-value mono">${parcelRef}</span>` : '—'}</div>
+                  </div>
+                  <div class="detail-field">
+                    <div class="detail-label">Date &amp; Time</div>
+                    <div class="detail-value">${n.createdAt ? new Date(n.createdAt).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'}</div>
+                  </div>
+                  <div class="detail-field detail-full">
+                    <div class="detail-label">Full Message</div>
+                    <div class="detail-value">${n.message || '—'}</div>
+                  </div>
+                </div>
+                <div class="detail-actions">
+                  ${parcelRef ? `<button class="btn-action primary" data-parcel="${parcelRef}"><i class="bi bi-eye"></i> View Parcel</button>` : ''}
+                  <button class="btn-action btn-collapse" data-id="${n.notificationId}"><i class="bi bi-chevron-up"></i> Collapse</button>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      });
+    }
+    container.innerHTML = html;
+    attachRowHandlers();
+  }
+
+  function attachRowHandlers() {
+    document.querySelectorAll('.notification-item').forEach(el => {
+      el.querySelector('.notif-inner').addEventListener('click', () => {
+        const id = parseInt(el.getAttribute('data-id'));
+        toggleDetail(id);
+      });
+    });
+    document.querySelectorAll('.btn-collapse').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        openId = null;
+        renderNotifications();
+      });
+    });
+    document.querySelectorAll('[data-parcel]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const parcel = btn.getAttribute('data-parcel');
+        window.location.href = `/pages/officer/parcel-detail.html?parcel=${encodeURIComponent(parcel)}`;
+      });
+    });
+  }
+
+  async function toggleDetail(id) {
+    const wasOpen = openId === id;
+    openId = wasOpen ? null : id;
+
+    if (!wasOpen) {
+      const notif = notifications.find(n => n.notificationId === id);
+      if (notif && !notif.isRead) {
+        try {
+          await api.markOfficerNotificationRead(id);
+          notif.isRead = true;
+          showToast('Notification marked as read', 'info');
+          updateTabCounts();
+        } catch(e) { console.warn('Mark read failed', e); }
+      }
+    }
+    renderNotifications();
+  }
+
+  /* ── LOAD ── */
+  async function loadNotifications() {
+    try {
+      const response = await api.officerNotifications();
+      let notifs = [];
+      if (response?.data && Array.isArray(response.data))               notifs = response.data;
+      else if (Array.isArray(response))                                  notifs = response;
+      else if (response?.notifications && Array.isArray(response.notifications)) notifs = response.notifications;
+      notifications = notifs;
+      updateTabCounts();
+      renderNotifications();
+    } catch(err) {
+      console.error('Error loading notifications:', err);
+      document.getElementById('notificationsListContainer').innerHTML =
+        `<div class="empty-state"><i class="bi bi-exclamation-triangle"></i><p>Failed to load notifications. Please refresh the page.</p></div>`;
+      document.getElementById('toolbarLabel').textContent = '';
+      showToast('Failed to load notifications', 'error');
+    }
+  }
+
+  async function markAllRead() {
+    const unread = notifications.filter(n => !n.isRead);
+    if (!unread.length) { showToast('No unread notifications', 'info'); return; }
+    let done = 0;
+    for (const n of unread) {
+      try { await api.markOfficerNotificationRead(n.notificationId); n.isRead = true; done++; } catch(e) {}
+    }
+    updateTabCounts();
+    renderNotifications();
+    showToast(`${done} notification${done !== 1 ? 's' : ''} marked as read`, 'success');
+  }
+
+  async function updateTopBar() {
+    try {
+      requireLogin();
+      const session = getSession();
+      const userName = session.fullName || session.name || session.email || 'Land Officer';
+      const av = document.getElementById('userAvatarInitials');
+      const profileResult = await api.getMyProfile();
+      const profile = profileResult?.data || profileResult || {};
+      const savedPhoto = profile.photoPath || session.photoPath || localStorage.getItem('lv_photo') || '';
+      if (profile.photoPath) localStorage.setItem('lv_photo', profile.photoPath);
+      document.getElementById('topUserName').textContent    = userName;
+      document.getElementById('topUserDetails').textContent = session.role ? session.role.replace(/_/g, ' ') : 'Land Officer';
+      if (savedPhoto) {
+        const photoUrl = savedPhoto.startsWith('http') || savedPhoto.startsWith('/') ? savedPhoto : `/uploads/${savedPhoto}`;
+        if (av) av.innerHTML = `<img src="${photoUrl}" alt="Profile photo" />`;
+      } else {
+        const initials = userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        if (av && !av.querySelector('img')) av.textContent = initials;
+      }
+    } catch(e) { console.warn('Session error', e); }
+  }
+
+  function doSignOut(e) {
+    e.preventDefault();
+    showLogoutConfirmation(logout);
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    await updateTopBar();
+    await loadNotifications();
+
+    /* Tab switching */
+    document.getElementById('filterTabsBar').addEventListener('click', e => {
+      const btn = e.target.closest('.status-tab');
+      if (!btn) return;
+      document.querySelectorAll('.status-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.getAttribute('data-filter');
+      openId = null;
+      renderNotifications();
+    });
+
+    document.getElementById('markAllReadBtn')?.addEventListener('click', markAllRead);
+    document.getElementById('exportDataBtn')?.addEventListener('click', e => { e.preventDefault(); showToast('Export feature coming soon', 'info'); });
+    document.getElementById('signOutBtn')?.addEventListener('click', doSignOut);
+    document.getElementById('signOutSidebarBtn')?.addEventListener('click', doSignOut);
+  });
+</script>
+</body>
+</html>

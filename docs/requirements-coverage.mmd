@@ -1,0 +1,54 @@
+%% Requirements Coverage — ARMS
+%% Generated: 2026-08-29
+
+```mermaid
+flowchart TB
+  Impl["Implemented\n10 / 10 requirements"]
+  TestsPresent["Automated tests present\n- Backend unit tests (JUnit)\n- Smart-contract tests (Hardhat)"]
+  Executed["Tests executed\n- Backend: 13 run → 9 passed, 1 failed, 3 errors\n- Hardhat: blocked (compiler errors during run)"]
+  Passed["Total passing tests\n9 (backend) + 0 (hardhat) = 9"]
+
+  Impl --> TestsPresent --> Executed --> Passed
+
+  classDef note fill:#f9f9f9,stroke:#ddd,color:#333;font-size:12px;
+  class Impl,TestsPresent,Executed,Passed note;
+```
+
+Notes
+- Implemented: All 10 functional requirements are present in code (smart contract + backend + frontend integration).
+- Automated tests: Backend unit tests executed via Maven; smart-contract tests exist but Hardhat run was blocked by compiler/compat issues (see below).
+- Test results: Backend test run produced 13 tests (9 passed, 1 failure, 3 errors). See `backend/target/surefire-reports` for details.
+
+Key pointers
+- Smart contract: `hardhat/contracts/LandVerification.sol` and tests at `hardhat/test/LandVerification.multisig.test.js`
+- Backend tests: `backend/src/test/java` (e.g. `TransferServiceTest.java`, `LandParcelServiceTest.java`)
+- Frontend integration: `frontend/public/js/api.js` and pages under `frontend/public/pages`
+
+How to reproduce locally
+1) Run backend unit tests (Maven):
+
+```powershell
+mvn -f "backend/pom.xml" test
+```
+
+2) Run smart-contract tests (Hardhat). Ensure Node.js >=18 and dependencies installed:
+
+```bash
+cd hardhat
+npm install
+npm test -- test/LandVerification.multisig.test.js
+```
+
+If Hardhat reports compiler errors related to OpenZeppelin, ensure `hardhat.config.js` solidity version matches OpenZeppelin contracts (this repo set to 0.8.24).
+
+Exporting the diagram for Word
+- Option A (quick): Install the `Markdown Preview Enhanced` or `Mermaid Preview` VS Code extension, open this `.mmd` file and export PNG/SVG from the preview.
+- Option B (CLI): Install `@mermaid-js/mermaid-cli` and run:
+
+```bash
+npx mmdc -i docs/requirements-coverage.mmd -o docs/requirements-coverage.png
+```
+
+Troubleshooting
+- Backend test failures: see `backend/target/surefire-reports` for stack traces; run `mvn -f backend/pom.xml test -DskipITs -e` for full logs.
+- Hardhat failures: run `npx hardhat compile --show-stack-traces` inside `hardhat/` to see compilation errors; you may need to align Solidity pragma versions or update OpenZeppelin dependency versions.

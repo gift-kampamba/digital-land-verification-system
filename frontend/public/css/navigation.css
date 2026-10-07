@@ -1,0 +1,36 @@
+/* Shared navigation presentation. Existing page markup remains stable. */
+@view-transition { navigation: none; }
+
+.navbar, .navbar-top, .top-bar, .topbar, .header-shell,
+.sidebar, .side-nav, .nav-sidebar {
+  animation: none !important;
+  transition: none !important;
+  backface-visibility: hidden;
+}
+
+.shared-navigation-ready .navbar,
+.shared-navigation-ready .navbar-top,
+.shared-navigation-ready .top-bar,
+.shared-navigation-ready .topbar,
+.shared-navigation-ready .header-shell,
+.shared-navigation-ready .sidebar,
+.shared-navigation-ready .side-nav,
+.shared-navigation-ready .nav-sidebar {
+  visibility: visible;
+}
+
+.shared-navigation-loading .navbar,
+.shared-navigation-loading .navbar-top,
+.shared-navigation-loading .top-bar,
+.shared-navigation-loading .topbar,
+.shared-navigation-loading .header-shell,
+.shared-navigation-loading .sidebar,
+.shared-navigation-loading .side-nav,
+.shared-navigation-loading .nav-sidebar {
+  visibility: visible;
+}
+
+.sidebar img, .side-nav img, .nav-sidebar img,
+.navbar img, .navbar-top img, .top-bar img, .topbar img, .header-shell img {
+  display: block;
+}

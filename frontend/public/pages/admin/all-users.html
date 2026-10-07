@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="module" src="/js/auth.js"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Users – ARMS Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* ═══════════════════════════════════════════════════
+       ARMS DESIGN SYSTEM — Navy + Gold, Zambian Palette
+       (same tokens as the rest of the officer/admin pages,
+       plus a rose accent for the Landowner role badge)
+    ═══════════════════════════════════════════════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+
+    :root {
+      --navy: #0e2240;
+      --navy-mid: #1a3560;
+      --navy-light: #e8edf6;
+      --gold: #c8a040;
+      --gold-mid: #b8902e;
+      --gold-dark: #9a7420;
+      --gold-light: #fdf6e3;
+      --gold-xlight: #fefbf3;
+
+      --bg-page: #faf7f2;
+      --bg-card: #ffffff;
+      --bg-input: #fbfaf7;
+
+      --text-primary: #111827;
+      --text-secondary: #4b5568;
+      --text-muted: #8a94a6;
+
+      --border: #e8e3d8;
+      --border-mid: #d6ceba;
+
+      --font-family: 'Inter', Arial, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --shadow: 0 1px 3px rgba(14,34,64,0.06);
+      --shadow-card: 0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+      --focus-ring: 0 0 0 3px rgba(200,160,64,0.18);
+      --header-h: 64px;
+      --sidebar-w: 220px;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-page);
+      font-family: var(--font-family);
+      font-size: 13px;
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    .top-bar, .top-bar button, .sidebar, .sidebar a, .sidebar-section-title, .sidebar-item { font-family: 'Inter', Arial, sans-serif; }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      background: var(--navy);
+      color: #fff;
+      padding: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      height: var(--header-h);
+      flex-shrink: 0;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.18);
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 2000 !important;
+    }
+
+    .logo-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 24px;
+      min-width: 360px;
+      border-right: 1px solid rgba(255,255,255,0.12);
+      height: 100%;
+      flex-shrink: 0;
+      background: var(--navy);
+    }
+
+    .logo-emblem {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--navy);
+      flex-shrink: 0;
+      overflow: hidden;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-emblem img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+    }
+
+    .logo-text h2 {
+      font-size: 12.5px;
+      font-weight: 700;
+      margin: 0;
+      line-height: 1.35;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .logo-text p {
+      font-size: 10.5px;
+      margin: 0;
+      margin-top: 2px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.3;
+    }
+
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding-right: 20px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gold-light);
+      border: 1.5px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--navy);
+      flex-shrink: 0;
+      letter-spacing: -0.3px;
+    }
+
+    .top-user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .top-user-role {
+      font-size: 10.5px;
+      color: rgba(255,255,255,0.72);
+      line-height: 1;
+    }
+
+    .btn-signout {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      padding: 5px 13px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .btn-signout:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+    /* ── LAYOUT ── */
+    .dashboard-container {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 14px 0 12px;
+      flex-shrink: 0;
+      height: calc(100vh - var(--header-h));
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      position: sticky !important;
+      top: var(--header-h) !important;
+      z-index: 1500 !important;
+    }
+
+    .sidebar-section-title {
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--navy-mid);
+      font-weight: 700;
+      padding: 10px 16px 4px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 16px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.13s;
+      border-left: 2px solid transparent;
+      margin: 1px 0;
+    }
+
+    .sidebar-item:hover {
+      background: var(--gold-xlight);
+      color: var(--navy);
+    }
+
+    .sidebar-item.active {
+      background: var(--gold-xlight);
+      color: var(--navy);
+      font-weight: 600;
+      border-left-color: var(--gold);
+    }
+
+    .sidebar-item i {
+      font-size: 14px;
+      width: 16px;
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+    .sidebar-item.active i { opacity: 1; }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 8px 14px;
+    }
+
+    .sidebar-item.signout { color: #991b1b; }
+    .sidebar-item.signout:hover { background: #fdecea; }
+    .sidebar-item.signout i { opacity: 1; }
+
+    /* ── MAIN ── */
+    .main-content {
+      flex: 1;
+      min-height: 0;
+      padding: 24px 28px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: var(--bg-page);
+    }
+
+    .page-header {
+      margin-bottom: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 4px;
+      letter-spacing: -0.3px;
+    }
+
+    .page-subtitle {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+    }
+
+    /* ── ROLE FILTER PILLS ── */
+    .role-filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .filter-pill {
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      color: var(--text-secondary);
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .filter-pill:hover {
+      border-color: var(--navy-mid);
+      color: var(--navy);
+    }
+    .filter-pill.active {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+    }
+    .pill-count {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: var(--bg-page);
+      padding: 1px 7px;
+      border-radius: 99px;
+    }
+    .filter-pill.active .pill-count {
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+    }
+
+    /* ── TABLE / CARD ── */
+    .table-card {
+      background: var(--bg-card);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(14,34,64,0.04);
+      margin-bottom: 18px;
+    }
+
+    .table-header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .table-header h6 {
+      margin: 0;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .table-header h6 i {
+      width: 28px;
+      height: 28px;
+      background: var(--gold-light);
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--gold-dark);
+    }
+
+    .card-body-pad { padding: 20px; }
+
+    /* ── SEARCH BAR ── */
+    .search-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .search-input {
+      padding: 7px 14px;
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius);
+      background: var(--bg-input);
+      font-family: inherit;
+      font-size: 12.5px;
+      color: var(--text-primary);
+      width: 280px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+    .search-input:focus {
+      border-color: var(--gold);
+      box-shadow: var(--focus-ring);
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+
+    /* ── BUTTONS ── */
+    .btn-primary-arm {
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      padding: 7px 18px;
+      border-radius: var(--radius);
+      font-size: 12.5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      font-family: inherit;
+      transition: background 0.15s;
+      text-decoration: none;
+      height: 34px;
+    }
+    .btn-primary-arm:hover { background: var(--gold-mid); color: var(--navy); }
+
+    .btn-outline-arm {
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      padding: 7px 16px;
+      border-radius: var(--radius);
+      font-size: 12.5px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      font-weight: 500;
+      transition: all 0.15s;
+      text-decoration: none;
+      height: 34px;
+    }
+    .btn-outline-arm:hover { background: var(--bg-page); color: var(--navy); border-color: var(--navy-mid); }
+
+    /* ── DATA TABLE ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table thead tr {
+      background: var(--navy);
+    }
+
+    .data-table thead th {
+      padding: 11px 14px;
+      color: rgba(255,255,255,0.85);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .data-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+
+    .data-table tbody tr:last-child { border-bottom: none; }
+
+    .data-table tbody tr:hover { background: var(--gold-xlight); }
+
+    .data-table tbody td {
+      padding: 10px 14px;
+      font-size: 12.5px;
+      color: var(--text-primary);
+      vertical-align: middle;
+    }
+
+    .data-table tbody td:first-child {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    /* Role badge */
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+      background: var(--gold-light);
+      color: var(--gold-dark);
+      border: 1px solid #e8d098;
+    }
+
+    .role-badge.admin {
+      background: var(--navy-light);
+      color: var(--navy-mid);
+      border-color: #b8cadf;
+    }
+
+    .role-badge.landowner {
+      background: var(--navy-light);
+      color: var(--navy-mid);
+      border-color: #b8cadf;
+    }
+
+    /* Role select (dropdown that reuses badge coloring) */
+    .role-select {
+      font-family: inherit;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      padding: 3px 8px;
+      border-radius: 99px;
+      cursor: pointer;
+      outline: none;
+      background: var(--gold-light);
+      color: var(--gold-dark);
+      border: 1px solid #e8d098;
+    }
+    .role-select.admin {
+      background: var(--navy-light);
+      color: var(--navy-mid);
+      border-color: #b8cadf;
+    }
+    .role-select.landowner {
+      background: var(--navy-light);
+      color: var(--navy-mid);
+      border-color: #b8cadf;
+    }
+
+    /* Action buttons */
+    .btn-action {
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-action.activate {
+      background: var(--navy);
+      color: #fff;
+      border: 1px solid var(--navy);
+    }
+    .btn-action.activate:hover { background: var(--navy-mid); }
+    .btn-action.deactivate {
+      background: #fff;
+      color: var(--navy-mid);
+      border: 1px solid var(--border-mid);
+    }
+    .btn-action.deactivate:hover { background: var(--gold-xlight); }
+
+    /* Status badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 10.5px;
+      font-weight: 600;
+    }
+
+    .status-badge.active {
+      background: #ecfdf5;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .status-badge.inactive {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .status-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .footer-session { display: flex; align-items: center; gap: 6px; }
+
+    .session-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .search-input { width: 180px; }
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem"><img src="/images/coat-of-arms.png" alt="Zambian Coat of Arms"></div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar">SA</div>
+    <div style="text-align:left;">
+      <div class="top-user-name">System Admin</div>
+      <div class="top-user-role">Administrator</div>
+    </div>
+    <button class="btn-signout" onclick="confirmAndLogout(event)">Sign Out</button>
+  </div>
+</div>
+
+<!-- ── LAYOUT ── -->
+<div class="dashboard-container">
+
+  <!-- ── SIDEBAR ── -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Overview</div>
+    <a href="dashboard.html" class="sidebar-item"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <div class="sidebar-section-title">Land Management</div>
+    <a href="/index.html" class="sidebar-item"><i class="bi bi-search"></i> Verify Parcel</a>
+    <a href="system-monitoring.html" class="sidebar-item"><i class="bi bi-check2-square"></i> System Monitoring</a>
+    <a href="system-alerts.html" class="sidebar-item"><i class="bi bi-exclamation-triangle"></i> System Alerts</a>
+    <div class="sidebar-section-title">Blockchain</div>
+    <a href="blockchain-status.html" class="sidebar-item"><i class="bi bi-link-45deg"></i> Blockchain Status</a>
+    <a href="system-statistics.html" class="sidebar-item"><i class="bi bi-file-earmark-bar-graph"></i> System Statistics</a>
+    <div class="sidebar-section-title">Administration</div>
+    <a href="all-users.html" class="sidebar-item active"><i class="bi bi-people"></i> Users</a>
+    <a href="create-user.html" class="sidebar-item"><i class="bi bi-person-plus"></i> Create User</a>
+
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" onclick="confirmAndLogout(event); return false;"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- ── MAIN CONTENT ── -->
+  <div class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">All Users</div>
+      </div>
+    </div>
+
+    <!-- Role Filter Pills -->
+    <div class="role-filter-tabs" id="roleFilterTabs">
+      <button class="filter-pill active" data-role="" onclick="setRoleFilter('')">
+        All <span class="pill-count" id="count-ALL">0</span>
+      </button>
+      <button class="filter-pill" data-role="LAND_OFFICER" onclick="setRoleFilter('LAND_OFFICER')">
+        Land Officers <span class="pill-count" id="count-LAND_OFFICER">0</span>
+      </button>
+      <button class="filter-pill" data-role="SENIOR_OFFICER" onclick="setRoleFilter('SENIOR_OFFICER')">
+        Senior Officers <span class="pill-count" id="count-SENIOR_OFFICER">0</span>
+      </button>
+      <button class="filter-pill" data-role="LAND_OWNER" onclick="setRoleFilter('LAND_OWNER')">
+        Landowners <span class="pill-count" id="count-LAND_OWNER">0</span>
+      </button>
+      <button class="filter-pill" data-role="SYSTEM_ADMIN" onclick="setRoleFilter('SYSTEM_ADMIN')">
+        System Admins <span class="pill-count" id="count-SYSTEM_ADMIN">0</span>
+      </button>
+    </div>
+
+    <!-- Users Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <h6><i class="bi bi-person-lines-fill"></i> Registered Users <span id="userCount" style="font-size:11px;font-weight:500;color:var(--text-muted);margin-left:6px;"></span></h6>
+        <div class="search-row">
+          <input
+            type="text"
+            id="searchUser"
+            class="search-input"
+            placeholder="Search by name or email…"
+            onkeyup="filterUsers()"
+          />
+          <button class="btn-outline-arm" onclick="loadAllUsers()">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+          </button>
+        </div>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>District</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="userTableBody">
+          <tr><td colspan="6" style="padding:20px;color:var(--text-muted);">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /dashboard-container -->
+
+<!-- Footer -->
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<!-- ── ORIGINAL JAVASCRIPT — EXTENDED WITH ROLE FILTER PILLS ── -->
+<script>
+    const BASE='/api';
+    let allUsers=[];
+    let currentRoleFilter='';
+    function getToken(){return localStorage.getItem('lv_token');}
+
+    async function loadAllUsers(){
+        const res=await fetch(`${BASE}/admin/users`,{headers:{'Authorization':'Bearer '+getToken()}});
+        const json=await res.json();
+        allUsers=json.data||[];
+        updatePillCounts();
+        renderUsers(applyFilters());
+    }
+
+    function updatePillCounts(){
+        const roles=['LAND_OFFICER','SENIOR_OFFICER','LAND_OWNER','SYSTEM_ADMIN'];
+        const countAll=document.getElementById('count-ALL');
+        if(countAll) countAll.textContent=allUsers.length;
+        roles.forEach(r=>{
+          const el=document.getElementById('count-'+r);
+          if(el) el.textContent=allUsers.filter(u=>u.role===r).length;
+        });
+    }
+
+    function setRoleFilter(role){
+        currentRoleFilter=role;
+        document.querySelectorAll('#roleFilterTabs .filter-pill').forEach(btn=>{
+          btn.classList.toggle('active', btn.dataset.role===role);
+        });
+        renderUsers(applyFilters());
+    }
+
+    const requestedParams = new URLSearchParams(window.location.search);
+    const requestedRole = requestedParams.get('role');
+    const requestedStatus = requestedParams.get('status');
+
+    function matchesStatus(user){
+        return requestedStatus !== 'active' || user.isActive === true;
+    }
+
+    function applyFilters(){
+        const q=document.getElementById('searchUser').value.toLowerCase();
+        return allUsers.filter(u=>{
+          const matchesSearch=(u.fullName||u.name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q);
+          const matchesRole=!currentRoleFilter || u.role===currentRoleFilter;
+          return matchesSearch && matchesRole && matchesStatus(u);
+        });
+    }
+
+    const ROLE_OPTIONS=['LAND_OFFICER','SENIOR_OFFICER','LAND_OWNER','SYSTEM_ADMIN'];
+
+    function renderUsers(users){
+        const tbody=document.getElementById('userTableBody');
+        const count=document.getElementById('userCount');
+        const statusUsers = allUsers.filter(matchesStatus);
+        if(count) count.textContent=users.length===statusUsers.length?`${users.length} users`:`${users.length} of ${statusUsers.length} users`;
+        if(users.length===0){tbody.innerHTML='<tr><td colspan="7" style="padding:28px 14px;text-align:center;color:var(--text-muted);font-size:12.5px;">No users found</td></tr>';return;}
+        const roleClass=r=>r==='SYSTEM_ADMIN'?'admin':(r==='LAND_OWNER'?'landowner':'');
+        const roleLabel=r=>(r||'').replace(/_/g,' ');
+        tbody.innerHTML=users.map(u=>{
+          const uid = u.userId || u.id || '';
+          const roleOpts=ROLE_OPTIONS.map(r=>`<option value="${r}" ${r===u.role?'selected':''}>${roleLabel(r)}</option>`).join('');
+          return `<tr>
+          <td style="cursor:pointer" onclick="window.location.href='user-details.html?id=${uid}'">${uid}</td>
+          <td style="cursor:pointer" onclick="window.location.href='user-details.html?id=${uid}'">${u.fullName||u.name||'—'}</td>
+          <td style="cursor:pointer" onclick="window.location.href='user-details.html?id=${uid}'">${u.email}</td>
+          <td>
+            <select class="role-select ${roleClass(u.role)}" onclick="event.stopPropagation()" onchange="changeUserRole('${uid}', this.value, '${u.role}', this)" ${u.role==='LAND_OWNER' ? 'disabled' : ''} title="Landowner roles cannot be changed">
+              ${roleOpts}
+            </select>
+          </td>
+          <td>${u.district||'—'}</td>
+          <td><span class="status-badge ${u.isActive?'active':'inactive'}"><span class="status-dot"></span>${u.isActive?'Active':'Inactive'}</span></td>
+          <td>
+            <button class="btn-action ${u.isActive?'deactivate':'activate'}" onclick="event.stopPropagation(); toggleUserStatus('${uid}', ${u.isActive})">
+              ${u.isActive?'Deactivate':'Activate'}
+            </button>
+          </td>
+        </tr>`}).join('');
+    }
+
+    async function changeUserRole(userId, newRole, oldRole, selectEl){
+        if(newRole===oldRole) return;
+        if(oldRole==='LAND_OWNER'){
+          alert('Landowner roles cannot be changed because they represent external entities.');
+          selectEl.value=oldRole;
+          return;
+        }
+        const confirmChange=confirm(`Change this user's role from ${oldRole.replace(/_/g,' ')} to ${newRole.replace(/_/g,' ')}?`);
+        if(!confirmChange){ selectEl.value=oldRole; return; }
+        try{
+          const res=await fetch(`${BASE}/admin/users/${userId}/role?role=${encodeURIComponent(newRole)}`,{
+            method:'PUT',
+            headers:{'Authorization':'Bearer '+getToken()}
+          });
+          const json=await res.json();
+          if(!res.ok){ alert(json.message||'Failed to update role'); selectEl.value=oldRole; return; }
+          const user=allUsers.find(u=>String(u.userId||u.id)===String(userId));
+          if(user) user.role=newRole;
+          updatePillCounts();
+          renderUsers(applyFilters());
+        }catch(err){
+          console.error(err);
+          alert('Failed to update role');
+          selectEl.value=oldRole;
+        }
+    }
+
+    async function toggleUserStatus(userId, isCurrentlyActive){
+        const action=isCurrentlyActive?'deactivate':'activate';
+        const confirmToggle=confirm(`Are you sure you want to ${action} this user?`);
+        if(!confirmToggle) return;
+        try{
+          const res=await fetch(`${BASE}/admin/users/${userId}/toggle-active`,{
+            method:'PUT',
+            headers:{'Authorization':'Bearer '+getToken()}
+          });
+          const json=await res.json();
+          if(!res.ok){ alert(json.message||`Failed to ${action} user`); return; }
+          const user=allUsers.find(u=>String(u.userId||u.id)===String(userId));
+          if(user) user.isActive=!isCurrentlyActive;
+          renderUsers(applyFilters());
+        }catch(err){
+          console.error(err);
+          alert(`Failed to ${action} user`);
+        }
+    }
+
+    function filterUsers(){ renderUsers(applyFilters()); }
+    function confirmAndLogout(e){
+      if(e) e.preventDefault();
+      if(window.showLogoutConfirmation && window.logout){ window.showLogoutConfirmation(window.logout); return false; }
+      setTimeout(() => confirmAndLogout(), 50);
+      return false;
+    }
+    function logout(){localStorage.clear();location.href='/login.html';}
+    // Use global confirmAndLogout from /js/auth.js
+    if(localStorage.getItem('lv_role')!=='SYSTEM_ADMIN') location.href='/login.html';
+    loadAllUsers().then(() => {
+      if (['LAND_OFFICER', 'SENIOR_OFFICER', 'LAND_OWNER', 'SYSTEM_ADMIN'].includes(requestedRole)) {
+        setRoleFilter(requestedRole);
+      } else {
+        renderUsers(applyFilters());
+      }
+    });
+</script>
+
+<!-- ── USER DETAILS MODAL (unchanged) ── -->
+<div id="userModal" style="display:none;position:fixed;inset:0;background:rgba(14,34,64,0.45);align-items:center;justify-content:center;z-index:100;">
+  <div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:20px 24px;max-width:520px;width:92%;box-shadow:var(--shadow-card);">
+    <div id="userDetailsBody" style="max-height:60vh;overflow:auto;font-size:13px;color:var(--text-primary);"></div>
+    <div style="text-align:right;margin-top:12px;"><button class="btn-outline-arm" onclick="closeUserModal()">Close</button></div>
+  </div>
+</div>
+
+<script>
+  async function viewUser(id){
+    if(!id){alert('Missing user id');return}
+    try{
+      const res=await fetch(`${BASE}/admin/users/${id}`,{headers:{'Authorization':'Bearer '+getToken()}});
+      const json=await res.json();
+      if(!res.ok || !json || json.success !== true || !json.data){
+        alert(json?.message || 'User not found');
+        return;
+      }
+      const u=json.data;
+      const body=document.getElementById('userDetailsBody');
+      const created = u.createdAt ? new Date(u.createdAt).toLocaleString() : '—';
+      const updated = u.updatedAt ? new Date(u.updatedAt).toLocaleString() : '—';
+      body.innerHTML = `
+        <table style="width:100%;border-collapse:collapse">
+          <tr><td style="width:180px;font-weight:700;padding:6px 8px">Full name</td><td style="padding:6px 8px">${u.fullName||'—'}</td></tr>
+          <tr><td style="font-weight:700;padding:6px 8px">Email</td><td style="padding:6px 8px">${u.email||'—'}</td></tr>
+          <tr><td style="font-weight:700;padding:6px 8px">Username</td><td style="padding:6px 8px">${u.username||'—'}</td></tr>
+          <tr><td style="font-weight:700;padding:6px 8px">National ID</td><td style="padding:6px 8px">${u.nationalId||'—'}</td></tr>
+          <tr><td style="font-weight:700;padding:6px 8px">Phone</td><td style="padding:6px 8px">${u.phoneNumber||'—'}</td></tr>
+          <tr><td style="font-weight:700;padding:6px 8px">District</td><td style="padding:6px 8px">${u.district||'—'}</td></tr>
+          <tr><td style="font-weight:700;padding:6px 8px">Address</td><td style="padding:6px 8px">${u.address||'—'}</td></tr>
+          <tr><td style="font-weight:700;padding:6px 8px">Role</td><td style="padding:6px 8px">${(u.role||'').replace(/_/g,' ')}</td></tr>
+          <tr><td style="font-weight:700;padding:6px 8px">Active</td><td style="padding:6px 8px">${u.isActive? 'Yes':'No'}</td></tr>
+          <tr><td style="font-weight:700;padding:6px 8px">Profile complete</td><td style="padding:6px 8px">${u.profileComplete? 'Yes':'No'}</td></tr>
+          <tr><td style="font-weight:700;padding:6px 8px">Invitation code</td><td style="padding:6px 8px">${u.invitationCode||'—'}</td></tr>
+          <tr><td style="font-weight:700;padding:6px 8px">Created</td><td style="padding:6px 8px">${created}</td></tr>
+          <tr><td style="font-weight:700;padding:6px 8px">Updated</td><td style="padding:6px 8px">${updated}</td></tr>
+        </table>
+      `;
+      document.getElementById('userModal').style.display='flex';
+    }catch(err){console.error(err);alert('Failed to load user details')}
+  }
+  function closeUserModal(){document.getElementById('userModal').style.display='none'}
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520">
+  <defs>
+    <style>
+      .box { fill: #f9f9f9; stroke: #ddd; stroke-width: 1; rx:12; ry:12; }
+      .title { font: 700 14px 'DM Sans', Arial, sans-serif; fill: #111827; }
+      .muted { font: 400 12px 'DM Sans', Arial, sans-serif; fill: #4b5568; }
+      .note { font: 400 12px 'DM Sans', Arial, sans-serif; fill: #333; }
+      .connector { stroke: #cfcfcf; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#cfcfcf" />
+    </marker>
+  </defs>
+
+  <!-- Boxes -->
+  <g transform="translate(50,30)">
+    <rect class="box" x="0" y="0" width="900" height="84" rx="12" ry="12" />
+    <text x="26" y="28" class="title">Implemented</text>
+    <text x="26" y="52" class="muted">10 / 10 requirements</text>
+  </g>
+
+  <g transform="translate(150,150)">
+    <rect class="box" x="0" y="0" width="700" height="92" rx="12" ry="12" />
+    <text x="20" y="28" class="title">Automated tests present</text>
+    <text x="20" y="52" class="muted">- Backend unit tests (JUnit)</text>
+    <text x="20" y="68" class="muted">- Smart-contract tests (Hardhat)</text>
+  </g>
+
+  <g transform="translate(120,280)">
+    <rect class="box" x="0" y="0" width="760" height="84" rx="12" ry="12" />
+    <text x="20" y="30" class="title">Tests executed</text>
+    <text x="20" y="54" class="muted">- Backend: 13 run → 9 passed, 1 failed, 3 errors</text>
+    <text x="20" y="72" class="muted">- Hardhat: blocked (compiler errors during run)</text>
+  </g>
+
+  <g transform="translate(300,390)">
+    <rect class="box" x="0" y="0" width="400" height="68" rx="12" ry="12" />
+    <text x="20" y="28" class="title">Total passing tests</text>
+    <text x="20" y="48" class="muted">9 (backend) + 0 (hardhat) = 9</text>
+  </g>
+
+  <!-- Connectors -->
+  <path class="connector" d="M500,114 L500,150" marker-end="url(#arrow)" />
+  <path class="connector" d="M500,242 L500,280" marker-end="url(#arrow)" />
+  <path class="connector" d="M500,364 L500,390" marker-end="url(#arrow)" />
+
+  <!-- Note box -->
+  <g transform="translate(600,30)">
+    <rect x="0" y="0" width="340" height="180" rx="10" ry="10" fill="#fff8e6" stroke="#f0d8a6" />
+    <text x="14" y="22" class="title">Notes</text>
+    <text x="14" y="44" class="note">- Implemented: All 10 functional requirements are present</text>
+    <text x="14" y="62" class="note">  in smart contract, backend and frontend.</text>
+    <text x="14" y="86" class="note">- Backend tests executed via Maven; see</text>
+    <text x="14" y="104" class="note">  <tspan font-weight="700">backend/target/surefire-reports</tspan> for details.</text>
+    <text x="14" y="128" class="note">- Hardhat tests exist but compilation failed locally</text>
+    <text x="14" y="146" class="note">  (OpenZeppelin / Solidity version incompatibility).</text>
+  </g>
+
+  <!-- Footer small caption -->
+  <text x="18" y="506" class="muted">Generated: 2026-08-29 — Use the SVG directly in Word, or convert to PNG with the provided CLI instructions.</text>
+</svg>

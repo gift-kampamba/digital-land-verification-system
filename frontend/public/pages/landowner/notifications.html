@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LandVerify ZM — Notifications</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ═══════════════════════════════════════════════════
+       ARMS DESIGN SYSTEM — Notifications
+       Navy #0e2240 + Gold #c8a040 + Warm off-white #faf7f2
+    ═══════════════════════════════════════════════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    :root {
+      --navy:          #0e2240;
+      --navy-mid:      #1a3560;
+      --navy-light:    #e8edf6;
+      --navy-xlight:   #f4f6fb;
+      --gold:          #c8a040;
+      --gold-mid:      #b8902e;
+      --gold-dark:     #9a7420;
+      --gold-light:    #fdf6e3;
+      --gold-xlight:   #fefbf3;
+      --green:         #22c55e;
+      --green-light:   #f0fdf4;
+      --green-dark:    #15803d;
+      --text-primary:  #111827;
+      --text-secondary:#4b5568;
+      --text-muted:    #8a94a6;
+      --border:        #e8e3d8;
+      --border-mid:    #d6ceba;
+      --bg-page:       #faf7f2;
+      --bg-card:       #ffffff;
+      --radius:        6px;
+      --radius-lg:     10px;
+      --shadow-sm:     0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+      --shadow-card:   0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+      --sidebar-w:     200px;
+      --header-h:      66px;
+    }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+      display: flex; flex-direction: column; min-height: 100vh;
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      background: var(--bg-card);
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      border-bottom: 1px solid var(--border);
+      height: var(--header-h);
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+      position: sticky; top: 0; z-index: 1040;
+    }
+    .logo-block {
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 24px; min-width: 340px; height: 100%;
+      flex-shrink: 0; background: var(--navy);
+    }
+    .logo-emblem {
+      width: 40px; height: 40px; border-radius: 8px;
+      background: var(--gold); display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; overflow: hidden;
+    }
+    .logo-emblem img { width: 100%; height: 100%; object-fit: contain; }
+    .logo-text h2 { font-size: 12.5px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+    .logo-text p  { font-size: 10.5px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+
+    .top-right { display: flex; align-items: center; gap: 14px; padding-right: 20px; }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--gold-light); border: 1.5px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--navy); flex-shrink: 0;
+      overflow: hidden; position: relative;
+    }
+    .user-avatar img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; border-radius: 50%; }
+    .top-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+    .top-user-role { font-size: 10.5px; color: var(--text-muted); line-height: 1; }
+    .btn-signout {
+      background: transparent; border: 1px solid var(--border-mid);
+      color: var(--text-secondary); padding: 5px 13px;
+      border-radius: var(--radius); font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+      display: flex; align-items: center; gap: 6px; text-decoration: none;
+    }
+    .btn-signout:hover { background: var(--bg-page); color: var(--text-primary); }
+
+    /* ── LAYOUT ── */
+    .dashboard-container { display: flex; flex: 1; min-height: 0; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 14px 0 12px; flex-shrink: 0;
+      overflow-y: auto; display: flex; flex-direction: column;
+    }
+    .sidebar-section-title {
+      font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--text-muted); font-weight: 700; padding: 10px 16px 4px;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 16px; color: var(--text-secondary);
+      text-decoration: none; font-size: 12.5px;
+      transition: all 0.13s; border-left: 2px solid transparent; margin: 1px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .sidebar-link:hover { background: var(--gold-xlight); color: var(--navy); }
+    .sidebar-link.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+    .sidebar-link i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+    .sidebar-link.active i { opacity: 1; }
+    .sidebar-link .badge-notif {
+      background: #ef4444; color: white; font-size: 9.5px; font-weight: 700;
+      padding: 1px 6px; border-radius: 99px; margin-left: auto; line-height: 14px;
+    }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+
+    /* ── MAIN ── */
+    .main-content { flex: 1; padding: 24px 28px; background: var(--bg-page); overflow-x: hidden; }
+
+    /* ── PAGE HEADER ── */
+    .page-header { margin-bottom: 22px; }
+    .page-title { font-size: 20px; font-weight: 700; color: var(--navy); letter-spacing: -0.4px; margin-bottom: 3px; display: flex; align-items: center; gap: 10px; }
+    .page-title i { color: var(--gold); font-size: 22px; }
+    .page-subtitle { font-size: 12.5px; color: var(--text-secondary); }
+
+    /* ── SECTION CARD ── */
+    .section-card {
+      background: var(--bg-card); border-radius: var(--radius-lg);
+      border: 1px solid var(--border); box-shadow: var(--shadow-card);
+      overflow: hidden; margin-bottom: 18px;
+    }
+    .section-card-header {
+      padding: 13px 18px; display: flex; justify-content: space-between;
+      align-items: center; gap: 12px; border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .section-card-header h5 {
+      font-size: 13px; font-weight: 700; color: var(--navy);
+      display: flex; align-items: center; gap: 9px; margin: 0;
+    }
+    .section-card-header h5 .hdr-icon {
+      width: 28px; height: 28px; background: var(--gold-light); border-radius: 6px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 13px; color: var(--gold-dark); flex-shrink: 0;
+    }
+
+    .btn-outline-custom {
+      background: transparent; color: var(--navy);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius); padding: 5px 12px;
+      font-size: 12px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 5px; height: 30px;
+      text-decoration: none;
+    }
+    .btn-outline-custom:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    .btn-sm-arm {
+      height: 28px; padding: 0 10px; border-radius: var(--radius);
+      font-size: 11.5px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 4px;
+      border: 1px solid var(--border-mid); background: var(--bg-card); color: var(--text-secondary);
+    }
+    .btn-sm-arm:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    /* ── NOTIFICATION LIST ── */
+    .notification-item {
+      padding: 14px 18px; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background 0.13s; position: relative;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .notification-item:last-child { border-bottom: none; }
+    .notification-item:hover { background: var(--gold-xlight); }
+    .notification-item.unread { background: #fffef8; }
+    .notification-item.unread::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--gold);
+    }
+    .notif-icon {
+      width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0; margin-top: 1px; background: var(--navy-xlight); color: var(--navy-mid);
+    }
+    .notif-body { flex: 1; min-width: 0; }
+    .notif-row1 { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+    .notification-type {
+      display: inline-block; font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase;
+      font-weight: 700; padding: 3px 9px; border-radius: 99px;
+      background: var(--gold-light); color: var(--gold-dark); border: 1px solid #e8d098;
+    }
+    .notification-item.unread .notification-type { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .notification-time { font-size: 10.5px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; flex-shrink: 0; }
+    .notification-message { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-top: 6px; }
+    .empty-state, .loading-state { text-align: center; padding: 52px 20px; color: var(--text-muted); }
+    .empty-state i, .loading-state i { font-size: 2.2rem; margin-bottom: 12px; display: block; opacity: 0.3; color: var(--navy); }
+    .empty-state p, .loading-state p { font-size: 12.5px; color: var(--text-muted); }
+    .text-danger-padded { padding: 40px 20px !important; text-align: center; font-size: 12.5px; color: #dc2626; }
+
+    /* ── DETAIL CARD ── */
+    .detail-body { padding: 18px 20px; }
+    .detail-row { margin-bottom: 10px; font-size: 12.5px; color: var(--text-primary); }
+    .detail-row strong { color: var(--navy); font-weight: 600; margin-right: 6px; }
+    #detailMessage {
+      background: var(--navy-xlight); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px; font-size: 12.5px; line-height: 1.6; color: var(--text-primary);
+    }
+
+    /* ── TOAST ── */
+    .toast-stack { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast-item {
+      background: var(--navy); color: #fff;
+      padding: 11px 16px; border-radius: var(--radius-lg);
+      display: flex; align-items: center; gap: 10px;
+      font-size: 12.5px; font-weight: 500;
+      box-shadow: 0 4px 20px rgba(14,34,64,0.25);
+      animation: slideUp 0.28s ease; max-width: 340px; min-width: 260px;
+    }
+    .toast-item i { font-size: 15px; flex-shrink: 0; }
+    .toast-item.success { border-left: 3px solid #22c55e; }
+    .toast-item.error   { border-left: 3px solid #ef4444; }
+    .toast-item.info    { border-left: 3px solid var(--gold); }
+    @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--bg-card); color: var(--text-muted);
+      padding: 10px 24px; display: flex;
+      justify-content: space-between; align-items: center;
+      font-size: 11px; border-top: 1px solid var(--border); flex-shrink: 0;
+    }
+    .footer-session { display: flex; align-items: center; gap: 6px; }
+    .session-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main-content { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ TOP BAR ══ -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../../images/coat-of-arms.png" alt="Coat of Arms"/>
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar" id="nav-avatar" aria-label="Current user"></div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="nav-name">Loading profile...</div>
+      <div class="top-user-role" id="nav-role">Land Owner</div>
+    </div>
+    <a href="#" class="btn-signout" onclick="showLogoutConfirm(event)">
+      <i class="bi bi-box-arrow-right"></i> Sign Out
+    </a>
+  </div>
+</div>
+
+<!-- ══ LAYOUT ══ -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section-title">Navigation</div>
+    <a href="my-parcels.html"    class="sidebar-link"><i class="bi bi-grid-1x2"></i> My Parcels</a>
+    <a href="notifications.html" class="sidebar-link active"><i class="bi bi-bell"></i> Notifications</a>
+    <a href="parcels-list.html"  class="sidebar-link"><i class="bi bi-map"></i> All Parcels</a>
+    <a href="transfer.html"      class="sidebar-link"><i class="bi bi-arrow-left-right"></i> Initiate Transfer</a>
+    <a href="transfer-requests.html" class="sidebar-link"><i class="bi bi-clock-history"></i> My Transfer Requests</a>
+    <a href="title-deeds.html"   class="sidebar-link"><i class="bi bi-file-earmark-text"></i> Title Deeds</a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Account</div>
+    <a href="profile.html"       class="sidebar-link"><i class="bi bi-person-gear"></i> Manage Profile</a>
+    <a href="#"                  class="sidebar-link"><i class="bi bi-shield-lock"></i> Security</a>
+    <a href="../../index.html"   class="sidebar-link"><i class="bi bi-search"></i> Verify a Parcel</a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-title">
+        <i class="bi bi-bell"></i> Notifications
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS LIST -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <h5><span class="hdr-icon"><i class="bi bi-bell"></i></span> Recent Notifications</h5>
+        <button class="btn-outline-custom" onclick="loadNotifications()">
+          <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+      </div>
+      <div id="notificationsList">
+        <div class="loading-state"><i class="bi bi-hourglass-split"></i><p>Loading notifications…</p></div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATION DETAIL -->
+    <div class="section-card d-none" id="notificationDetailCard">
+      <div class="section-card-header">
+        <h5><span class="hdr-icon"><i class="bi bi-file-earmark-text"></i></span> Notification Details</h5>
+        <button class="btn-outline-custom" type="button" onclick="closeNotificationDetails()">
+          <i class="bi bi-x-lg"></i> Close
+        </button>
+      </div>
+      <div class="detail-body">
+        <div class="detail-row"><strong>Subject:</strong><span id="detailSubject"></span></div>
+        <div class="detail-row"><strong>Received:</strong><span id="detailReceived"></span></div>
+        <div class="detail-row"><strong>Transaction / Parcel:</strong><span id="detailContext"></span></div>
+        <div class="detail-row" style="margin-bottom:6px;"><strong>Message:</strong></div>
+        <div id="detailMessage"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<!-- TOAST STACK -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// ── GLOBAL DATA ─────────────────────────────────────────────────────────────
+let myNotifications = [];
+let currentUser = null;
+let selectedNotification = null;
+let selectedNotificationId = null;
+let api = null;
+let getSession = null;
+let logout = null;
+
+function getPhotoUrl(photoFileName) {
+  if (!photoFileName) return null;
+  if (photoFileName.startsWith('http://') || photoFileName.startsWith('https://')) {
+    return photoFileName;
+  }
+  return photoFileName.startsWith('/uploads/') ? photoFileName : `/uploads/${photoFileName}`;
+}
+
+// ── UTILITY FUNCTIONS ──────────────────────────────────────────────────────
+function showToast(message, type = 'info') {
+  const icons = { success:'bi-check-circle-fill', error:'bi-x-circle-fill', info:'bi-info-circle-fill' };
+  const toastStack = document.getElementById('toastStack');
+  const toast = document.createElement('div');
+  toast.className = `toast-item ${type}`;
+  toast.innerHTML = `<i class="bi ${icons[type] || icons.info}"></i><span>${message}</span>`;
+  toastStack.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity .3s';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+}
+
+function showLogoutConfirm(e) {
+  e.preventDefault();
+  if (window.showLogoutConfirmation && window.logout) {
+    window.showLogoutConfirmation(window.logout);
+  } else if (window.logout) {
+    window.logout();
+  } else {
+    window.location.href = '../../index.html';
+  }
+}
+
+// ── LOAD API & SESSION ────────────────────────────────────────────────────
+function loadApiAndSession() {
+  return new Promise((resolve) => {
+    const checkApi = setInterval(() => {
+      if (window.api && window.getSession && window.logout) {
+        api = window.api;
+        getSession = window.getSession;
+        logout = window.logout;
+        clearInterval(checkApi);
+        resolve();
+      }
+    }, 50);
+    setTimeout(() => clearInterval(checkApi), 5000);
+  });
+}
+
+function initNavbar() {
+  const session = getSession ? getSession() : {};
+  const fullName = session.fullName || 'User';
+  const initials = fullName.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+  const avatar = document.getElementById('nav-avatar');
+  const photoUrl = session.photoPath || localStorage.getItem('lv_photo') || '';
+  if (avatar) avatar.innerHTML = photoUrl ? `<img src="${photoUrl}" alt="Profile photo">` : initials;
+  if (document.getElementById('nav-name')) {
+    document.getElementById('nav-name').textContent = fullName;
+  }
+  if (document.getElementById('nav-role')) {
+    document.getElementById('nav-role').textContent = 'Land Owner';
+  }
+}
+
+// ── NOTIFICATION DETAIL ────────────────────────────────────────────────────
+function buildNotificationContext(notification) {
+  const parts = [];
+  if (notification.relatedParcelId) {
+    parts.push(`Parcel ID: ${notification.relatedParcelId}`);
+  }
+  if (notification.relatedRequestId) {
+    parts.push(`Request ID: ${notification.relatedRequestId}`);
+  }
+  return parts.length ? parts.join(' • ') : 'No related parcel or transaction information.';
+}
+
+function renderNotificationDetail() {
+  const detailCard = document.getElementById('notificationDetailCard');
+  if (!selectedNotification) {
+    detailCard.classList.add('d-none');
+    return;
+  }
+
+  detailCard.classList.remove('d-none');
+  document.getElementById('detailSubject').textContent = selectedNotification.notificationType || 'Notification';
+  document.getElementById('detailReceived').textContent = new Date(selectedNotification.createdAt).toLocaleString();
+  document.getElementById('detailContext').textContent = buildNotificationContext(selectedNotification);
+  document.getElementById('detailMessage').textContent = selectedNotification.message || 'No message content available.';
+  detailCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeNotificationDetails() {
+  selectedNotification = null;
+  selectedNotificationId = null;
+  renderNotificationDetail();
+}
+
+// ── ICON MAPPING ──
+function getIconHtml(type) {
+  if (!type) return '<i class="bi bi-bell-fill"></i>';
+  if (type.includes('APPROVED')) return '<i class="bi bi-check-circle-fill"></i>';
+  if (type.includes('REJECTED')) return '<i class="bi bi-x-circle-fill"></i>';
+  if (type.includes('FLAGGED') || type.includes('MISMATCH')) return '<i class="bi bi-flag-fill"></i>';
+  return '<i class="bi bi-bell-fill"></i>';
+}
+
+// ── LOAD NOTIFICATIONS ─────────────────────────────────────────────────────
+async function loadNotifications() {
+  try {
+    const res = await api.myNotifications();
+    myNotifications = res.data || [];
+    renderNotifications();
+    if (selectedNotificationId) {
+      selectedNotification = myNotifications.find(n => n.notificationId === selectedNotificationId) || null;
+      renderNotificationDetail();
+    }
+    // Update badge if available
+    if (window.refreshNotificationBadge) {
+      await window.refreshNotificationBadge();
+    }
+  } catch (e) {
+    console.error('Failed to load notifications:', e);
+    document.getElementById('notificationsList').innerHTML = '<div class="text-danger-padded">Could not load notifications.</div>';
+    showToast('Failed to load notifications: ' + e.message, 'error');
+  }
+}
+
+function renderNotifications() {
+  const container = document.getElementById('notificationsList');
+  if (!myNotifications || myNotifications.length === 0) {
+    container.innerHTML = '<div class="empty-state"><i class="bi bi-inbox"></i><p>No notifications yet.</p></div>';
+    return;
+  }
+
+  container.innerHTML = myNotifications.map(n => `
+    <div class="notification-item ${!n.isRead ? 'unread' : ''}" onclick="openNotificationDetails(${n.notificationId})">
+      <div class="notif-icon">${getIconHtml(n.notificationType)}</div>
+      <div class="notif-body">
+        <div class="notif-row1">
+          <span class="notification-type">${n.notificationType || 'Alert'}</span>
+          <span class="notification-time">${new Date(n.createdAt).toLocaleString()}</span>
+        </div>
+        <div class="notification-message">${n.message || 'Tap to view full details.'}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function openNotificationDetails(id) {
+  const notification = myNotifications.find(n => n.notificationId === id);
+  if (!notification) return;
+
+  selectedNotificationId = id;
+  selectedNotification = notification;
+  renderNotificationDetail();
+
+  if (!notification.isRead) {
+    try {
+      await api.markNotificationRead(id);
+      await loadNotifications();
+      showToast('Marked as read', 'success');
+    } catch (e) {
+      console.error('Failed to mark notification as read:', e);
+      showToast('Failed to mark notification: ' + e.message, 'error');
+    }
+  }
+}
+
+// ── INITIALIZE ────────────────────────────────────────────────────────────
+async function init() {
+  await loadApiAndSession();
+  initNavbar();
+  await loadNotifications();
+}
+
+// Start when page loads
+document.addEventListener('DOMContentLoaded', init);
+
+// ── EXPOSE TO GLOBAL ──────────────────────────────────────────────────────
+window.showLogoutConfirm = showLogoutConfirm;
+window.openNotificationDetails = openNotificationDetails;
+window.closeNotificationDetails = closeNotificationDetails;
+window.loadNotifications = loadNotifications;
+window.showToast = showToast;
+</script>
+
+<!-- ── MODULE LOADER: Import from /js/api.js and /js/auth.js ── -->
+<script type="module">
+  import { api as apiModule } from '/js/api.js';
+  import { requireLogin, getSession as getSessionFn, logout as logoutFn, updateSession as updateSessionFn, showLogoutConfirmation } from '/js/auth.js';
+
+  api = apiModule;
+  getSession = getSessionFn;
+  logout = logoutFn;
+  window.api = apiModule;
+  window.getSession = getSessionFn;
+  window.logout = logoutFn;
+  window.updateSession = updateSessionFn;
+  window.showLogoutConfirmation = showLogoutConfirmation;
+
+  // Try to import notification badge module if available
+  try {
+    import('/js/notificationBadge.js').then(module => {
+      if (module.refreshNotificationBadge) {
+        window.refreshNotificationBadge = module.refreshNotificationBadge;
+      }
+    }).catch(() => {});
+  } catch(e) {}
+
+  try {
+    requireLogin();
+  } catch (error) {
+    console.error('Login requirement failed:', error);
+    window.location.href = '/login.html';
+  }
+</script>
+
+</body>
+</html>

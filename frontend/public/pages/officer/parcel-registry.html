@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARMS – Parcel Registry</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  /* ═══════════════════════════════════════════════════
+     ARMS DESIGN SYSTEM — Navy + Gold, Zambian Palette
+  ═══════════════════════════════════════════════════ */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+
+  :root {
+    --navy:          #0e2240;
+    --navy-mid:      #1a3560;
+    --navy-light:    #e8edf6;
+    --navy-xlight:   #f4f6fb;
+    --gold:          #c8a040;
+    --gold-mid:      #b8902e;
+    --gold-dark:     #9a7420;
+    --gold-light:    #fdf6e3;
+    --gold-xlight:   #fefbf3;
+    --text-primary:  #111827;
+    --text-secondary:#4b5568;
+    --text-muted:    #8a94a6;
+    --border:        #e8e3d8;
+    --border-mid:    #d6ceba;
+    --bg-page:       #faf7f2;
+    --bg-card:       #ffffff;
+    --bg-input:      #fdfbf8;
+    --radius:        6px;
+    --radius-lg:     10px;
+    --shadow-sm:     0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+    --shadow-card:   0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+    --sidebar-w:     200px;
+    --header-h:      66px;
+    --focus-ring:    0 0 0 3px rgba(200,160,64,0.28);
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-page);
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 13px;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── TOP BAR ── */
+  .top-bar {
+    background: var(--navy);
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    height: var(--header-h);
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(14,34,64,0.08);
+    position: relative;
+    z-index: 50;
+  }
+
+  .logo-block {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 24px;
+    min-width: 360px;
+    border-right: 1px solid rgba(255,255,255,0.12);
+    height: 100%;
+    flex-shrink: 0;
+    background: var(--navy);
+  }
+
+  .logo-emblem {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--navy);
+    flex-shrink: 0;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text h2 {
+    font-size: 12.5px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.35;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .logo-text p {
+    font-size: 10.5px;
+    margin: 0;
+    margin-top: 2px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.3;
+  }
+
+  .top-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-right: 20px;
+  }
+
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--gold-light);
+    border: 1.5px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--navy);
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+
+  .top-user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.2;
+  }
+
+  .top-user-role {
+    font-size: 10.5px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1;
+  }
+
+  .btn-signout {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    padding: 5px 13px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn-signout:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+  /* ── LAYOUT ── */
+  .dashboard-container {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    padding: 14px 0 12px;
+    flex-shrink: 0;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-section-title {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--text-muted);
+    font-weight: 700;
+    padding: 10px 16px 4px;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 16px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 12.5px;
+    transition: all 0.13s;
+    border-left: 2px solid transparent;
+    margin: 1px 0;
+  }
+
+  .sidebar-item:hover { background: var(--gold-xlight); color: var(--navy); }
+
+  .sidebar-item.active {
+    background: var(--gold-xlight);
+    color: var(--navy);
+    font-weight: 600;
+    border-left-color: var(--gold);
+  }
+
+  .sidebar-item i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-item.active i { opacity: 1; }
+
+  .sidebar-item .badge-notif {
+    background: #ef4444;
+    color: white;
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 99px;
+    margin-left: auto;
+    line-height: 14px;
+  }
+
+  .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+
+  .sidebar-item.signout { color: #ef4444; }
+  .sidebar-item.signout:hover { background: #fef2f2; }
+  .sidebar-item.signout i { opacity: 1; }
+
+  /* ── MAIN CONTENT ── */
+  .main-content {
+    flex: 1;
+    min-height: 0;
+    padding: 24px 28px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: var(--bg-page);
+  }
+
+  .page-header {
+    margin-bottom: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .page-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 4px;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .page-title i {
+    font-size: 18px;
+    color: var(--gold);
+  }
+
+  .page-subtitle { font-size: 12.5px; color: var(--text-secondary); }
+  .page-subtitle strong { color: var(--navy); font-weight: 600; }
+
+  .action-buttons { display: flex; gap: 10px; }
+
+  /* ── FILTER CARD ── */
+  .filter-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    padding: 18px 22px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 2px rgba(14,34,64,0.04);
+  }
+
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+  }
+
+  .filter-group { flex: 1; min-width: 160px; }
+
+  .filter-group label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .filter-group input,
+  .filter-group select {
+    width: 100%;
+    height: 38px;
+    padding: 0 11px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-mid);
+    font-size: 13px;
+    font-family: inherit;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+  }
+
+  .filter-group input::placeholder { color: var(--text-muted); font-size: 12.5px; }
+  .filter-group input:focus,
+  .filter-group select:focus {
+    border-color: var(--gold);
+    box-shadow: var(--focus-ring);
+    background: white;
+  }
+
+  /* ── BUTTONS ── */
+  .btn-custom-primary {
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    padding: 0 18px;
+    height: 38px;
+    border-radius: var(--radius);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .btn-custom-primary:hover { background: var(--gold-mid); }
+
+  .btn-custom-outline {
+    background: var(--bg-card);
+    border: 1px solid var(--border-mid);
+    padding: 0 16px;
+    height: 38px;
+    border-radius: var(--radius);
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-family: inherit;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-custom-outline:hover { background: var(--bg-page); color: var(--text-primary); }
+
+  .btn-register {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-mid);
+    padding: 7px 16px;
+    border-radius: var(--radius);
+    font-size: 12.5px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    font-family: inherit;
+    text-decoration: none;
+    height: 36px;
+    transition: all 0.15s;
+  }
+  .btn-register:hover { background: var(--bg-page); color: var(--text-primary); }
+
+  /* ── TABLE CARD ── */
+  .table-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 2px rgba(14,34,64,0.04);
+  }
+
+  .table-header {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .table-header h6 {
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--navy);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .table-header h6 i {
+    width: 28px;
+    height: 28px;
+    background: var(--gold-light);
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: var(--gold-dark);
+  }
+
+  .records-badge {
+    background: var(--gold-xlight);
+    border: 1px solid var(--border);
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead th {
+    background: var(--bg-page);
+    padding: 10px 16px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.07em;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text-primary);
+    font-size: 12.5px;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--gold-xlight); }
+
+  .ref-link {
+    color: var(--navy);
+    font-weight: 600;
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    background: var(--navy-xlight);
+    padding: 2px 7px;
+    border-radius: 4px;
+    transition: background 0.15s;
+    display: inline-block;
+  }
+  .ref-link:hover { background: var(--gold-light); color: var(--gold-dark); }
+
+  .btn-action {
+    padding: 4px 12px;
+    font-size: 11.5px;
+    border: 1px solid var(--border-mid);
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    cursor: pointer;
+    margin: 0 2px;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-weight: 500;
+    transition: all 0.13s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .btn-action:hover { background: var(--navy); color: white; border-color: var(--navy); }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--bg-card);
+    color: var(--text-muted);
+    padding: 10px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .footer-session { display: flex; align-items: center; gap: 6px; }
+
+  .session-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+  }
+
+  /* ── TOAST ── */
+  .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+
+  .toast-msg {
+    background: var(--navy);
+    color: white;
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    margin-top: 8px;
+    font-size: 12.5px;
+    animation: slideIn 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(14,34,64,0.25);
+  }
+  .toast-msg.success { border-left: 3px solid #22c55e; }
+  .toast-msg.error   { border-left: 3px solid #ef4444; }
+  .toast-msg.info    { border-left: 3px solid var(--gold); }
+
+  @keyframes slideIn {
+    from { transform: translateX(60px); opacity: 0; }
+    to   { transform: translateX(0);   opacity: 1; }
+  }
+
+  .badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .filter-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../../images/coat-of-arms.png" alt="Zambian Coat of Arms" class="nav-seal" width="42" height="42" />
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar" id="userAvatarInitials" aria-label="Current user"></div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="topUserName">Loading profile...</div>
+      <div class="top-user-role" id="topUserDetails">Land Officer</div>
+    </div>
+    <button class="btn-signout" id="signOutBtn">Sign Out</button>
+  </div>
+</div>
+
+<!-- ── LAYOUT ── -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Main Menu</div>
+    <a href="/pages/officer/dashboard.html"        class="sidebar-item"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="/pages/officer/parcel-registry.html"   class="sidebar-item active"><i class="bi bi-collection"></i> Parcel Registry</a>
+    <a href="/pages/officer/register-parcel.html"   class="sidebar-item"><i class="bi bi-plus-circle"></i> Register Parcel</a>
+    <a href="/pages/officer/transfer-requests.html" class="sidebar-item"><i class="bi bi-arrow-left-right"></i> Transfer Requests</a>
+    <a href="/pages/officer/parcel-status.html"  class="sidebar-item"><i class="bi bi-x-circle"></i> Rejected Parcels</a>
+    <a href="/pages/officer/notifications.html"     class="sidebar-item">
+      <i class="bi bi-bell"></i> Notifications
+      <span class="badge-notif" id="sidebarNotifCount" style="display:none">0</span>
+    </a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Reports</div>
+    <a href="monthly-report.html" class="sidebar-item" id="monthlyReportBtn"><i class="bi bi-file-earmark-bar-graph"></i> Monthly Report</a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Account</div>
+    <a href="/pages/officer/manage-profile.html" class="sidebar-item"><i class="bi bi-person-circle"></i> My Profile</a>
+
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" id="signOutSidebarBtn"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title"><i class="bi bi-collection"></i> Parcel Registry</div>
+      </div>
+      <div class="action-buttons">
+        <a href="/pages/officer/dashboard.html" class="btn-register"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+      </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="filter-card">
+      <div class="filter-row">
+        <div class="filter-group" style="flex:2;">
+          <label><i class="bi bi-search"></i> Title Deed / Owner / Location</label>
+          <input type="text" id="parcelRegistryQuery" placeholder="Search by title deed, owner name, district or province...">
+        </div>
+        <div class="filter-group">
+          <label><i class="bi bi-calendar"></i> From Date</label>
+          <input type="date" id="parcelRegistryFrom">
+        </div>
+        <div class="filter-group">
+          <label><i class="bi bi-calendar"></i> To Date</label>
+          <input type="date" id="parcelRegistryTo">
+        </div>
+        <div class="filter-group" style="flex:0; min-width:auto;">
+          <label style="opacity:0; pointer-events:none;">action</label>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-custom-primary" id="searchBtn"><i class="bi bi-search"></i> Search</button>
+            <button class="btn-custom-outline" id="resetBtn"><i class="bi bi-arrow-repeat"></i> Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parcel Registry Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <h6><i class="bi bi-collection"></i> Registered Parcels</h6>
+        <span class="records-badge" id="parcelRegistryCount">0 records</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Parcel</th>
+              <th>Title Deed</th>
+              <th>Owner</th>
+              <th>District</th>
+              <th>Province</th>
+              <th>Registered</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="parcelRegistryResults">
+            <tr><td colspan="7" class="text-center text-muted py-4"><i class="bi bi-hourglass-split me-1"></i> Loading parcel records...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script type="module">
+  import { api } from '/js/api.js';
+  import { requireLogin, getSession, logout, showLogoutConfirmation } from '/js/auth.js';
+
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast-msg ${type}`;
+    toast.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle-fill' : type === 'error' ? 'exclamation-triangle-fill' : 'info-circle-fill'}"></i> ${message}`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    try {
+      return new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    } catch { return dateStr; }
+  }
+
+  let allParcels = [];
+
+  function displayParcelRegistry(parcels) {
+    const tbody = document.getElementById('parcelRegistryResults');
+    const countSpan = document.getElementById('parcelRegistryCount');
+    countSpan.textContent = `${parcels.length} record(s)`;
+
+    if (!parcels.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4"><i class="bi bi-inbox me-1"></i> No parcels found</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = parcels.map(p => `
+      <tr>
+        <td><strong class="ref-link">${p.parcelNumber || p.id || '—'}</strong></td>
+        <td>${p.titleDeedNumber || p.titleDeed || '—'}</td>
+        <td>${p.ownerFullName || p.ownerName || p.owner || '—'}</td>
+        <td>${p.district || '—'}</td>
+        <td>${p.province || '—'}</td>
+        <td>${formatDate(p.registeredAt || p.createdAt || p.registrationDate)}</td>
+        <td>
+          <button class="btn-action view-parcel-btn" data-parcel="${encodeURIComponent(p.parcelNumber || p.id || '')}" data-id="${p.id || ''}"><i class="bi bi-eye"></i> View</button>
+        </td>
+      </tr>
+    `).join('');
+
+    document.querySelectorAll('.view-parcel-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const parcelRef = btn.getAttribute('data-parcel') || btn.getAttribute('data-id');
+        if (parcelRef) {
+          window.location.href = `/pages/officer/parcel-detail.html?parcel=${encodeURIComponent(parcelRef)}`;
+        } else {
+          showToast('Parcel reference not available', 'error');
+        }
+      });
+    });
+  }
+
+  async function loadParcelRegistry() {
+    try {
+      const response = await api.searchOfficerParcels();
+      allParcels = response.data || [];
+      displayParcelRegistry(allParcels);
+    } catch (error) {
+      console.error('Error loading parcel registry:', error);
+      showToast('Failed to load parcel registry: ' + error.message, 'error');
+      allParcels = [];
+      displayParcelRegistry([]);
+    }
+  }
+
+  async function searchParcelRegistry() {
+    const query = document.getElementById('parcelRegistryQuery').value.trim();
+    const fromDate = document.getElementById('parcelRegistryFrom').value;
+    const toDate = document.getElementById('parcelRegistryTo').value;
+    try {
+      const response = await api.searchOfficerParcels(query, fromDate, toDate);
+      const parcels = response.data || [];
+      displayParcelRegistry(parcels);
+      showToast(`Found ${parcels.length} matching record(s)`, 'success');
+    } catch (error) {
+      showToast('Search failed: ' + error.message, 'error');
+    }
+  }
+
+  function resetParcelRegistry() {
+    document.getElementById('parcelRegistryQuery').value = '';
+    document.getElementById('parcelRegistryFrom').value = '';
+    document.getElementById('parcelRegistryTo').value = '';
+    loadParcelRegistry();
+    showToast('Filters reset, showing all parcels', 'info');
+  }
+
+  async function updateTopBar() {
+    try {
+      requireLogin();
+      const session = getSession();
+      const userName = session.fullName || session.name || session.email || 'Land Officer';
+      const userRole = session.role ? session.role.replace(/_/g, ' ') : 'Land Officer';
+      document.getElementById('topUserName').textContent = userName;
+      document.getElementById('topUserDetails').textContent = userRole;
+
+const av = document.getElementById('userAvatarInitials');
+    const profileResult = await api.getMyProfile();
+    const profile = profileResult?.data || profileResult || {};
+    const savedPhoto = profile.photoPath || session.photoPath || localStorage.getItem('lv_photo') || '';
+    if (profile.photoPath) localStorage.setItem('lv_photo', profile.photoPath);
+    if (savedPhoto) {
+      const photoUrl = savedPhoto.startsWith('http') || savedPhoto.startsWith('/') ? savedPhoto : `/uploads/${savedPhoto}`;
+      if (av) av.innerHTML = `<img src="${photoUrl}" alt="Profile photo" />`;
+    } else {
+      const initials = userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      if (av && !av.querySelector('img')) av.textContent = initials;
+    }
+
+      document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-GB', {
+        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+      });
+
+      try {
+        const notifResult = await api.officerUnreadNotificationCount?.();
+        const count = notifResult?.data?.count ?? notifResult?.data ?? 0;
+        const sn = document.getElementById('sidebarNotifCount');
+        if (sn) { sn.textContent = count > 0 ? count : ''; sn.style.display = count > 0 ? 'inline' : 'none'; }
+      } catch(e) { /* silent */ }
+    } catch(e) { console.warn('Session error', e); }
+  }
+
+  function doSignOut(e) {
+    e.preventDefault();
+    showLogoutConfirmation(logout);
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    await updateTopBar();
+    await loadParcelRegistry();
+
+    document.getElementById('searchBtn').addEventListener('click', searchParcelRegistry);
+    document.getElementById('resetBtn').addEventListener('click', resetParcelRegistry);
+
+    document.getElementById('parcelRegistryQuery').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') searchParcelRegistry();
+    });
+
+    document.getElementById('exportDataBtn')?.addEventListener('click', (e) => { e.preventDefault(); showToast('Export feature coming soon', 'info'); });
+    document.getElementById('signOutBtn')?.addEventListener('click', doSignOut);
+    document.getElementById('signOutSidebarBtn')?.addEventListener('click', doSignOut);
+  });
+</script>
+  <style>
+  /* Restored ARMS inline styles */
+  :root{--primary:#1a3a5c;--gold:#e8982a;--text:#1c2a3a;--bg:#eef1f7;--border:#dde4ef;--radius:10px}
+  .page-header{background:var(--bg-card);border:1px solid var(--border);box-shadow:0 1px 2px rgba(14,34,64,0.04);padding:18px 20px;border-radius:6px;color:var(--navy)}
+  .nav-seal{background:url('/images/coat-of-arms.png') center/contain no-repeat}
+  .alert-custom{display:none;padding:10px;border-radius:6px}
+  .alert-custom.alert-success{background:#e6f7ed;color:#1e8c4a;border:1px solid #dff2e3}
+  .alert-custom.alert-danger{background:#fdecea;color:#c0392b;border:1px solid #f7d3d1}
+  .toast-stack{position:fixed;right:18px;bottom:18px;z-index:1200;display:flex;flex-direction:column;gap:8px}
+  .btn-primary-custom{background:var(--gold);color:#fff;padding:8px 12px;border-radius:6px;border:none}
+  .btn-secondary-custom{background:#f3f6fb;color:var(--text);padding:8px 12px;border-radius:6px;border:1px solid var(--border)}
+  .coat-watermark{background:url('/images/coat-of-arms.png') center center no-repeat;opacity:.06}
+  </style>
+</body>
+</html>

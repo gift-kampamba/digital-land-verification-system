@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>District Oversight — ARMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    :root {
+      /* Surfaces */
+      --bg-page: #eef1f7;
+      --bg-card: #ffffff;
+
+      /* Navy (institutional primary) */
+      --navy: #0e2240;
+      --navy-mid: #2c4a6e;
+      --navy-light: #c5d3e8;
+      --navy-xlight: #eaf1fb;
+
+      /* Gold (institutional accent) */
+      --gold: #c8a040;
+      --gold-mid: #b8903a;
+      --gold-dark: #8a6d1f;
+      --gold-light: #f7ecd3;
+      --gold-xlight: #fdf8ec;
+
+      /* Text */
+      --text-primary: #1c2a3a;
+      --text-secondary: #47566b;
+      --text-muted: #8a96a8;
+
+      /* Borders */
+      --border: #dde4ef;
+      --border-mid: #c7d1e0;
+
+      /* Shape / elevation */
+      --radius: 8px;
+      --radius-lg: 14px;
+      --shadow: 0 1px 3px rgba(14,34,64,0.06);
+      --shadow-sm: var(--shadow);
+      --shadow-card: 0 2px 10px rgba(14,34,64,0.06);
+
+      /* Layout */
+      --nav-h: 64px;
+      --header-h: var(--nav-h);
+      --sidebar-w: 220px;
+      --font-family: 'Inter', Arial, sans-serif;
+    }
+    body {
+      display: flex; flex-direction: column;
+      background: var(--bg-page);
+      font-family: var(--font-family);
+      font-size: 13px; color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      background: var(--bg-card);
+      display: flex; justify-content: space-between; align-items: stretch;
+      border-bottom: 1px solid var(--border);
+      height: var(--header-h); flex-shrink: 0;
+      box-shadow: var(--shadow-sm); position: relative; z-index: 50;
+    }
+    .logo-block {
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 24px; min-width: 360px; height: 100%;
+      flex-shrink: 0; background: var(--navy);
+    }
+     .logo-emblem {
+     width: 40px; height: 40px; border-radius: 8px;
+     background: var(--gold); display: flex; align-items: center;
+     justify-content: center; flex-shrink: 0; overflow: hidden;
+    }
+    .logo-emblem img {
+     width: 100%; height: 100%; object-fit: cover;
+    }
+    .logo-text h2 { font-size: 12.5px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+    .logo-text p  { font-size: 10.5px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+    .top-right { display: flex; align-items: center; gap: 14px; padding-right: 20px; }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--gold-light); border: 1.5px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--navy);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .top-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+    .top-user-role { font-size: 10.5px; color: var(--text-muted); line-height: 1; }
+    .btn-signout {
+      background: transparent; border: 1px solid var(--border-mid);
+      color: var(--text-secondary); padding: 5px 13px;
+      border-radius: var(--radius); font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .btn-signout:hover { background: var(--bg-page); color: var(--text-primary); }
+
+    /* ── OUTER LAYOUT ── */
+    .dashboard-container { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+    /* ── NAV SIDEBAR ── */
+    .nav-sidebar {
+      width: var(--sidebar-w); background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 14px 0 12px; flex-shrink: 0; height: 100%;
+      overflow-y: auto; display: flex; flex-direction: column;
+    }
+    .sidebar-section-title {
+      font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--text-muted); font-weight: 700; padding: 10px 16px 4px;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 16px; color: var(--text-secondary);
+      text-decoration: none; font-size: 12.5px;
+      transition: all 0.13s; border-left: 2px solid transparent; margin: 1px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .sidebar-item:hover { background: var(--gold-xlight); color: var(--navy); }
+    .sidebar-item.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+    .sidebar-item i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+    .sidebar-item.active i { opacity: 1; }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+    .sidebar-item.signout { color: #ef4444; }
+    .sidebar-item.signout:hover { background: #fef2f2; }
+    .sidebar-item.signout i { opacity: 1; }
+
+    /* ── CONTENT AREA ── */
+    .content-area {
+      flex: 1; min-height: 0; display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── SUMMARY STRIP (full width, fixed top of content) ── */
+    .summary-strip {
+      background: var(--navy); flex-shrink: 0;
+      padding: 0 28px; height: 72px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .strip-left { display: flex; align-items: baseline; gap: 10px; }
+    .strip-page-title { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.2px; }
+    .strip-page-sub   { font-size: 11px; color: rgba(255,255,255,0.4); }
+    .strip-stats { display: flex; align-items: center; gap: 0; }
+    .strip-stat {
+      text-align: center; padding: 0 20px;
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+    .strip-stat:last-child { border-right: none; padding-right: 0; }
+    .strip-stat .num { font-size: 1.5rem; font-weight: 800; color: #fff; line-height: 1; font-variant-numeric: tabular-nums; }
+    .strip-stat .num.gold { color: var(--gold); }
+    .strip-stat .num.green { color: #4ade80; }
+    .strip-stat .num.red   { color: #f87171; }
+    .strip-stat .num.pink  { color: #f9a8d4; }
+    .strip-stat .lbl { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.38); text-transform: uppercase; letter-spacing: 0.09em; margin-top: 3px; }
+    .strip-actions { display: flex; gap: 8px; align-items: center; }
+    .btn-strip {
+      height: 30px; padding: 0 13px; border-radius: var(--radius);
+      font-size: 11.5px; font-family: inherit; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-strip-outline {
+      border: 1px solid rgba(255,255,255,0.22); background: transparent; color: rgba(255,255,255,0.75);
+    }
+    .btn-strip-outline:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .btn-strip-gold { border: none; background: var(--gold); color: var(--navy); }
+    .btn-strip-gold:hover { background: var(--gold-mid); }
+
+    /* ── INNER LAYOUT: ranking panel + main panel ── */
+    .inner-layout { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+    /* ── RANKING SIDEBAR ── */
+    .ranking-sidebar {
+      width: 220px; flex-shrink: 0; background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .ranking-header {
+      padding: 14px 16px 10px; border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .ranking-title {
+      font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 8px;
+    }
+    .ranking-filter-btns { display: flex; gap: 4px; }
+    .rank-filter-btn {
+      flex: 1; height: 24px; border-radius: var(--radius);
+      border: 1px solid var(--border-mid); background: transparent;
+      font-size: 10.5px; font-family: inherit; font-weight: 600;
+      color: var(--text-secondary); cursor: pointer; transition: all 0.13s;
+    }
+    .rank-filter-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .rank-filter-btn:hover:not(.active) { background: var(--bg-page); color: var(--navy); }
+    .ranking-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+    .rank-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 7px 14px; cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: all 0.13s;
+    }
+    .rank-item:hover { background: var(--gold-xlight); }
+    .rank-item.active-district { background: var(--gold-xlight); border-left-color: var(--gold); }
+    .rank-item.urgent { border-left-color: #db2777; }
+    .rank-item.urgent:hover { background: #fce7f3; }
+    .rank-num {
+      width: 18px; height: 18px; border-radius: 4px;
+      background: var(--bg-page); border: 1px solid var(--border);
+      font-size: 9.5px; font-weight: 800; color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .rank-item:nth-child(1) .rank-num { background: var(--gold); border-color: var(--gold-mid); color: var(--navy); }
+    .rank-item:nth-child(2) .rank-num { background: #e2e8f0; border-color: #cbd5e1; color: #475569; }
+    .rank-item:nth-child(3) .rank-num { background: #fde68a; border-color: #fcd34d; color: #92400e; }
+    .rank-info { flex: 1; min-width: 0; }
+    .rank-name { font-size: 12px; font-weight: 600; color: var(--navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rank-sub  { font-size: 10.5px; color: var(--text-muted); margin-top: 1px; }
+    .rank-badge {
+      flex-shrink: 0; padding: 2px 7px; border-radius: 99px;
+      font-size: 10px; font-weight: 700;
+    }
+    .rb-flag { background: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
+    .rb-pending { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #e8d098; }
+    .rb-ok { background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0; }
+    .ranking-footer {
+      padding: 10px 14px; border-top: 1px solid var(--border);
+      font-size: 10.5px; color: var(--text-muted); flex-shrink: 0;
+    }
+
+    /* ── MAIN PANEL ── */
+    .main-panel {
+      flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    /* FILTER BAR */
+    .filter-bar {
+      padding: 10px 20px; border-bottom: 1px solid var(--border);
+      background: var(--bg-card); flex-shrink: 0;
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    }
+    .filter-search {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-page); border: 1px solid var(--border-mid);
+      border-radius: var(--radius); padding: 0 11px; height: 32px; flex: 1; min-width: 160px;
+    }
+    .filter-search i { color: var(--text-muted); font-size: 12px; flex-shrink: 0; }
+    .filter-search input {
+      border: none; outline: none; background: transparent;
+      font-size: 12px; font-family: inherit; color: var(--text-primary); width: 100%;
+    }
+    .filter-search input::placeholder { color: var(--text-muted); }
+    .filter-select {
+      height: 32px; border: 1px solid var(--border-mid); border-radius: var(--radius);
+      padding: 0 9px; font-size: 11.5px; font-family: inherit;
+      color: var(--text-secondary); background: var(--bg-card); cursor: pointer; outline: none;
+    }
+    .filter-select:focus { border-color: var(--gold); }
+    .btn-sm-arm {
+      height: 32px; padding: 0 12px; border-radius: var(--radius);
+      border: 1px solid var(--border-mid); background: var(--bg-card);
+      font-size: 11.5px; font-family: inherit; color: var(--text-secondary);
+      cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-sm-arm:hover { background: var(--bg-page); color: var(--navy); }
+    .filter-meta { font-size: 11px; color: var(--text-muted); margin-left: auto; white-space: nowrap; }
+
+    /* CARDS SCROLL AREA */
+    .cards-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 18px 20px; }
+
+    /* URGENT NOTICE */
+    .urgent-notice {
+      display: none; background: #fce7f3; border: 1px solid #fbcfe8;
+      border-radius: var(--radius); padding: 9px 14px; margin-bottom: 14px;
+      font-size: 12px; font-weight: 600; color: #9d174d;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* DISTRICT CARD GRID — 3 columns */
+    .district-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+
+    /* DISTRICT CARD */
+    .district-card {
+      background: var(--bg-card); border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: var(--shadow-card); cursor: pointer;
+      transition: box-shadow 0.18s, transform 0.18s, border-color 0.18s;
+      display: flex; flex-direction: column; position: relative;
+    }
+    .district-card:hover { box-shadow: 0 5px 20px rgba(14,34,64,0.11); transform: translateY(-2px); }
+    .district-card.urgent-card { border-color: #f9a8d4; }
+    .district-card.urgent-card .district-card-top { background: #fff5f9; }
+    .district-card.selected { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(200,160,64,0.2), 0 5px 20px rgba(14,34,64,0.1); }
+
+    /* urgent ribbon */
+    .urgent-ribbon {
+      position: absolute; top: 0; right: 0;
+      background: #db2777; color: #fff;
+      font-size: 9px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 0 var(--radius-lg) 0 var(--radius);
+    }
+
+    .district-card-top {
+      padding: 13px 16px 10px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+    }
+    .district-name { font-size: 13px; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 6px; line-height: 1.3; }
+    .district-name i { font-size: 10px; color: var(--gold); }
+    .district-total { font-size: 1.9rem; font-weight: 800; color: var(--navy); line-height: 1; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+
+    .district-card-body { padding: 12px 16px; flex: 1; }
+
+    /* 2-column stats inside card */
+    .card-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .card-stat-box {
+      background: var(--bg-page); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 8px 10px; text-align: center;
+    }
+    .card-stat-box .cs-val { font-size: 1.25rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+    .card-stat-box .cs-lbl { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-top: 3px; }
+    .cs-pending .cs-val { color: var(--gold-dark); }
+    .cs-pending { border-color: #e8d098; background: var(--gold-xlight); }
+    .cs-approved .cs-val { color: #166534; }
+    .cs-approved { border-color: #bbf7d0; background: #f0fdf4; }
+    .cs-rejected .cs-val { color: #991b1b; }
+    .cs-rejected { border-color: #fecaca; background: #fef2f2; }
+    .cs-flagged .cs-val { color: #9d174d; }
+    .cs-flagged { border-color: #fbcfe8; background: #fce7f3; }
+
+    /* approval bar */
+    .approval-bar-wrap { margin-top: 2px; }
+    .approval-bar-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .approval-bar-label { font-size: 10.5px; color: var(--text-muted); font-weight: 600; }
+    .approval-bar-pct   { font-size: 10.5px; font-weight: 800; color: var(--navy); }
+    .approval-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .approval-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+
+    .district-card-footer { padding: 9px 16px; border-top: 1px solid var(--border); }
+    .btn-district-view {
+      width: 100%; height: 28px; border-radius: var(--radius);
+      border: 1px solid var(--navy-light); background: var(--navy-xlight);
+      color: var(--navy); font-size: 11.5px; font-family: inherit; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-district-view:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .btn-district-view.active-view { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    /* INLINE DETAIL EXPANDER */
+    .detail-expander {
+      grid-column: 1 / -1;
+      background: var(--bg-card); border: 1.5px solid var(--gold);
+      border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: 0 6px 24px rgba(14,34,64,0.1);
+      animation: expandIn 0.28s cubic-bezier(0.34,1.4,0.64,1);
+    }
+    @keyframes expandIn {
+      from { opacity: 0; transform: scaleY(0.85); transform-origin: top; }
+      to   { opacity: 1; transform: scaleY(1); }
+    }
+    .expander-header {
+      background: var(--navy); padding: 12px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .expander-title { font-size: 13px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .expander-meta  { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 1px; }
+    .expander-actions { display: flex; gap: 8px; align-items: center; }
+    .btn-exp {
+      height: 26px; padding: 0 11px; border-radius: var(--radius);
+      font-size: 11px; font-family: inherit; font-weight: 600;
+      cursor: pointer; transition: all 0.13s; display: inline-flex; align-items: center; gap: 4px;
+    }
+    .btn-exp-outline { border: 1px solid rgba(255,255,255,0.25); background: transparent; color: rgba(255,255,255,0.75); }
+    .btn-exp-outline:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .expander-filter { padding: 10px 18px; border-bottom: 1px solid var(--border); background: var(--bg-page); }
+    .exp-search {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--bg-card); border: 1px solid var(--border-mid);
+      border-radius: var(--radius); padding: 0 10px; height: 30px; max-width: 280px;
+    }
+    .exp-search i { color: var(--text-muted); font-size: 12px; flex-shrink: 0; }
+    .exp-search input {
+      border: none; outline: none; background: transparent;
+      font-size: 12px; font-family: inherit; color: var(--text-primary); width: 100%;
+    }
+    .exp-search input::placeholder { color: var(--text-muted); }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; max-height: 320px; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      position: sticky; top: 0; z-index: 1;
+      background: var(--bg-page); color: var(--text-muted);
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; padding: 8px 13px;
+      border-bottom: 1px solid var(--border); white-space: nowrap; text-align: left;
+    }
+    tbody td {
+      padding: 9px 13px; font-size: 12px;
+      border-bottom: 1px solid var(--border); color: var(--text-primary); vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--gold-xlight); }
+    tbody tr.flagged-row td { background: #fff5f9; }
+    tbody tr.flagged-row td:first-child { border-left: 3px solid #db2777; }
+    tbody tr.flagged-row:hover td { background: #fce7f3; }
+    .parcel-pill {
+      display: inline-flex; padding: 1px 7px; border-radius: var(--radius);
+      background: var(--navy-xlight); border: 1px solid var(--navy-light);
+      font-size: 11px; font-weight: 600; color: var(--navy-mid);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* STATUS BADGES */
+    .st-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 2px 8px; border-radius: 99px;
+      font-size: 10px; font-weight: 700; white-space: nowrap;
+    }
+    .st-l1   { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #e8d098; }
+    .st-ok   { background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0; }
+    .st-rej  { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .st-flag { background: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
+    .st-sub  { background: var(--navy-light); color: var(--navy-mid); border: 1px solid #c5d3e8; }
+    .st-can  { background: var(--bg-page); color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* LOADING / EMPTY */
+    .spinner {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2.5px solid var(--border); border-top-color: var(--gold);
+      animation: spin 0.7s linear infinite; display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-state { grid-column: 1/-1; text-align: center; padding: 48px 24px; }
+    .loading-state p { color: var(--text-muted); font-size: 12.5px; margin-top: 10px; }
+    .empty-state { text-align: center; padding: 32px 20px; color: var(--text-muted); font-size: 12.5px; }
+    .empty-state i { font-size: 24px; margin-bottom: 7px; display: block; opacity: 0.35; }
+
+    /* TOAST */
+    .toast-wrap { position: fixed; top: 80px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+    .toast-item {
+      padding: 11px 16px; border-radius: var(--radius-lg);
+      font-size: 12.5px; font-weight: 500;
+      display: flex; align-items: center; gap: 9px;
+      box-shadow: 0 4px 20px rgba(14,34,64,0.15);
+      min-width: 280px; pointer-events: auto;
+      animation: slideIn 0.25s ease;
+    }
+    .toast-item i { font-size: 14px; flex-shrink: 0; }
+    .t-ok  { background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0; }
+    .t-err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .t-wrn { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #e8d098; }
+    @keyframes slideIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 1200px) { .district-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 900px)  { .ranking-sidebar { display: none; } .district-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 640px)  { .district-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- ═══════ TOP BAR ═══════ -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../images/coat-of-arms.png" alt="Coat of Arms"/>
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar">
+      <img id="headerPhoto" alt=""/>
+      <span id="headerInitials" aria-label="Current user"></span>
+    </div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="nav-name"></div>
+      <div class="top-user-role" id="nav-role"></div>
+    </div>
+    <button class="btn-signout" onclick="confirmAndLogout(event)">Sign Out</button>
+  </div>
+</div>
+
+<!-- ═══════ OUTER LAYOUT ═══════ -->
+<div class="dashboard-container">
+
+  <!-- NAV SIDEBAR -->
+  <div class="nav-sidebar">
+    <div class="sidebar-section-title">Senior Officer Panel</div>
+    <a href="dashboard.html" class="sidebar-item"><i class="bi bi-hammer"></i> Senior Approvals</a>
+    <a href="district-oversight.html" class="sidebar-item active"><i class="bi bi-map"></i> District Oversight</a>
+    <a href="flagged.html"          class="sidebar-item"><i class="bi bi-flag"></i> Flagged</a>
+    <a href="audit-log.html"          class="sidebar-item"><i class="bi bi-shield-lock"></i> Blockchain Audit</a>
+    <a href="monthly-reports.html"          class="sidebar-item"><i class="bi bi-bar-chart"></i> Monthly Reports</a>
+    <a href="notifications.html"        class="sidebar-item"><i class="bi bi-bell"></i> Notifications</a>   
+    <div class="sidebar-divider"></div>
+    <a href="manage-profile.html"     class="sidebar-item"><i class="bi bi-person-gear"></i> Manage Profile</a>
+    <a href="../../index.html"        class="sidebar-item"><i class="bi bi-search"></i> Verify Parcel</a>
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" onclick="confirmAndLogout(event);return false;"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- CONTENT AREA -->
+  <div class="content-area">
+
+    <!-- SUMMARY STRIP -->
+    <div class="summary-strip">
+      <div class="strip-left">
+        <div class="strip-page-title">District Oversight</div>
+        <div class="strip-page-sub">— All Districts</div>
+      </div>
+      <div class="strip-stats">
+        <div class="strip-stat"><div class="num gold" id="sumDistricts">—</div><div class="lbl">Districts</div></div>
+        <div class="strip-stat"><div class="num" id="sumTotal">—</div><div class="lbl">Total</div></div>
+        <div class="strip-stat"><div class="num gold" id="sumPending">—</div><div class="lbl">Awaiting</div></div>
+        <div class="strip-stat"><div class="num green" id="sumApproved">—</div><div class="lbl">Approved</div></div>
+        <div class="strip-stat"><div class="num red" id="sumRejected">—</div><div class="lbl">Rejected</div></div>
+        <div class="strip-stat"><div class="num pink" id="sumFlagged">—</div><div class="lbl">Flagged</div></div>
+      </div>
+      <div class="strip-actions">
+        <button class="btn-strip btn-strip-outline" onclick="exportCSV()"><i class="bi bi-download"></i> Export</button>
+        <button class="btn-strip btn-strip-gold" onclick="loadData()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+      </div>
+    </div>
+
+    <!-- INNER LAYOUT -->
+    <div class="inner-layout">
+
+      <!-- RANKING SIDEBAR -->
+      <div class="ranking-sidebar">
+        <div class="ranking-header">
+          <div class="ranking-title">District Rankings</div>
+          <div class="ranking-filter-btns">
+            <button class="rank-filter-btn active" id="rbTotal"   onclick="setRankMode('total')">Total</button>
+            <button class="rank-filter-btn"         id="rbPending" onclick="setRankMode('pending')">Pending</button>
+            <button class="rank-filter-btn"         id="rbFlagged" onclick="setRankMode('flagged')">Flagged</button>
+          </div>
+        </div>
+        <div class="ranking-list" id="rankingList">
+          <div class="empty-state"><i class="bi bi-hourglass-split"></i>Loading…</div>
+        </div>
+        <div class="ranking-footer" id="rankingFooter">
+          — districts loaded
+        </div>
+      </div>
+
+      <!-- MAIN PANEL -->
+      <div class="main-panel">
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+          <div class="filter-search">
+            <i class="bi bi-search"></i>
+            <input type="text" id="districtSearch" placeholder="Search district…" oninput="applyFilter()"/>
+          </div>
+          <select class="filter-select" id="sortSelect" onchange="applyFilter()">
+            <option value="urgent">Sort: Urgent First</option>
+            <option value="name">Sort: Name A–Z</option>
+            <option value="total_desc">Sort: Most Requests</option>
+            <option value="pending_desc">Sort: Most Pending</option>
+            <option value="flagged_desc">Sort: Most Flagged</option>
+          </select>
+          <button class="btn-sm-arm" onclick="clearFilter()"><i class="bi bi-x-circle"></i> Clear</button>
+          <span class="filter-meta" id="districtCount"></span>
+        </div>
+
+        <!-- CARDS + INLINE EXPANDER SCROLL AREA -->
+        <div class="cards-scroll" id="cardsScroll">
+
+          <!-- Urgent notice bar -->
+          <div class="urgent-notice" id="urgentNotice" style="display:none;">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span id="urgentNoticeText"></span>
+          </div>
+
+          <!-- District grid -->
+          <div class="district-grid" id="districtGrid">
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <p>Loading district data…</p>
+            </div>
+          </div>
+
+        </div><!-- /cards-scroll -->
+      </div><!-- /main-panel -->
+    </div><!-- /inner-layout -->
+  </div><!-- /content-area -->
+</div><!-- /dashboard-container -->
+
+<!-- FOOTER -->
+<div style="background:var(--bg-card);color:var(--text-muted);padding:9px 24px;display:flex;justify-content:space-between;align-items:center;font-size:11px;border-top:1px solid var(--border);flex-shrink:0;">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div style="display:flex;align-items:center;gap:6px;">
+    <div style="width:6px;height:6px;border-radius:50%;background:var(--gold);"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+import { api } from '/js/api.js';
+import { requireLogin, getSession, logout, updateSession } from '/js/auth.js';
+
+requireLogin();
+const userRole = localStorage.getItem('lv_role');
+if (userRole !== 'SENIOR_OFFICER') {
+  window.location.href = '/login.html?error=invalid_role';
+}
+window.doLogout = logout;
+const BASE = '';
+
+let allRequests       = [];
+let districtData      = {};
+let activeDistrict    = null;
+let activeDetailReqs  = [];
+let rankMode          = 'total';
+let expanderRow       = null;   // current expander DOM node
+
+// ── Toast ─────────────────────────────────────────────────────────────────
+function toast(msg, type = 'success') {
+  const icons = { success: 'bi-check-circle-fill', error: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill' };
+  const cls   = { success: 't-ok', error: 't-err', warning: 't-wrn' };
+  const el = document.createElement('div');
+  el.className = `toast-item ${cls[type]}`;
+  el.innerHTML = `<i class="bi ${icons[type]}"></i><span>${msg}</span>`;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(() => el.remove(), 5000);
+}
+
+// ── Header ────────────────────────────────────────────────────────────────
+async function loadHeader() {
+  try {
+    const token = localStorage.getItem('lv_token');
+    const res = await fetch(`${BASE}/api/auth/profile/me`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const { data: p } = await res.json();
+    updateSession(p);
+    const name = p.fullName || p.username || 'M';
+    document.getElementById('nav-name').textContent = name;
+    document.getElementById('nav-role').textContent = (p.role||'').replace(/_/g,' ');
+    document.getElementById('headerInitials').textContent = name.charAt(0).toUpperCase();
+    if (p.photoPath) {
+      const img = document.getElementById('headerPhoto');
+      img.src = `${BASE}/uploads/${p.photoPath}`;
+      img.onload = () => {
+        img.classList.add('profile-photo-ready');
+        document.getElementById('headerInitials').style.display = 'none';
+      };
+      img.onerror = () => { img.style.display='none'; document.getElementById('headerInitials').style.display='block'; };
+    }
+  } catch(e) { console.error(e); }
+}
+
+// ── Load Data ─────────────────────────────────────────────────────────────
+async function loadData() {
+  closeExpander();
+  document.getElementById('districtGrid').innerHTML =
+    `<div class="loading-state"><div class="spinner"></div><p>Loading district data…</p></div>`;
+  try {
+    const res = await api.seniorTransfers();
+    allRequests = res.data || [];
+    allRequests.forEach(r => {
+      if (!r.district) r.district = 'Unknown';
+      r.flagged = r.flagged || false;
+    });
+    buildDistrictData();
+    updateSummary();
+    renderGrid();
+    renderRanking();
+  } catch(e) {
+    document.getElementById('districtGrid').innerHTML =
+      `<div style="grid-column:1/-1;padding:14px;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:var(--radius);font-size:12.5px;">${e.message||'Failed to load.'}</div>`;
+    toast(e.message||'Failed to load district data.','error');
+  }
+}
+window.loadData = loadData;
+
+function buildDistrictData() {
+  districtData = {};
+  allRequests.forEach(r => {
+    if (!districtData[r.district]) districtData[r.district] = [];
+    districtData[r.district].push(r);
+  });
+}
+
+function updateSummary() {
+  document.getElementById('sumDistricts').textContent = Object.keys(districtData).length;
+  document.getElementById('sumTotal').textContent     = allRequests.length;
+  document.getElementById('sumPending').textContent   = allRequests.filter(r=>r.status==='APPROVED_L1').length;
+  document.getElementById('sumApproved').textContent  = allRequests.filter(r=>r.status==='APPROVED').length;
+  document.getElementById('sumRejected').textContent  = allRequests.filter(r=>r.status==='REJECTED').length;
+  document.getElementById('sumFlagged').textContent   = allRequests.filter(r=>r.flagged||r.status==='FLAGGED').length;
+}
+
+// ── Ranking Sidebar ───────────────────────────────────────────────────────
+function renderRanking() {
+  const districts = Object.keys(districtData);
+  const sorted = [...districts].sort((a,b) => {
+    if (rankMode === 'total')   return districtData[b].length - districtData[a].length;
+    if (rankMode === 'pending') return districtData[b].filter(r=>r.status==='APPROVED_L1').length - districtData[a].filter(r=>r.status==='APPROVED_L1').length;
+    if (rankMode === 'flagged') return districtData[b].filter(r=>r.flagged||r.status==='FLAGGED').length - districtData[a].filter(r=>r.flagged||r.status==='FLAGGED').length;
+    return 0;
+  });
+
+  document.getElementById('rankingFooter').textContent = `${districts.length} districts loaded`;
+
+  if (!sorted.length) {
+    document.getElementById('rankingList').innerHTML = `<div class="empty-state"><i class="bi bi-map"></i>No data</div>`;
+    return;
+  }
+
+  document.getElementById('rankingList').innerHTML = sorted.map((d,i) => {
+    const reqs    = districtData[d];
+    const pending = reqs.filter(r=>r.status==='APPROVED_L1').length;
+    const flagged = reqs.filter(r=>r.flagged||r.status==='FLAGGED').length;
+    const approved= reqs.filter(r=>r.status==='APPROVED').length;
+    const isUrgent= flagged > 0 || pending > 3;
+
+    let badge = '';
+    if (rankMode === 'flagged' && flagged > 0) badge = `<span class="rank-badge rb-flag">${flagged}</span>`;
+    else if (rankMode === 'pending' && pending > 0) badge = `<span class="rank-badge rb-pending">${pending}</span>`;
+    else if (rankMode === 'total') {
+      if (approved > 0) badge = `<span class="rank-badge rb-ok">${reqs.length}</span>`;
+    }
+
+    const sub = rankMode === 'flagged'
+      ? `${flagged} flagged · ${reqs.length} total`
+      : rankMode === 'pending'
+        ? `${pending} pending · ${reqs.length} total`
+        : `${reqs.length} requests`;
+
+    return `
+      <div class="rank-item ${isUrgent?'urgent':''} ${activeDistrict===d?'active-district':''}" onclick="openDetail('${d}')">
+        <div class="rank-num">${i+1}</div>
+        <div class="rank-info">
+          <div class="rank-name" title="${d}">${d}</div>
+          <div class="rank-sub">${sub}</div>
+        </div>
+        ${badge}
+      </div>`;
+  }).join('');
+}
+
+window.setRankMode = function(mode) {
+  rankMode = mode;
+  ['Total','Pending','Flagged'].forEach(m => {
+    const btn = document.getElementById('rb'+m);
+    if (btn) btn.classList.toggle('active', m.toLowerCase() === mode);
+  });
+  renderRanking();
+};
+
+// ── Render Grid ───────────────────────────────────────────────────────────
+function renderGrid() {
+  const search = (document.getElementById('districtSearch').value||'').toLowerCase();
+  const sort   = document.getElementById('sortSelect').value;
+
+  let districts = Object.keys(districtData).filter(d =>
+    !search || d.toLowerCase().includes(search)
+  );
+
+  // Sort
+  districts.sort((a, b) => {
+    const ra = districtData[a], rb = districtData[b];
+    const urgentA = ra.filter(r=>r.flagged||r.status==='FLAGGED').length > 0 || ra.filter(r=>r.status==='APPROVED_L1').length > 3;
+    const urgentB = rb.filter(r=>r.flagged||r.status==='FLAGGED').length > 0 || rb.filter(r=>r.status==='APPROVED_L1').length > 3;
+    if (sort === 'urgent') {
+      if (urgentA && !urgentB) return -1;
+      if (!urgentA && urgentB) return 1;
+      return rb.filter(r=>r.flagged).length - ra.filter(r=>r.flagged).length;
+    }
+    if (sort === 'name')         return a.localeCompare(b);
+    if (sort === 'total_desc')   return rb.length - ra.length;
+    if (sort === 'pending_desc') return rb.filter(r=>r.status==='APPROVED_L1').length - ra.filter(r=>r.status==='APPROVED_L1').length;
+    if (sort === 'flagged_desc') return rb.filter(r=>r.flagged||r.status==='FLAGGED').length - ra.filter(r=>r.flagged||r.status==='FLAGGED').length;
+    return 0;
+  });
+
+  document.getElementById('districtCount').textContent = `${districts.length} district${districts.length!==1?'s':''}`;
+
+  // Urgent notice
+  const urgentCount = districts.filter(d => districtData[d].filter(r=>r.flagged||r.status==='FLAGGED').length > 0).length;
+  const noticeEl = document.getElementById('urgentNotice');
+  if (urgentCount > 0) {
+    noticeEl.style.display = 'flex';
+    document.getElementById('urgentNoticeText').textContent =
+      `${urgentCount} district${urgentCount>1?'s have':' has'} flagged requests requiring urgent attention.`;
+  } else {
+    noticeEl.style.display = 'none';
+  }
+
+  const grid = document.getElementById('districtGrid');
+
+  if (!districts.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;"><div class="empty-state"><i class="bi bi-map"></i>No districts match your search.</div></div>`;
+    return;
+  }
+
+  // Build card items — leave placeholder slots for expander
+  grid.innerHTML = '';
+  districts.forEach(d => {
+    const reqs    = districtData[d];
+    const total   = reqs.length;
+    const pending = reqs.filter(r=>r.status==='APPROVED_L1').length;
+    const approved= reqs.filter(r=>r.status==='APPROVED').length;
+    const rejected= reqs.filter(r=>r.status==='REJECTED').length;
+    const flagged = reqs.filter(r=>r.flagged||r.status==='FLAGGED').length;
+    const pct     = total ? Math.round((approved/total)*100) : 0;
+    const isUrgent= flagged > 0;
+    const barColor= pct>70?'#22c55e':pct>40?'var(--gold)':'#ef4444';
+    const isSelected = activeDistrict === d;
+
+    const card = document.createElement('div');
+    card.className = `district-card ${isUrgent?'urgent-card':''} ${isSelected?'selected':''}`;
+    card.dataset.district = d;
+    card.innerHTML = `
+      ${isUrgent?`<div class="urgent-ribbon"><i class="bi bi-flag-fill me-1"></i>Attention</div>`:''}
+      <div class="district-card-top">
+        <div>
+          <div class="district-name"><i class="bi bi-geo-alt-fill"></i>${d}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">${total} request${total!==1?'s':''}</div>
+        </div>
+        <div class="district-total">${total}</div>
+      </div>
+      <div class="district-card-body">
+        <div class="card-stats-grid">
+          <div class="card-stat-box cs-pending">
+            <div class="cs-val">${pending}</div>
+            <div class="cs-lbl">Awaiting</div>
+          </div>
+          <div class="card-stat-box cs-approved">
+            <div class="cs-val">${approved}</div>
+            <div class="cs-lbl">Approved</div>
+          </div>
+          <div class="card-stat-box cs-rejected">
+            <div class="cs-val">${rejected}</div>
+            <div class="cs-lbl">Rejected</div>
+          </div>
+          <div class="card-stat-box cs-flagged">
+            <div class="cs-val">${flagged}</div>
+            <div class="cs-lbl">Flagged</div>
+          </div>
+        </div>
+        <div class="approval-bar-wrap">
+          <div class="approval-bar-header">
+            <span class="approval-bar-label">Approval Rate</span>
+            <span class="approval-bar-pct">${pct}%</span>
+          </div>
+          <div class="approval-bar">
+            <div class="approval-bar-fill" style="width:${pct}%;background:${barColor};"></div>
+          </div>
+        </div>
+      </div>
+      <div class="district-card-footer">
+        <button class="btn-district-view ${isSelected?'active-view':''}" id="viewBtn-${d.replace(/\s+/g,'_')}"
+          onclick="event.stopPropagation();openDetail('${d}')">
+          ${isSelected
+            ? '<i class="bi bi-chevron-up"></i> Close'
+            : '<i class="bi bi-eye"></i> View Requests'}
+        </button>
+      </div>`;
+
+    card.addEventListener('click', () => openDetail(d));
+    grid.appendChild(card);
+
+    // If this district is currently expanded, inject expander right after
+    if (isSelected) {
+      injectExpander(grid, d);
+    }
+  });
+}
+
+// ── Inline Expander ───────────────────────────────────────────────────────
+function injectExpander(grid, district) {
+  const expander = document.createElement('div');
+  expander.className = 'detail-expander';
+  expander.id = 'detailExpander';
+  const reqs = districtData[district] || [];
+  expander.innerHTML = `
+    <div class="expander-header">
+      <div>
+        <div class="expander-title"><i class="bi bi-list-ul"></i>${district}</div>
+        <div class="expander-meta">${reqs.length} request${reqs.length!==1?'s':''} · Click a card or use ranking to switch</div>
+      </div>
+      <div class="expander-actions">
+        <button class="btn-exp btn-exp-outline" onclick="event.stopPropagation();closeExpander()">
+          <i class="bi bi-x"></i> Close
+        </button>
+      </div>
+    </div>
+    <div class="expander-filter">
+      <div class="exp-search">
+        <i class="bi bi-search"></i>
+        <input type="text" id="detailSearch" placeholder="Search within ${district}…" oninput="filterDetail()"/>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Parcel</th><th>Seller</th><th>Buyer</th>
+            <th>Price (ZMW)</th><th>Status</th><th>Submitted</th>
+          </tr>
+        </thead>
+        <tbody id="detailTableBody">
+          ${buildDetailRows(reqs)}
+        </tbody>
+      </table>
+    </div>`;
+  grid.appendChild(expander);
+  expanderRow = expander;
+  // Scroll expander into view
+  setTimeout(() => expander.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
+}
+
+function buildDetailRows(reqs) {
+  if (!reqs.length) return `<tr><td colspan="7"><div class="empty-state"><i class="bi bi-inbox"></i>No requests found.</div></td></tr>`;
+  return reqs.map(r => {
+    const isFlagged = r.flagged || r.status === 'FLAGGED';
+    return `
+      <tr class="${isFlagged?'flagged-row':''}">
+        <td style="font-weight:700;color:var(--navy);">#${r.requestId}</td>
+        <td><span class="parcel-pill">${r.parcelNumber}</span></td>
+        <td>${r.sellerName}</td>
+        <td>${r.buyerName}</td>
+        <td style="font-weight:600;">K ${r.agreedPriceZmw?Number(r.agreedPriceZmw).toLocaleString():'—'}</td>
+        <td>${sBadge(r.status, r.flagged)}</td>
+        <td style="color:var(--text-secondary);">${r.submittedAt?new Date(r.submittedAt).toLocaleDateString():'—'}</td>
+      </tr>`;
+  }).join('');
+}
+
+window.filterDetail = function() {
+  const q = (document.getElementById('detailSearch')?.value||'').toLowerCase();
+  const filtered = activeDetailReqs.filter(r =>
+    !q || [r.parcelNumber,r.sellerName,r.buyerName].some(v=>v&&v.toLowerCase().includes(q))
+  );
+  const tbody = document.getElementById('detailTableBody');
+  if (tbody) tbody.innerHTML = buildDetailRows(filtered);
+};
+
+// ── Open / Close Detail ───────────────────────────────────────────────────
+window.openDetail = function(district) {
+  // Toggle off if same district clicked again
+  if (activeDistrict === district) {
+    closeExpander();
+    return;
+  }
+  activeDistrict   = district;
+  activeDetailReqs = districtData[district] || [];
+  renderGrid();      // re-renders with expander injected after selected card
+  renderRanking();   // update active state in ranking
+};
+
+window.closeExpander = function() {
+  activeDistrict  = null;
+  activeDetailReqs= [];
+  if (expanderRow) { expanderRow.remove(); expanderRow = null; }
+  renderGrid();
+  renderRanking();
+};
+
+function closeDetail() { window.closeExpander(); }
+
+function sBadge(s, flagged) {
+  if (flagged) return `<span class="st-badge st-flag"><i class="bi bi-flag-fill"></i> Flagged</span>`;
+  const m = { SUBMITTED:'st-sub', APPROVED_L1:'st-l1', APPROVED:'st-ok', REJECTED:'st-rej', FLAGGED:'st-flag', CANCELLED:'st-can' };
+  return `<span class="st-badge ${m[s]||'st-can'}">${s.replace(/_/g,' ')}</span>`;
+}
+
+// ── Filter / Sort ─────────────────────────────────────────────────────────
+window.applyFilter = renderGrid;
+window.clearFilter = function() {
+  document.getElementById('districtSearch').value = '';
+  document.getElementById('sortSelect').value = 'urgent';
+  renderGrid();
+};
+
+// ── CSV Export ────────────────────────────────────────────────────────────
+window.exportCSV = function() {
+  const header = ['District','Total','Awaiting Final','Approved','Rejected','Flagged','Approval Rate %'];
+  const rows = Object.keys(districtData).sort().map(d => {
+    const reqs=districtData[d], total=reqs.length;
+    const pending=reqs.filter(r=>r.status==='APPROVED_L1').length;
+    const approved=reqs.filter(r=>r.status==='APPROVED').length;
+    const rejected=reqs.filter(r=>r.status==='REJECTED').length;
+    const flagged=reqs.filter(r=>r.flagged||r.status==='FLAGGED').length;
+    const pct=total?Math.round((approved/total)*100):0;
+    return [d,total,pending,approved,rejected,flagged,pct];
+  });
+  const csv = [header,...rows].map(r=>r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv,'+encodeURIComponent(csv);
+  a.download = `district-oversight-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('District report exported.','success');
+};
+
+// ── Init ──────────────────────────────────────────────────────────────────
+loadHeader();
+loadData();
+</script>
+</body>
+</html>

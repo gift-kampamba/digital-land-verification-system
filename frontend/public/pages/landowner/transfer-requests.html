@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARMS – My Transfer Requests</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+  /* ═══════════════════════════════════════════════════
+     ARMS DESIGN SYSTEM — Navy + Gold, Zambian Palette
+     Landowner portal — same tokens as the officer pages
+  ═══════════════════════════════════════════════════ */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+
+  :root{
+    --navy:#0e2240; --navy-mid:#1a3560; --navy-light:#e8edf6; --navy-xlight:#f4f6fb;
+    --gold:#c8a040; --gold-mid:#b8902e; --gold-dark:#9a7420; --gold-light:#fdf6e3; --gold-xlight:#fefbf3;
+    --green:#22c55e; --green-dark:#15803d; --green-light:#f0fdf4;
+    --red:#ef4444; --red-dark:#b91c1c; --red-light:#fef2f2;
+    --bg-page:#faf7f2; --bg-card:#ffffff; --bg-input:#fdfbf8;
+    --text-primary:#111827; --text-secondary:#4b5568; --text-muted:#8a94a6;
+    --border:#e8e3d8; --border-mid:#d6ceba;
+    --font-family:'Inter',Arial,sans-serif; --font-mono:'JetBrains Mono','Courier New',monospace;
+    --radius:6px; --radius-lg:10px;
+    --shadow:0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+    --shadow-card:0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+    --header-h:66px; --sidebar-w:200px;
+  }
+
+  body{
+    display:flex; flex-direction:column; background:var(--bg-page);
+    font-family:var(--font-family); font-size:13px; color:var(--text-primary);
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+  }
+
+  /* ── TOP BAR ──
+     z-index above the watermark and the sidebar so nothing bleeds over it */
+  .top-bar{
+    background:var(--bg-card); display:flex; justify-content:space-between; align-items:stretch;
+    border-bottom:1px solid var(--border); height:var(--header-h); flex-shrink:0;
+    box-shadow:var(--shadow); position:sticky; top:0; z-index:200;
+  }
+  .logo-block{ display:flex; align-items:center; gap:14px; padding:0 24px; min-width:340px; height:100%; flex-shrink:0; background:var(--navy); }
+  /* FIX: emblem is a hard 40×40 box. overflow:hidden + object-fit stop the
+     coat of arms from rendering at its natural size and spilling over the UI. */
+  .logo-emblem{
+    width:40px; height:40px; min-width:40px; min-height:40px; border-radius:8px;
+    background:var(--gold); display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; overflow:hidden; padding:3px;
+  }
+  .logo-emblem img{ width:100%; height:100%; object-fit:contain; display:block; }
+  .logo-text h2{ font-size:12.5px; font-weight:700; margin:0; line-height:1.35; color:#fff; text-transform:uppercase; letter-spacing:0.4px; }
+  .logo-text p{ font-size:10.5px; margin:2px 0 0; color:rgba(255,255,255,0.5); line-height:1.3; }
+  .top-right{ display:flex; align-items:center; gap:14px; padding-right:20px; }
+  .user-avatar{
+    width:34px; height:34px; min-width:34px; border-radius:50%; background:var(--gold-light);
+    border:1.5px solid var(--gold); display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; color:var(--navy); flex-shrink:0; overflow:hidden;
+  }
+  .user-avatar img{ width:100%; height:100%; object-fit:cover; display:block; border-radius:50%; }
+  .top-user-name{ font-size:13px; font-weight:600; color:var(--text-primary); line-height:1.2; }
+  .top-user-role{ font-size:10.5px; color:var(--text-muted); line-height:1; }
+  .btn-signout{
+    background:transparent; border:1px solid var(--border-mid); color:var(--text-secondary); padding:5px 13px;
+    border-radius:var(--radius); font-size:12px; font-weight:500; cursor:pointer; transition:all .15s;
+    font-family:inherit; display:inline-flex; align-items:center; gap:6px; text-decoration:none;
+  }
+  .btn-signout:hover{ background:var(--bg-page); color:var(--text-primary); }
+
+  /* ── LAYOUT ── */
+  .dashboard-container{ display:flex; flex:1; min-height:0; }
+
+  /* ── SIDEBAR ── */
+  .sidebar{
+    width:var(--sidebar-w); background:var(--bg-card); border-right:1px solid var(--border);
+    padding:14px 0 12px; flex-shrink:0; overflow-y:auto; display:flex; flex-direction:column;
+    position:sticky; top:var(--header-h); height:calc(100vh - var(--header-h)); z-index:20;
+  }
+  .sidebar-section-title{ font-size:9.5px; text-transform:uppercase; letter-spacing:0.09em; color:var(--text-muted); font-weight:700; padding:10px 16px 4px; }
+  .sidebar-link{
+    display:flex; align-items:center; gap:9px; padding:8px 16px; color:var(--text-secondary);
+    text-decoration:none; font-size:12.5px; transition:all .13s; border-left:2px solid transparent; margin:1px 0;
+  }
+  .sidebar-link:hover{ background:var(--gold-xlight); color:var(--navy); }
+  .sidebar-link.active{ background:var(--gold-xlight); color:var(--navy); font-weight:600; border-left-color:var(--gold); }
+  .sidebar-link i{ font-size:14px; width:16px; flex-shrink:0; opacity:.7; }
+  .sidebar-link.active i{ opacity:1; }
+  .sidebar-divider{ height:1px; background:var(--border); margin:8px 14px; }
+  .sidebar-link.signout{ color:var(--red-dark); }
+  .sidebar-link.signout:hover{ background:var(--red-light); }
+  .sidebar-link.signout i{ opacity:1; }
+  .badge-notif{ margin-left:auto; background:var(--gold); color:var(--navy); font-size:10px; font-weight:700; padding:1px 6px; border-radius:99px; }
+
+  /* ── MAIN ── */
+  .main-content{ flex:1; padding:24px 28px; background:var(--bg-page); overflow-x:hidden; position:relative; z-index:1; }
+
+  /* FIX: watermark scoped to the content column instead of `position:fixed`
+     on the body, so it can never sit on top of the sidebar or the top bar. */
+  .main-content::before{
+    content:""; position:absolute; inset:0;
+    background:url('/images/coat-of-arms.png') center center no-repeat;
+    background-size:420px; opacity:0.04; pointer-events:none; z-index:0;
+  }
+  .main-content > *{ position:relative; z-index:1; }
+
+  /* ── PAGE HEADER ── */
+  .page-header{
+    background:var(--bg-card); border:1px solid var(--border); box-shadow:0 1px 2px rgba(14,34,64,0.04);
+    padding:20px 24px; border-radius:var(--radius-lg); color:var(--navy);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+    margin-bottom:20px;
+  }
+  .page-title{ font-size:19px; font-weight:700; letter-spacing:-0.3px; display:flex; align-items:center; gap:8px; color:var(--navy); }
+  .page-subtitle{ font-size:12px; color:var(--text-secondary); margin-top:4px; }
+  .action-buttons{ display:flex; gap:10px; flex-wrap:wrap; }
+  .btn-export, .btn-register{
+    display:inline-flex; align-items:center; gap:6px; padding:9px 16px;
+    border-radius:var(--radius); font-size:12.5px; font-weight:600; text-decoration:none;
+    cursor:pointer; transition:all .15s; border:1px solid var(--border-mid); font-family:inherit;
+  }
+  .btn-export{ background:var(--bg-card); color:var(--text-secondary); }
+  .btn-export:hover{ background:var(--bg-page); color:var(--navy); }
+  .btn-register{ background:var(--gold); color:var(--navy); border-color:var(--gold); }
+  .btn-register:hover{ background:#d8b158; box-shadow:0 4px 12px rgba(200,160,64,0.35); }
+
+  /* ── FILTER CARD ── */
+  .filter-card{
+    background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg);
+    box-shadow:0 1px 2px rgba(14,34,64,0.04); padding:16px 18px; display:flex; gap:16px; flex-wrap:wrap;
+    margin-bottom:18px; align-items:flex-end;
+  }
+  .filter-group{ display:flex; flex-direction:column; gap:6px; flex:1; min-width:200px; }
+  .filter-group label{ font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); display:flex; align-items:center; gap:5px; }
+  .filter-group select, .filter-group input{
+    padding:9px 12px; border:1px solid var(--border-mid); border-radius:var(--radius);
+    font-size:12.5px; font-family:inherit; color:var(--text-primary); background:var(--bg-page);
+  }
+  .filter-group select:focus, .filter-group input:focus{ outline:none; border-color:var(--gold); background:#fff; }
+  .btn-custom-refresh{
+    display:inline-flex; align-items:center; gap:6px; padding:9px 16px;
+    border-radius:var(--radius); font-size:12.5px; font-weight:600; border:1px solid var(--border-mid);
+    background:var(--bg-card); color:var(--text-secondary); cursor:pointer; transition:all .15s;
+    font-family:inherit; white-space:nowrap;
+  }
+  .btn-custom-refresh:hover{ background:var(--bg-page); border-color:var(--gold); color:var(--navy); }
+
+  /* ── TABLE CARD ── */
+  .table-card{ background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 1px 2px rgba(14,34,64,0.04); overflow:hidden; }
+  .table-header{ display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--border); }
+  .table-header h6{ font-size:13.5px; font-weight:600; color:var(--navy); display:flex; align-items:center; gap:8px; margin:0; }
+  .table-header #recordsCount{ font-size:11.5px; color:var(--text-muted); font-weight:500; }
+  .table-responsive{ overflow-x:auto; }
+  table.table{ width:100%; border-collapse:collapse; font-size:12.5px; margin:0; }
+  table.table thead th{
+    text-align:left; padding:11px 18px; font-size:10px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--text-muted); background:var(--bg-page); border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  table.table tbody td{ padding:13px 18px; border-bottom:1px solid var(--border); color:var(--text-primary); vertical-align:middle; }
+  table.table tbody tr:last-child td{ border-bottom:none; }
+  table.table tbody tr:hover{ background:var(--bg-page); }
+  .ref-link{ color:var(--navy); font-weight:600; font-family:var(--font-mono); text-decoration:none; }
+  .ref-link:hover{ color:var(--gold-dark); text-decoration:underline; }
+  .cell-sub{ font-size:11px; color:var(--text-muted); margin-top:2px; }
+
+  /* ── EMPTY STATE ──
+     FIX: replaces the dashed grey box with a card that matches the system */
+  .empty-state{ padding:54px 24px; text-align:center; }
+  .empty-icon{
+    width:56px; height:56px; margin:0 auto 14px; border-radius:50%;
+    background:var(--gold-xlight); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:24px; color:var(--gold-dark);
+  }
+  .empty-title{ font-size:14px; font-weight:600; color:var(--navy); }
+  .empty-text{ font-size:12px; color:var(--text-secondary); margin-top:5px; max-width:380px; margin-left:auto; margin-right:auto; line-height:1.55; }
+  .empty-state .btn-register{ margin-top:16px; }
+
+  /* ── STATUS BADGES ── */
+  .status-badge{ display:inline-flex; align-items:center; gap:5px; padding:4px 11px; border-radius:99px; font-size:10px; font-weight:700; letter-spacing:.03em; white-space:nowrap; }
+  .status-pending{ background:var(--gold-light); color:var(--gold-dark); border:1px solid #e8d098; }
+  .status-l2{ background:var(--navy-xlight); color:var(--navy-mid); border:1px solid #c8d8ee; }
+  .status-approved{ background:var(--green-light); color:var(--green-dark); border:1px solid #bbf7d0; }
+  .status-rejected{ background:var(--red-light); color:var(--red-dark); border:1px solid #fecaca; }
+  .status-transferred{ background:#e0e7ff; color:#3730a3; border:1px solid #c7d2fe; }
+
+  /* ── ACTION BUTTONS ── */
+  .btn-action{
+    display:inline-flex; align-items:center; gap:5px; padding:6px 11px; border-radius:6px;
+    font-size:11.5px; font-weight:600; border:1px solid var(--border-mid); background:var(--bg-card);
+    color:var(--text-secondary); cursor:pointer; transition:all .15s; font-family:inherit; margin-right:6px;
+  }
+  .btn-action:hover{ background:var(--bg-page); border-color:var(--gold); color:var(--navy); }
+
+  /* ── TOASTS ── */
+  .toast-container{ position:fixed; right:18px; bottom:18px; z-index:1200; display:flex; flex-direction:column; gap:8px; }
+  .toast-msg{
+    background:var(--bg-card); border-left:4px solid var(--navy); padding:12px 16px;
+    border-radius:var(--radius); font-size:12.5px; box-shadow:0 4px 14px rgba(14,34,64,.18);
+    max-width:340px; display:flex; align-items:center; gap:8px; color:var(--text-primary);
+  }
+  .toast-msg.success{ border-left-color:var(--green-dark); }
+  .toast-msg.error{ border-left-color:var(--red-dark); }
+  .toast-msg.info{ border-left-color:var(--navy-mid); }
+
+  /* ── FOOTER ── */
+  .footer{
+    display:flex; justify-content:space-between; align-items:center; padding:10px 24px;
+    border-top:1px solid var(--border); background:var(--bg-card); font-size:11px; color:var(--text-muted);
+  }
+  .footer-session{ display:flex; align-items:center; gap:6px; }
+  .session-dot{ width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 0 3px var(--green-light); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 992px){
+    .logo-text p{ display:none; }
+  }
+  @media (max-width: 768px){
+    .sidebar{ display:none; }
+    .main-content{ padding:16px; }
+    .page-header{ flex-direction:column; align-items:flex-start; }
+    .logo-text h2{ font-size:11px; }
+    .top-user-name, .top-user-role{ display:none; }
+    .footer{ flex-direction:column; gap:6px; text-align:center; }
+  }
+  </style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="/images/coat-of-arms.png" alt="Zambian Coat of Arms" />
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar" id="userAvatarInitials" aria-label="Current user"></div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="topUserName">Loading profile...</div>
+      <div class="top-user-role" id="topUserDetails">Landowner</div>
+    </div>
+    <button class="btn-signout" id="signOutBtn"><i class="bi bi-box-arrow-right"></i> Sign Out</button>
+  </div>
+</div>
+
+<!-- ── LAYOUT ── -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Landowner Menu</div>
+    <a href="my-parcels.html"   class="sidebar-link"><i class="bi bi-grid-1x2"></i> My Parcels</a>
+    <a href="notifications.html" class="sidebar-link">
+      <i class="bi bi-bell"></i> Notifications
+      <span class="badge-notif" id="sidebarNotifCount" style="display:none">0</span>
+    </a>
+    <a href="parcels-list.html"    class="sidebar-link"><i class="bi bi-map"></i> All Parcels</a>
+    <a href="transfer.html" class="sidebar-link"><i class="bi bi-arrow-left-right"></i> Initiate Transfer</a>
+    <a href="transfer-requests.html"  class="sidebar-link active"><i class="bi bi-clock-history"></i> My Transfer Requests</a>
+    <a href="title-deeds.html"   class="sidebar-link"><i class="bi bi-file-earmark-text"></i> Title Deeds</a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Account</div>
+    <a href="profile.html" class="sidebar-link"><i class="bi bi-person-gear"></i> Manage Profile</a>
+    <a href="../../index.html"     class="sidebar-link"><i class="bi bi-search"></i> Verify a Parcel</a>
+
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-link signout" id="signOutSidebarBtn"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title"><i class="bi bi-clock-history"></i> My Transfer Requests</div>
+        <div class="page-subtitle">Track ownership transfers you have submitted and their review stage.</div>
+      </div>
+      <div class="action-buttons">
+        <button class="btn-export" id="exportTopBtn"><i class="bi bi-download"></i> Export</button>
+        <a href="/pages/landowner/transfer.html" class="btn-register"><i class="bi bi-plus-circle"></i> Initiate Transfer</a>
+      </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="filter-card">
+      <div class="filter-group">
+        <label><i class="bi bi-funnel"></i> Status Filter</label>
+        <select id="statusFilter">
+          <option value="">All Statuses</option>
+          <option value="SUBMITTED">Pending Review</option>
+          <option value="UNDER_REVIEW">Under Review</option>
+          <option value="APPROVED_L1">L2 Review (Approved L1)</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+          <option value="TRANSFERRED">Transferred</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label><i class="bi bi-search"></i> Search</label>
+        <input type="text" id="searchTransfer" placeholder="Reference / Parcel / Buyer ...">
+      </div>
+      <div class="filter-group" style="flex:0; min-width:auto;">
+        <label style="opacity:0; pointer-events:none; user-select:none;">action</label>
+        <button class="btn-custom-refresh" id="refreshBtn"><i class="bi bi-arrow-repeat"></i> Refresh</button>
+      </div>
+    </div>
+
+    <!-- Transfer Requests Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <h6><i class="bi bi-arrow-left-right"></i> Transfer Requests</h6>
+        <span id="recordsCount"></span>
+      </div>
+      <div id="tableWrapper" class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Ref. No.</th>
+              <th>Parcel / Location</th>
+              <th>Buyer</th>
+              <th>Date Submitted</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="transfersBody">
+            <tr><td colspan="6" class="text-center text-muted py-4">Loading transfer requests…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script type="module">
+  import { api } from '/js/api.js';
+  import { requireLogin, getSession, logout, showLogoutConfirmation } from '/js/auth.js';
+
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast-msg ${type}`;
+    toast.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle-fill' : type === 'error' ? 'exclamation-triangle-fill' : 'info-circle-fill'}"></i> ${message}`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    try {
+      return new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    } catch { return dateStr; }
+  }
+
+  function getStatusBadge(status) {
+    const map = {
+      'SUBMITTED':    { label: 'PENDING',      cls: 'status-pending',     icon: 'bi-clock' },
+      'UNDER_REVIEW': { label: 'UNDER REVIEW', cls: 'status-pending',     icon: 'bi-clock-history' },
+      'APPROVED_L1':  { label: 'L2 REVIEW',    cls: 'status-l2',          icon: 'bi-arrow-up-circle' },
+      'APPROVED':     { label: 'APPROVED',     cls: 'status-approved',    icon: 'bi-check-circle' },
+      'REJECTED':     { label: 'REJECTED',     cls: 'status-rejected',    icon: 'bi-x-circle' },
+      'TRANSFERRED':  { label: 'TRANSFERRED',  cls: 'status-transferred', icon: 'bi-check2-all' }
+    };
+    const s = map[status] || { label: status || 'PENDING', cls: 'status-pending', icon: 'bi-question-circle' };
+    return `<span class="status-badge ${s.cls}"><i class="bi ${s.icon}" style="font-size:10px"></i> ${s.label}</span>`;
+  }
+
+  let allTransfers = [];
+
+  function renderEmptyState(filtered) {
+    const wrapper = document.getElementById('tableWrapper');
+    wrapper.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-inbox"></i></div>
+        <div class="empty-title">${filtered ? 'No matching transfer requests' : 'No transfer requests yet'}</div>
+        <div class="empty-text">
+          ${filtered
+            ? 'Try clearing the status filter or search term to see all of your requests.'
+            : 'When you transfer ownership of one of your parcels, the request will appear here so you can follow its progress through Ministry review.'}
+        </div>
+        ${filtered ? '' : '<a href="/pages/landowner/transfer.html" class="btn-register"><i class="bi bi-plus-circle"></i> Initiate Transfer</a>'}
+      </div>`;
+    document.getElementById('recordsCount').innerText = '0 records';
+  }
+
+  function renderTransfers(transfers, filtered = false) {
+    if (!transfers.length) return renderEmptyState(filtered);
+
+    document.getElementById('tableWrapper').innerHTML = `
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Ref. No.</th><th>Parcel / Location</th><th>Buyer</th>
+            <th>Date Submitted</th><th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="transfersBody"></tbody>
+      </table>`;
+
+    document.getElementById('transfersBody').innerHTML = transfers.map(t => `
+      <tr>
+        <td><span class="ref-link">${t.requestId || t.id || 'N/A'}</span></td>
+        <td>
+          ${t.parcelNumber || t.parcel?.number || 'N/A'}
+          <div class="cell-sub">${t.location || t.parcel?.location || '—'}</div>
+        </td>
+        <td>${t.buyerName || t.buyer?.name || 'N/A'}</td>
+        <td>${formatDate(t.submittedAt || t.createdAt || t.date)}</td>
+        <td>${getStatusBadge(t.status)}</td>
+        <td>
+          <button class="btn-action view-btn" data-id="${t.requestId || t.id}"><i class="bi bi-eye"></i> View</button>
+        </td>
+      </tr>
+    `).join('');
+
+    document.getElementById('recordsCount').innerText = `${transfers.length} record(s)`;
+
+    document.querySelectorAll('.view-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        if (id) window.location.href = `/pages/landowner/transfer-requests.html?requestId=${encodeURIComponent(id)}`;
+      });
+    });
+  }
+
+  function filterTransfers() {
+    const status = document.getElementById('statusFilter').value;
+    const search = document.getElementById('searchTransfer').value.toLowerCase();
+    let filtered = [...allTransfers];
+    if (status) filtered = filtered.filter(t => t.status === status);
+    if (search) filtered = filtered.filter(t =>
+      (t.parcelNumber || '').toLowerCase().includes(search) ||
+      (t.buyerName || '').toLowerCase().includes(search) ||
+      (t.requestId || '').toLowerCase().includes(search)
+    );
+    renderTransfers(filtered, Boolean(status || search));
+  }
+
+  async function loadTransfers() {
+    try {
+      const result = await api.myTransfers();
+      allTransfers = result.data || [];
+      renderTransfers(allTransfers);
+    } catch (error) {
+      console.error('Load transfers error:', error);
+      showToast('Failed to load transfers: ' + error.message, 'error');
+      allTransfers = [];
+      renderTransfers([]);
+    }
+  }
+
+  async function updateTopBar() {
+    try {
+      requireLogin();
+      const session = getSession();
+      const userName = session.fullName || session.name || session.email || 'Landowner';
+      const userRole = session.role ? session.role.replace(/_/g, ' ') : 'Landowner';
+      document.getElementById('topUserName').textContent = userName;
+      document.getElementById('topUserDetails').textContent = userRole;
+
+      const av = document.getElementById('userAvatarInitials');
+      const profileResult = await api.getMyProfile();
+      const profile = profileResult?.data || profileResult || {};
+      const savedPhoto = profile.photoPath || session.photoPath || localStorage.getItem('lv_photo') || '';
+      if (profile.photoPath) localStorage.setItem('lv_photo', profile.photoPath);
+      if (savedPhoto) {
+        const photoUrl = savedPhoto.startsWith('http') || savedPhoto.startsWith('/') ? savedPhoto : `/uploads/${savedPhoto}`;
+        if (av) av.innerHTML = `<img src="${photoUrl}" alt="Profile photo" />`;
+      } else {
+        const initials = userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        if (av && !av.querySelector('img')) av.textContent = initials;
+      }
+
+      try {
+        const notifResult = await api.unreadNotificationCount?.();
+        const count = notifResult?.data?.count ?? notifResult?.data ?? 0;
+        const sn = document.getElementById('sidebarNotifCount');
+        if (sn) { sn.textContent = count > 0 ? count : ''; sn.style.display = count > 0 ? 'inline' : 'none'; }
+      } catch(e) { /* silent */ }
+    } catch(e) { console.warn('Session error', e); }
+  }
+
+  function doSignOut(e) {
+    e.preventDefault();
+    showLogoutConfirmation(logout);
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    await updateTopBar();
+    await loadTransfers();
+
+    document.getElementById('statusFilter').addEventListener('change', filterTransfers);
+    document.getElementById('searchTransfer').addEventListener('keyup', filterTransfers);
+    document.getElementById('refreshBtn').addEventListener('click', async () => {
+      await loadTransfers();
+      showToast('Transfer list refreshed', 'success');
+    });
+
+    document.getElementById('exportTopBtn')?.addEventListener('click', () => showToast('Export feature coming soon', 'info'));
+    document.getElementById('signOutBtn')?.addEventListener('click', doSignOut);
+    document.getElementById('signOutSidebarBtn')?.addEventListener('click', doSignOut);
+  });
+</script>
+
+</body>

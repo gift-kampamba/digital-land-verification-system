@@ -1,0 +1,38 @@
+# IDE / Editor
+.vscode/
+.idea/
+*.iml
+
+# Java / Spring Boot
+target/
+*.class
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment / Secrets
+.env
+.env.*
+!.env.example
+
+# Private keys / certificates
+*.pem
+*.key
+*.p12
+*.jks
+
+# Hardhat generated files
+hardhat/cache/
+hardhat/artifacts/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+# Application configuration containing local credentials
+backend/src/main/resources/application.properties

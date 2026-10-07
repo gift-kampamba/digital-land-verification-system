@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ARMS – Officer Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* ═══════════════════════════════════════════════════
+       ARMS DESIGN SYSTEM — Navy + Gold, Zambian Palette
+    ═══════════════════════════════════════════════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+
+    :root {
+      /* Backgrounds */
+      --bg-page: #faf7f2;      /* warm off-white */
+      --bg-card: #ffffff;      /* card / content surface */
+      --bg-input: #fbfaf7;
+
+      /* Government theme */
+      --navy: #0e2240;         /* top navigation */
+      --navy-dark: #09182e;
+      --navy-mid: #1a3560;
+      --navy-light: #e8edf6;
+      --navy-xlight: #f4f6fb;
+
+      --gold: #c8a040;
+      --gold-mid: #b8902e;
+      --gold-dark: #9a7420;
+      --gold-light: #fdf6e3;
+      --gold-xlight: #fefbf3;
+
+      /* Text */
+      --text-primary: #111827;
+      --text-secondary: #4b5568;
+      --text-muted: #8a94a6;
+
+      /* Borders */
+      --border: #e8e3d8;
+      --border-light: #eee9dd;
+      --border-mid: #d6ceba;
+
+      /* Status colours (shared with Parcel Status page) */
+      --rejected-bg: #fef2f2;
+      --rejected-fg: #991b1b;
+      --rejected-brd: #fecaca;
+      --approved-bg: #ecfdf5;
+      --approved-fg: #166534;
+      --approved-brd: #bbf7d0;
+
+      --success: var(--approved-fg);
+      --warning: var(--gold-dark);
+      --danger: var(--rejected-fg);
+
+      /* Muted accent set for KPI cards / quick actions — kept in the navy+gold family */
+      --blue-light: #eaf1fb;
+      --blue-dark: #1a3560;
+      --green-light: #ecfdf5;
+      --green-dark: #166534;
+      --purple-light: #f2eefb;
+      --purple-dark: #5b3fa0;
+      --red-light: #fef2f2;
+      --red-dark: #991b1b;
+      --red: #dc2626;
+
+      /* Fonts / layout */
+      --font-family: 'Inter', Arial, sans-serif;
+      --radius: 6px;
+      --radius-lg: 10px;
+      --shadow-sm: 0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+      --shadow-card: 0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+      --sidebar-w: 220px;
+      --header-h: 64px;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-page);
+      font-family: var(--font-family);
+      font-size: 13px;
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      background: var(--navy);
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      height: var(--header-h);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 100;
+    }
+
+    .logo-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 24px;
+      min-width: 0;
+      height: 100%;
+      flex-shrink: 0;
+    }
+
+    .logo-emblem {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .logo-emblem img { width: 100%; height: 100%; object-fit: contain; padding: 3px; }
+
+    .logo-text h2 {
+      font-size: 13px;
+      font-weight: 700;
+      margin: 0;
+      line-height: 1.35;
+      color: #fff;
+      text-transform: none;
+      letter-spacing: 0.2px;
+    }
+
+    .logo-text p {
+      font-size: 10.5px;
+      margin: 0;
+      margin-top: 2px;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.3;
+    }
+
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      padding: 0 4px;
+      align-items: center;
+    }
+
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding-right: 22px;
+    }
+
+    .top-notif-btn {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.9);
+      font-size: 18px;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .top-notif-btn .dot {
+      position: absolute;
+      top: -2px; right: -2px;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      border: 1.5px solid var(--navy);
+      display: none;
+    }
+
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--gold);
+      border: 1.5px solid rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--navy-dark);
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 50%;
+    }
+
+    .top-user-name  { font-size: 13px;   font-weight: 600; color: #fff; line-height: 1.2; }
+    .top-user-role  { font-size: 10.5px; color: rgba(255,255,255,0.5); line-height: 1.3; text-transform: uppercase; letter-spacing: 0.03em; }
+
+    .btn-signout {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      padding: 6px 15px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .btn-signout:hover { background: rgba(255,255,255,0.1); }
+
+    /* ── LAYOUT ── */
+    .dashboard-container {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 16px 0 14px;
+      flex-shrink: 0;
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.25s ease;
+      z-index: 90;
+    }
+
+    .sidebar-section-title {
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+      font-weight: 700;
+      padding: 10px 18px 6px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 9px 18px;
+      margin: 0 8px 2px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 500;
+      transition: all 0.13s;
+      border-radius: 7px;
+    }
+    .sidebar-item:hover  { background: var(--gold-xlight); color: var(--navy); }
+    .sidebar-item.active { background: var(--gold-light); color: var(--navy); font-weight: 700; }
+    .sidebar-item i      { font-size: 15px; width: 16px; flex-shrink: 0; opacity: 0.75; }
+    .sidebar-item.active i { opacity: 1; color: var(--gold-dark); }
+
+    .badge-notif {
+      background: #ef4444;
+      color: white;
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 99px;
+      margin-left: auto;
+      line-height: 14px;
+    }
+
+    .sidebar-divider { height: 1px; background: var(--border); margin: 10px 18px; }
+    .sidebar-item.signout       { color: #ef4444; }
+    .sidebar-item.signout:hover { background: #fef2f2; }
+    .sidebar-item.signout i     { opacity: 1; }
+
+    .sidebar-help {
+      margin: 12px 10px 0;
+      background: var(--blue-light);
+      border: 1px solid #d8e6fd;
+      border-radius: var(--radius);
+      padding: 14px 14px 12px;
+    }
+    .sidebar-help i.bi-question-circle {
+      color: var(--blue-dark);
+      font-size: 17px;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .sidebar-help h6 { font-size: 12.5px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .sidebar-help p  { font-size: 11px; color: var(--text-secondary); line-height: 1.45; margin-bottom: 8px; }
+    .sidebar-help a  { font-size: 11.5px; color: var(--blue-dark); font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+    .sidebar-help a:hover { text-decoration: underline; }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(14,34,64,0.45);
+      z-index: 80;
+    }
+
+    /* ── MAIN ── */
+    .main-content {
+      flex: 1;
+      min-height: 0;
+      padding: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: var(--bg-page);
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header-band {
+      background: var(--bg-page);
+      padding: 22px 28px 4px;
+    }
+    .page-header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .page-title-main {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: -0.4px;
+      line-height: 1.25;
+      margin-bottom: 4px;
+    }
+    .page-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .date-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      padding: 8px 16px;
+      border-radius: 99px;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      white-space: nowrap;
+      box-shadow: var(--shadow-sm);
+    }
+    .date-pill i { color: var(--gold-dark); font-size: 13px; }
+
+    .main-scroll { padding: 18px 28px 28px; }
+
+    /* ── KPI CARDS ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 1px 2px rgba(14,34,64,0.04);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .kpi-card:hover { transform: none; box-shadow: 0 1px 2px rgba(14,34,64,0.04); color: inherit; text-decoration: none; }
+
+    .kpi-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 21px;
+      flex-shrink: 0;
+    }
+    .kpi-card.gold   .kpi-icon { background: var(--gold-light);   color: var(--gold-dark); }
+    .kpi-card.blue   .kpi-icon { background: var(--blue-light);   color: var(--blue-dark); }
+    .kpi-card.green  .kpi-icon { background: var(--green-light);  color: var(--green-dark); }
+    .kpi-card.purple .kpi-icon { background: var(--purple-light); color: var(--purple-dark); }
+
+    .kpi-info { min-width: 0; }
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.5px;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 5px;
+    }
+    .kpi-label { font-size: 12.5px; font-weight: 700; color: var(--text-primary); line-height: 1.3; }
+    .kpi-sub   { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+    /* ── CONTENT GRID ── */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1.9fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    .col-stack { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+
+    /* ── CARD SHELL ── */
+    .panel-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(14,34,64,0.04);
+    }
+    .panel-header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-header h6 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .panel-header h6 i {
+      width: 26px;
+      height: 26px;
+      background: var(--gold-light);
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12.5px;
+      color: var(--gold-dark);
+    }
+    .panel-header a {
+      color: var(--gold-dark);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .panel-header a:hover { color: var(--gold); }
+
+    /* ── TABLES ── */
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: var(--bg-page);
+      padding: 10px 16px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.07em;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      color: var(--text-primary);
+      font-size: 12.5px;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover         { background: var(--gold-xlight); }
+
+    .ref-link {
+      color: var(--navy);
+      font-weight: 600;
+      text-decoration: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      background: var(--navy-xlight);
+      padding: 2px 7px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .ref-link:hover { background: var(--gold-light); color: var(--gold-dark); }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+    .status-pending  { background: var(--gold-light);  color: var(--gold-dark);  border: 1px solid #e8d098; }
+    .status-approved { background: var(--approved-bg); color: var(--approved-fg); border: 1px solid var(--approved-brd); }
+    .status-active   { background: var(--approved-bg); color: var(--approved-fg); border: 1px solid var(--approved-brd); }
+    .status-l2       { background: var(--navy-xlight); color: var(--navy-mid);   border: 1px solid #c8d8ee; }
+    .status-rejected { background: var(--rejected-bg); color: var(--rejected-fg); border: 1px solid var(--rejected-brd); }
+
+    .btn-action {
+      padding: 4px 12px;
+      font-size: 11.5px;
+      border: 1px solid var(--border-mid);
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      cursor: pointer;
+      margin: 0 2px;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-weight: 500;
+      transition: all 0.13s;
+    }
+    .btn-action:hover { background: var(--navy); color: white; border-color: var(--navy); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 44px 20px;
+    }
+    .empty-state .empty-icon {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: var(--navy-xlight);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .empty-state h6 { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+    .empty-state p  { font-size: 12px; color: var(--text-muted); max-width: 280px; line-height: 1.5; }
+
+    /* ── QUICK ACTIONS ── */
+    .qa-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 16px;
+    }
+    .qa-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.15s;
+    }
+    .qa-item:hover { border-color: var(--gold); background: var(--gold-xlight); color: inherit; }
+    .qa-icon {
+      width: 34px; height: 34px;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+    .qa-title { font-size: 12px; font-weight: 700; color: var(--text-primary); line-height: 1.3; }
+    .qa-sub   { font-size: 10.5px; color: var(--text-muted); line-height: 1.3; }
+    .qa-item .bi-chevron-right { margin-left: auto; font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
+
+    /* ── ANNOUNCEMENTS ── */
+    .announce-list { padding: 6px 20px 16px; }
+    .announce-item { display: flex; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+    .announce-item:last-child { border-bottom: none; }
+    .announce-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--gold);
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+    .announce-title { font-size: 12.5px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+    .announce-desc  { font-size: 11.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 4px; }
+    .announce-meta  { font-size: 10.5px; color: var(--text-muted); }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .footer-session { display: flex; align-items: center; gap: 6px; }
+    .session-dot    { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+    /* ── TOAST ── */
+    .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+    .toast-msg {
+      background: var(--navy);
+      color: white;
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      margin-top: 8px;
+      font-size: 12.5px;
+      animation: slideIn 0.25s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(14,34,64,0.25);
+      max-width: 300px;
+    }
+    .toast-msg.success { border-left: 3px solid #22c55e; }
+    .toast-msg.error   { border-left: 3px solid #ef4444; }
+    .toast-msg.info    { border-left: 3px solid var(--gold); }
+    @keyframes slideIn { from { transform: translateX(60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* ═══════════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════════ */
+    @media (max-width: 1100px) {
+      .content-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .logo-text p         { display: none; }
+      .logo-text h2        { font-size: 11px; }
+      .logo-block          { padding: 0 14px; gap: 10px; }
+      .logo-emblem         { width: 36px; height: 36px; }
+      .top-user-name-wrap  { display: none; }
+      .hamburger           { display: flex; }
+      .btn-signout         { display: none; }
+      .top-right           { gap: 12px; padding-right: 14px; }
+
+      .sidebar {
+        position: fixed;
+        top: var(--header-h);
+        left: 0;
+        height: calc(100% - var(--header-h));
+        transform: translateX(-100%);
+        box-shadow: 4px 0 20px rgba(14,34,64,0.18);
+      }
+      .sidebar.open         { transform: translateX(0); }
+      .sidebar-overlay.open { display: block; }
+
+      .page-header-band  { padding: 16px 14px 4px; }
+      .page-header-inner { flex-direction: column; gap: 10px; }
+      .page-title-main   { font-size: 19px; }
+      .main-scroll       { padding: 14px 14px 20px; }
+
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .kpi-card { padding: 14px; }
+      .kpi-value { font-size: 20px; }
+      .qa-grid { grid-template-columns: 1fr; }
+
+      .table-responsive-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .footer-copy { display: none; }
+      .col-hide-mobile { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="top-bar">
+  <div class="logo-block">
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="logo-emblem">
+      <img src="../../images/coat-of-arms.png" alt="Zambian Coat of Arms" class="nav-seal" width="42" height="42" />
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <button class="top-notif-btn" id="topNotifBtn" onclick="window.location.href='/pages/officer/notifications.html'">
+      <i class="bi bi-bell"></i>
+      <span class="dot" id="topNotifDot"></span>
+    </button>
+    <div class="user-avatar" id="userAvatarInitials" aria-label="Current user"></div>
+    <div class="top-user-name-wrap" style="text-align:left;">
+      <div class="top-user-name" id="topUserName">Loading profile...</div>
+      <div class="top-user-role" id="topUserDetails">Land Officer</div>
+    </div>
+    <button class="btn-signout" id="signOutBtn">Sign Out</button>
+  </div>
+</div>
+
+<!-- Sidebar overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ── LAYOUT ── -->
+<div class="dashboard-container">
+
+  <!-- ── SIDEBAR ── -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-section-title">Main Menu</div>
+    <a href="/pages/officer/dashboard.html"          class="sidebar-item active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="/pages/officer/parcel-registry.html"    class="sidebar-item"><i class="bi bi-collection"></i> Parcel Registry</a>
+    <a href="/pages/officer/register-parcel.html"    class="sidebar-item"><i class="bi bi-plus-circle"></i> Register Parcel</a>
+    <a href="/pages/officer/transfer-requests.html"  class="sidebar-item"><i class="bi bi-arrow-left-right"></i> Transfer Requests</a>
+    <a href="/pages/officer/parcel-status.html"      class="sidebar-item"><i class="bi bi-x-circle"></i> Rejected Parcels</a>
+    <a href="/pages/officer/notifications.html"      class="sidebar-item">
+      <i class="bi bi-bell"></i> Notifications
+      <span class="badge-notif" id="sidebarNotifCount" style="display:none">0</span>
+    </a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Reports</div>
+    <a href="/pages/officer/monthly-report.html" class="sidebar-item"><i class="bi bi-file-earmark-bar-graph"></i> Monthly Report</a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Account</div>
+    <a href="/pages/officer/manage-profile.html" class="sidebar-item"><i class="bi bi-person-circle"></i> My Profile</a>
+
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" id="signOutSidebarBtn"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+
+    <div class="sidebar-help">
+      <i class="bi bi-question-circle"></i>
+      <h6>Need Help?</h6>
+      <p>Check the user guide or contact the system administrator.</p>
+      <a href="/pages/help-center.html">View Help Center <i class="bi bi-arrow-right"></i></a>
+    </div>
+  </div>
+
+  <!-- ── MAIN CONTENT ── -->
+  <div class="main-content">
+
+    <!-- ── PAGE HEADER ── -->
+    <div class="page-header-band">
+      <div class="page-header-inner">
+        <div>
+          <div class="page-title-main">Dashboard</div>
+        </div>
+        <div class="date-pill"><i class="bi bi-calendar3"></i> <span id="currentDate">—</span></div>
+      </div>
+    </div>
+
+    <!-- ── Scrollable content below header ── -->
+    <div class="main-scroll">
+
+      <!-- ── KPI CARDS ── -->
+      <div class="kpi-grid">
+
+        <a class="kpi-card gold" href="/pages/officer/transfer-requests.html?status=SUBMITTED">
+          <div class="kpi-icon"><i class="bi bi-clock-history"></i></div>
+          <div class="kpi-info">
+            <div class="kpi-value" id="pendingCountLarge">0</div>
+            <div class="kpi-label">Pending Reviews</div>
+            <div class="kpi-sub">Awaiting your action</div>
+          </div>
+        </a>
+
+        <a class="kpi-card blue" href="/pages/officer/transfer-requests.html?status=APPROVED_L1">
+          <div class="kpi-icon"><i class="bi bi-hourglass-split"></i></div>
+          <div class="kpi-info">
+            <div class="kpi-value" id="l2CountLarge">0</div>
+            <div class="kpi-label">Awaiting L2 Review</div>
+            <div class="kpi-sub">Escalated for senior review</div>
+          </div>
+        </a>
+
+        <a class="kpi-card green" href="/pages/officer/transfer-requests.html?status=APPROVED">
+          <div class="kpi-icon"><i class="bi bi-check-circle"></i></div>
+          <div class="kpi-info">
+            <div class="kpi-value" id="approvedCountLarge">0</div>
+            <div class="kpi-label">Approved This Month</div>
+            <div class="kpi-sub" id="approvedMonthLabel">—</div>
+          </div>
+        </a>
+
+        <a class="kpi-card purple" href="/pages/officer/parcel-registry.html">
+          <div class="kpi-icon"><i class="bi bi-file-earmark-text"></i></div>
+          <div class="kpi-info">
+            <div class="kpi-value" id="parcelCountLarge">0</div>
+            <div class="kpi-label">Total Parcels</div>
+            <div class="kpi-sub">Registered in system</div>
+          </div>
+        </a>
+
+      </div>
+
+      <!-- ── TWO-COLUMN CONTENT ── -->
+      <div class="content-grid">
+
+        <!-- LEFT COLUMN -->
+        <div class="col-stack">
+
+          <!-- Recent Transfer Requests -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <h6><i class="bi bi-arrow-left-right"></i> Recent Transfer Requests</h6>
+              <a href="/pages/officer/transfer-requests.html">View All <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="table-responsive-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Ref. No.</th>
+                    <th>Parcel</th>
+                    <th class="col-hide-mobile">Seller</th>
+                    <th class="col-hide-mobile">Buyer</th>
+                    <th class="col-hide-mobile">Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="recentTransfersBody">
+                  <tr><td colspan="7" class="text-center text-muted py-4" style="padding:32px 16px">Loading transfer requests…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Recent Registered Parcels -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <h6><i class="bi bi-collection"></i> Recent Registered Parcels</h6>
+              <a href="/pages/officer/parcel-registry.html">View All <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="table-responsive-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Parcel No.</th>
+                    <th class="col-hide-mobile">Location</th>
+                    <th>Owner</th>
+                    <th class="col-hide-mobile">Date Registered</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="recentParcelsBody">
+                  <tr><td colspan="5" class="text-center text-muted py-4" style="padding:32px 16px">Loading parcels…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-stack">
+
+          <!-- Quick Actions -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <h6><i class="bi bi-lightning-charge"></i> Quick Actions</h6>
+            </div>
+            <div class="qa-grid">
+              <a class="qa-item" href="/pages/officer/register-parcel.html">
+                <div class="qa-icon" style="background:var(--blue-light); color:var(--blue-dark);"><i class="bi bi-file-earmark-plus"></i></div>
+                <div>
+                  <div class="qa-title">Register New Parcel</div>
+                  <div class="qa-sub">Add a new parcel to the registry</div>
+                </div>
+                <i class="bi bi-chevron-right"></i>
+              </a>
+              <a class="qa-item" href="/pages/officer/parcel-registry.html">
+                <div class="qa-icon" style="background:var(--blue-light); color:var(--blue-dark);"><i class="bi bi-search"></i></div>
+                <div>
+                  <div class="qa-title">Search Parcel</div>
+                  <div class="qa-sub">Find parcel information</div>
+                </div>
+                <i class="bi bi-chevron-right"></i>
+              </a>
+              <a class="qa-item" href="/pages/officer/transfer-requests.html">
+                <div class="qa-icon" style="background:var(--green-light); color:var(--green-dark);"><i class="bi bi-arrow-left-right"></i></div>
+                <div>
+                  <div class="qa-title">Initiate Transfer</div>
+                  <div class="qa-sub">Start a new ownership transfer</div>
+                </div>
+                <i class="bi bi-chevron-right"></i>
+              </a>
+              <a class="qa-item" href="/pages/officer/parcel-registry.html">
+                <div class="qa-icon" style="background:var(--green-light); color:var(--green-dark);"><i class="bi bi-grid-3x3-gap"></i></div>
+                <div>
+                  <div class="qa-title">View All Parcels</div>
+                  <div class="qa-sub">Browse registered parcels</div>
+                </div>
+                <i class="bi bi-chevron-right"></i>
+              </a>
+              <a class="qa-item" href="/pages/officer/monthly-report.html">
+                <div class="qa-icon" style="background:var(--blue-light); color:var(--blue-dark);"><i class="bi bi-file-earmark-bar-graph"></i></div>
+                <div>
+                  <div class="qa-title">Generate Report</div>
+                  <div class="qa-sub">Create reports and summaries</div>
+                </div>
+                <i class="bi bi-chevron-right"></i>
+              </a>
+              <a class="qa-item" href="/pages/officer/notifications.html">
+                <div class="qa-icon" style="background:var(--red-light); color:var(--red-dark);"><i class="bi bi-bell"></i></div>
+                <div>
+                  <div class="qa-title">Notifications</div>
+                  <div class="qa-sub">View system notifications</div>
+                </div>
+                <i class="bi bi-chevron-right"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- System Announcements -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <h6><i class="bi bi-megaphone"></i> System Announcements</h6>
+              <a href="#">View All <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="announce-list" id="announcementsList">
+              <div class="announce-item" id="announcementsLoading">
+                <div class="announce-dot"></div>
+                <div>
+                  <div class="announce-title">Loading announcements…</div>
+                  <div class="announce-desc">Checking for the latest system notices.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div><!-- /content-grid -->
+
+    </div><!-- /main-scroll -->
+  </div><!-- /main-content -->
+</div><!-- /dashboard-container -->
+
+<!-- Footer -->
+<div class="footer">
+  <span class="footer-copy">© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script type="module">
+  import { api } from '/js/api.js';
+  import { requireLogin, getSession, logout, showLogoutConfirmation } from '/js/auth.js';
+
+  /* ── Helpers ── */
+  function showToast(message, type = 'info') {
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast-msg ${type}`;
+    const icon = type === 'success' ? 'check-circle-fill' : type === 'error' ? 'exclamation-triangle-fill' : 'info-circle-fill';
+    t.innerHTML = `<i class="bi bi-${icon}"></i> ${message}`;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    try { return new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); }
+    catch { return dateStr; }
+  }
+
+  function getStatusBadge(status) {
+    const map = {
+      'SUBMITTED':    { label: 'PENDING',   cls: 'status-pending',  icon: 'bi-clock' },
+      'UNDER_REVIEW': { label: 'PENDING',   cls: 'status-pending',  icon: 'bi-clock' },
+      'APPROVED_L1':  { label: 'L2 REVIEW', cls: 'status-l2',       icon: 'bi-arrow-up-circle' },
+      'APPROVED':     { label: 'APPROVED',  cls: 'status-approved', icon: 'bi-check-circle' },
+      'REJECTED':     { label: 'REJECTED',  cls: 'status-rejected', icon: 'bi-x-circle' },
+      'ACTIVE':       { label: 'ACTIVE',    cls: 'status-active',   icon: 'bi-check-circle' }
+    };
+    const s = map[status] || { label: status || 'PENDING', cls: 'status-pending', icon: 'bi-question-circle' };
+    return `<span class="status-badge ${s.cls}"><i class="bi ${s.icon}" style="font-size:10px"></i> ${s.label}</span>`;
+  }
+
+  /* ── Dashboard loader ── */
+  async function loadDashboard() {
+    try {
+      requireLogin();
+      const session = getSession();
+
+      const userName     = session.fullName || session.name || session.email || 'Land Officer';
+      const userRole     = session.role ? session.role.replace(/_/g, ' ') : 'Land Officer';
+
+      document.getElementById('topUserName').textContent    = userName;
+      document.getElementById('topUserDetails').textContent = userRole;
+
+      const avatarEl = document.getElementById('userAvatarInitials');
+      const initials = userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      const profileResult = await api.getMyProfile();
+      const profile = profileResult?.data || profileResult || {};
+      const savedPhoto = profile.photoPath || session.photoPath || localStorage.getItem('lv_photo') || '';
+      if (profile.photoPath) localStorage.setItem('lv_photo', profile.photoPath);
+
+      if (savedPhoto) {
+        const photoUrl = savedPhoto.startsWith('http') || savedPhoto.startsWith('/') ? savedPhoto : `/uploads/${savedPhoto}`;
+        avatarEl.innerHTML = `<img src="${photoUrl}" alt="Profile photo" />`;
+      } else {
+        if (!avatarEl.querySelector('img')) avatarEl.textContent = initials;
+      }
+
+      const dateEl = document.getElementById('currentDate');
+      if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-GB', {
+        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+      });
+
+      document.getElementById('approvedMonthLabel').textContent = new Date().toLocaleDateString('en-GB', {
+        month: 'long', year: 'numeric'
+      });
+
+      /* ── Stats ── */
+      const statsResult = await api.dashboardStats();
+      const stats = statsResult.data || statsResult || {};
+
+      const pending  = stats.pendingReviews    || stats.pending       || 0;
+      const l2       = stats.approvedL1        || stats.l2Count       || 0;
+      const approved = stats.approvedThisMonth || stats.approvedMonth || 0;
+      const total    = stats.totalParcels      || stats.total         || 0;
+
+      document.getElementById('pendingCountLarge').textContent  = pending;
+      document.getElementById('l2CountLarge').textContent       = l2;
+      document.getElementById('approvedCountLarge').textContent = approved;
+
+      // Use officer-specific parcel count where available
+      try {
+        const myParcelsResult = await api.searchOfficerParcels();
+        // API may return an array or an object with `data` / `count`
+        let myCount = 0;
+        if (Array.isArray(myParcelsResult)) myCount = myParcelsResult.length;
+        else myCount = myParcelsResult.data?.length || myParcelsResult.count || 0;
+        document.getElementById('parcelCountLarge').textContent = myCount;
+        // change subtitle to be officer-specific (kpi-sub is two siblings over)
+        const subEl = document.getElementById('parcelCountLarge').nextElementSibling?.nextElementSibling;
+        if (subEl) subEl.textContent = 'Registered by you';
+      } catch (e) {
+        // fallback to global total if officer-specific endpoint unavailable
+        document.getElementById('parcelCountLarge').textContent   = total;
+      }
+
+      /* ── Notifications ── */
+      try {
+        const notifResult = await api.officerUnreadNotificationCount();
+        const count = notifResult.data?.count || notifResult.data || 0;
+        if (count > 0) {
+          const sn = document.getElementById('sidebarNotifCount');
+          if (sn) { sn.textContent = count; sn.style.display = 'inline'; }
+          const dot = document.getElementById('topNotifDot');
+          if (dot) dot.style.display = 'block';
+        }
+      } catch(e) { console.warn('Notifications count unavailable'); }
+
+      /* ── Recent transfers ── */
+      const transfersResult = await api.pendingTransfers();
+      const transfers = (transfersResult.data || []).slice(0, 6);
+      const tbody = document.getElementById('recentTransfersBody');
+
+      if (!transfers.length) {
+        tbody.innerHTML = `
+          <tr><td colspan="7" style="padding:0">
+            <div class="empty-state">
+              <div class="empty-icon"><i class="bi bi-inbox"></i></div>
+              <h6>No transfer requests found</h6>
+              <p>When new transfer requests are submitted, they will appear here.</p>
+            </div>
+          </td></tr>`;
+      } else {
+        tbody.innerHTML = transfers.map(t => `
+          <tr>
+            <td><a href="/pages/officer/transfer-detail.html?requestId=${t.requestId}" class="ref-link">${t.requestId || 'N/A'}</a></td>
+            <td>${t.parcelNumber || 'N/A'}</td>
+            <td class="col-hide-mobile">${t.sellerName || 'N/A'}</td>
+            <td class="col-hide-mobile">${t.buyerName  || 'N/A'}</td>
+            <td class="col-hide-mobile">${formatDate(t.submittedAt)}</td>
+            <td>${getStatusBadge(t.status)}</td>
+            <td>
+              <button class="btn-action" onclick="window.location.href='/pages/officer/transfer-detail.html?requestId=${t.requestId}'">View</button>
+            </td>
+          </tr>`).join('');
+      }
+
+      /* ── Recent registered parcels ── */
+      const parcelsBody = document.getElementById('recentParcelsBody');
+      try {
+        const parcelsResult = await api.recentParcels();
+        const parcels = (parcelsResult.data || []).slice(0, 5);
+        renderParcels(parcels);
+      } catch (e) {
+        console.warn('Recent parcels endpoint unavailable, using fallback');
+        renderParcels([]);
+      }
+
+      function renderParcels(parcels) {
+        if (!parcels.length) {
+          parcelsBody.innerHTML = `
+            <tr><td colspan="5" style="padding:0">
+              <div class="empty-state">
+                <div class="empty-icon"><i class="bi bi-collection"></i></div>
+                <h6>No parcels registered yet</h6>
+                <p>Newly registered parcels will appear here.</p>
+              </div>
+            </td></tr>`;
+          return;
+        }
+        parcelsBody.innerHTML = parcels.map(p => `
+          <tr>
+            <td><a href="/pages/officer/parcel-registry.html?parcelId=${p.parcelId || ''}" class="ref-link">${p.parcelNumber || 'N/A'}</a></td>
+            <td class="col-hide-mobile">${p.location || 'N/A'}</td>
+            <td>${p.ownerName || 'N/A'}</td>
+            <td class="col-hide-mobile">${formatDate(p.dateRegistered)}</td>
+            <td>${getStatusBadge(p.status || 'ACTIVE')}</td>
+          </tr>`).join('');
+      }
+
+    } catch (error) {
+      console.error('Dashboard load error:', error);
+      showToast('Failed to load dashboard: ' + error.message, 'error');
+    }
+  }
+
+  /* ── Sign out ── */
+  function doSignOut(e) {
+    e.preventDefault();
+    showLogoutConfirmation(logout);
+  }
+  document.getElementById('signOutBtn')?.addEventListener('click', doSignOut);
+  document.getElementById('signOutSidebarBtn')?.addEventListener('click', doSignOut);
+
+  /* ── Other buttons ── */
+  document.getElementById('exportDataBtn')?.addEventListener('click', e => { e.preventDefault(); showToast('Export feature coming soon', 'info'); });
+
+  /* ── Mobile hamburger ── */
+  const sidebar   = document.getElementById('sidebar');
+  const overlay   = document.getElementById('sidebarOverlay');
+  const hamburger = document.getElementById('hamburgerBtn');
+
+  function openSidebar()  { sidebar.classList.add('open'); overlay.classList.add('open'); }
+  function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+
+  hamburger?.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+  overlay?.addEventListener('click', closeSidebar);
+
+  sidebar?.querySelectorAll('.sidebar-item').forEach(item => {
+    item.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); });
+  });
+
+  loadDashboard();
+</script>
+</body>
+</html>

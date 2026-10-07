@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Search Parcel — Public</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    body { font-family: 'Inter', Arial, sans-serif; margin:0; background:#faf7f2; color:#111827 }
+    .container { max-width:900px; margin:36px auto; padding:18px; }
+    .card { background:#fff;padding:18px;border-radius:8px;border:1px solid #e8e3d8; box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+    .row { display:flex; gap:10px; align-items:center }
+    input { flex:1;padding:10px;border:1px solid #d6ceba;border-radius:6px }
+    button { padding:10px 14px;background:#c8a040;border:none;color:#072; border-radius:6px;font-weight:700 }
+    .muted { color:#6b7280;font-size:13px }
+    .result { margin-top:16px }
+    .info-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Search Parcel</h2>
+    <p class="muted">Search by approved parcel number. This view shows limited public information to protect sensitive owner details.</p>
+
+    <div class="card">
+      <div class="row">
+        <input id="q" placeholder="Enter approved parcel number e.g. ZM-LSK-00123" />
+        <button onclick="doSearch()">Search</button>
+      </div>
+      <div id="result" class="result"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { api } from '/js/api.js';
+    window.doSearch = async function(){
+      const q = document.getElementById('q').value.trim();
+      const r = document.getElementById('result');
+      r.innerHTML = '';
+      if(!q){ r.innerHTML = '<div class="muted">Please enter a parcel number.</div>'; return; }
+      r.innerHTML = '<div class="muted">Searching…</div>';
+      try{
+        const res = await api.searchParcels(q);
+        const items = res.data || [];
+        if(!items.length){ r.innerHTML = '<div class="muted">No public record found for that parcel.</div>'; return; }
+        // show limited fields
+        const p = items[0];
+        r.innerHTML = `
+          <h3 style="margin-top:8px">Parcel: ${p.parcelNumber || q}</h3>
+          <div class="info-grid">
+            <div><strong>Province</strong><div>${p.province||'—'}</div></div>
+            <div><strong>District</strong><div>${p.district||'—'}</div></div>
+            <div><strong>Location</strong><div>${p.locationAddress||'—'}</div></div>
+            <div><strong>Area (sqm)</strong><div>${p.areaSqm||'—'}</div></div>
+          </div>
+          <div style="margin-top:12px" class="muted">Limited public data shown to protect owner privacy.</div>
+        `;
+      }catch(err){ r.innerHTML = `<div class="muted">${err.message||'Error searching parcel'}</div>` }
+    }
+  </script>
+</body>
+</html>
+

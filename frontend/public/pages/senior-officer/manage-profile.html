@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Profile – ARMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    :root {
+      --navy:           #0e2240;
+      --navy-dark:      #081527;
+      --navy-mid:       #1a3560;
+      --navy-light:     #e8edf6;
+      --navy-xlight:    #f4f6fb;
+      --gold:           #c8a040;
+      --gold-mid:       #b8902e;
+      --gold-dark:      #9a7420;
+      --gold-light:     #fdf6e3;
+      --gold-xlight:    #fefbf3;
+      --green:          #22c55e;
+      --green-light:    #f0fdf4;
+      --green-dark:     #15803d;
+      --red:            #ef4444;
+      --red-light:      #fef2f2;
+      --red-dark:       #b91c1c;
+      --text-primary:   #111827;
+      --text-secondary: #4b5568;
+      --text-muted:     #8a94a6;
+      --border:         #e8e3d8;
+      --border-mid:     #d6ceba;
+      --page-bg:        #faf7f2;
+      --bg-page:        #faf7f2;
+      --surface:        #ffffff;
+      --bg-card:        #ffffff;
+      --font-family:    'Inter', Arial, sans-serif;
+      --radius:         8px;
+      --radius-lg:      12px;
+      --shadow:         0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+      --shadow-sm:      0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+      --shadow-card:    0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+      --sidebar-w:      220px;
+      --nav-h:          64px;
+      --header-h:       64px;
+    }
+    body {
+      display: flex; flex-direction: column;
+      background: var(--bg-page);
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 13px; color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+      background: var(--bg-card);
+      display: flex; justify-content: space-between; align-items: stretch;
+      border-bottom: 1px solid var(--border);
+      height: var(--header-h); flex-shrink: 0;
+      box-shadow: var(--shadow-sm); position: relative; z-index: 50;
+    }
+    .logo-block {
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 24px; min-width: 360px; height: 100%;
+      flex-shrink: 0; background: var(--navy);
+    }
+    .logo-emblem {
+     width: 40px; height: 40px; border-radius: 8px;
+     background: var(--gold); display: flex; align-items: center;
+     justify-content: center; flex-shrink: 0; overflow: hidden;
+   }
+     .logo-emblem img {
+     width: 100%; height: 100%; object-fit: cover;
+   }
+    .logo-text h2 { font-size: 12.5px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+    .logo-text p  { font-size: 10.5px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+    .top-right { display: flex; align-items: center; gap: 14px; padding-right: 20px; }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--gold-light); border: 1.5px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--navy);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .top-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+    .top-user-role { font-size: 10.5px; color: var(--text-muted); line-height: 1; }
+    .btn-signout {
+      background: transparent; border: 1px solid var(--border-mid);
+      color: var(--text-secondary); padding: 5px 13px;
+      border-radius: var(--radius); font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .btn-signout:hover { background: var(--bg-page); color: var(--text-primary); }
+
+    /* LAYOUT */
+    .dashboard-container { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 14px 0 12px; flex-shrink: 0; height: 100%;
+      overflow-y: auto; display: flex; flex-direction: column;
+    }
+    .sidebar-section-title {
+      font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--text-muted); font-weight: 700; padding: 10px 16px 4px;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 16px; color: var(--text-secondary);
+      text-decoration: none; font-size: 12.5px;
+      transition: all 0.13s; border-left: 2px solid transparent; margin: 1px 0;
+    }
+    .sidebar-item:hover { background: var(--gold-xlight); color: var(--navy); }
+    .sidebar-item.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+    .sidebar-item i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+    .sidebar-item.active i { opacity: 1; }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+    .sidebar-item.signout { color: #991b1b; }
+    .sidebar-item.signout:hover { background: #fdecea; }
+    .sidebar-item.signout i { opacity: 1; }
+
+    /* MAIN */
+    .main-content {
+      flex: 1; min-height: 0; padding: 24px 28px;
+      overflow-y: auto; overflow-x: hidden; background: var(--bg-page);
+    }
+    .page-header { margin-bottom: 22px; }
+    .page-title   { font-size: 20px; font-weight: 600; color: var(--navy); margin-bottom: 4px; letter-spacing: -0.3px; }
+    .page-subtitle{ font-size: 12.5px; color: var(--text-secondary); }
+
+    /* PROFILE HERO */
+    .profile-hero {
+      background: var(--navy);
+      border-radius: var(--radius-lg); padding: 28px 28px;
+      margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: var(--shadow-card);
+      display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+    }
+    .hero-avatar-wrap { position: relative; flex-shrink: 0; }
+    .hero-avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: var(--gold); border: 3px solid rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px; font-weight: 800; color: var(--navy);
+      overflow: hidden;
+    }
+    .hero-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .hero-online {
+      position: absolute; bottom: 3px; right: 3px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #22c55e; border: 2.5px solid var(--navy);
+    }
+    .hero-info { flex: 1; min-width: 0; }
+    .hero-role-badge {
+      display: inline-flex; padding: 3px 10px; border-radius: 99px;
+      background: rgba(200,160,64,0.2); color: var(--gold);
+      border: 1px solid rgba(200,160,64,0.35);
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em;
+      margin-bottom: 7px;
+    }
+    .hero-name { color: #fff; font-size: 20px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.3px; line-height: 1.2; }
+    .hero-email { color: rgba(255,255,255,0.5); font-size: 12.5px; display: flex; align-items: center; gap: 5px; }
+    .hero-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    /* CARDS */
+    .section-card {
+      background: var(--bg-card); border-radius: var(--radius-lg);
+      border: 1px solid var(--border); overflow: hidden;
+      box-shadow: var(--shadow-card); margin-bottom: 16px;
+    }
+    .section-header {
+      padding: 13px 18px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-header h6 {
+      margin: 0; font-size: 13px; font-weight: 600; color: var(--navy);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-header h6 i {
+      width: 26px; height: 26px; background: var(--gold-light);
+      border-radius: 6px; display: inline-flex; align-items: center;
+      justify-content: center; font-size: 12px; color: var(--gold-dark);
+    }
+    .section-body { padding: 18px; }
+
+    /* INFO ROWS (view mode) */
+    .info-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+    .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .info-icon {
+      width: 32px; height: 32px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; flex-shrink: 0;
+    }
+    .info-label { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.06em; margin-bottom: 2px; }
+    .info-value { font-size: 13px; font-weight: 600; color: var(--navy); }
+    .info-value.empty { color: var(--text-muted); font-weight: 400; font-style: italic; }
+
+    /* FORM ELEMENTS (edit mode) */
+    .form-label-arm { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; display: block; }
+    .form-control-arm, .form-select-arm {
+      width: 100%; border: 1px solid var(--border-mid); border-radius: var(--radius);
+      padding: 8px 12px; font-size: 13px; font-family: inherit;
+      color: var(--text-primary); background: var(--bg-card); outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-control-arm:focus, .form-select-arm:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,160,64,0.15); }
+    textarea.form-control-arm { resize: vertical; }
+    .form-group { margin-bottom: 14px; }
+    .form-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+    /* PASSWORD SECTION */
+    .pwd-box {
+      background: var(--gold-xlight); border: 1px solid #e8d098;
+      border-radius: var(--radius); padding: 16px; margin-top: 4px;
+    }
+    .pwd-box-title { font-size: 11.5px; font-weight: 700; color: var(--gold-dark); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+
+    /* PHOTO UPLOAD */
+    .photo-upload-area {
+      border: 1.5px dashed var(--border-mid); border-radius: var(--radius);
+      padding: 20px 16px; text-align: center; cursor: pointer;
+      transition: all 0.2s; background: var(--bg-page);
+    }
+    .photo-upload-area:hover { border-color: var(--gold); background: var(--gold-xlight); }
+    .photo-upload-area i { font-size: 24px; color: var(--text-muted); margin-bottom: 8px; display: block; }
+    .photo-upload-area p { font-size: 12.5px; color: var(--text-secondary); margin: 0 0 3px; }
+    .photo-upload-area small { font-size: 11px; color: var(--text-muted); }
+    #peF { display: none; }
+    #photoPreview { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 2.5px solid var(--gold); display: none; margin: 0 auto 12px; }
+
+    /* BUTTONS */
+    .btn-gold {
+      height: 36px; padding: 0 20px; border-radius: var(--radius);
+      border: none; background: var(--gold); color: var(--navy);
+      font-size: 13px; font-family: inherit; font-weight: 600;
+      cursor: pointer; transition: background 0.15s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-gold:hover { background: var(--gold-mid); }
+    .btn-gold-outline {
+      height: 36px; padding: 0 18px; border-radius: var(--radius);
+      border: 1px solid var(--gold); background: transparent; color: var(--gold-dark);
+      font-size: 13px; font-family: inherit; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-gold-outline:hover { background: var(--gold-xlight); }
+    .btn-cancel {
+      height: 36px; padding: 0 18px; border-radius: var(--radius);
+      border: 1px solid var(--border-mid); background: var(--bg-card);
+      font-size: 13px; font-family: inherit; color: var(--text-secondary);
+      cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-cancel:hover { background: var(--bg-page); color: var(--navy); }
+
+    /* PASSWORD DOTS DISPLAY */
+    .pwd-dots { letter-spacing: 3px; font-size: 14px; color: var(--text-muted); }
+
+    /* ROLE BADGE IN VIEW */
+    .role-badge-view {
+      display: inline-flex; padding: 3px 10px; border-radius: 99px;
+      background: var(--navy-light); color: var(--navy-mid);
+      border: 1px solid #c5d3e8; font-size: 10.5px; font-weight: 700;
+    }
+
+    /* ALERT */
+    .alert-arm { padding: 10px 14px; border-radius: var(--radius); font-size: 12.5px; margin-bottom: 14px; }
+    .alert-danger-arm { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    /* TOAST */
+    .toast-wrap { position: fixed; top: 80px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+    .toast-item { padding: 11px 16px; border-radius: var(--radius-lg); font-size: 12.5px; font-weight: 500; display: flex; align-items: center; gap: 9px; box-shadow: 0 4px 20px rgba(14,34,64,0.15); min-width: 280px; pointer-events: auto; animation: slideIn 0.25s ease; }
+    .toast-item i { font-size: 15px; flex-shrink: 0; }
+    .t-ok  { background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0; }
+    .t-err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .t-wrn { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #e8d098; }
+    @keyframes slideIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* FOOTER */
+    .footer { background: var(--bg-card); color: var(--text-muted); padding: 10px 24px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; border-top: 1px solid var(--border); flex-shrink: 0; }
+    .footer-session { display: flex; align-items: center; gap: 6px; }
+    .session-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+    .view-mode { display: block; }
+    .edit-mode  { display: none; }
+
+    @media (max-width: 768px) { .sidebar { display: none; } }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../images/coat-of-arms.png" alt="Coat of Arms"/>
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar">
+      <img id="headerPhoto" alt=""/>
+      <span id="headerInitials" aria-label="Current user"></span>
+    </div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="nav-name"></div>
+      <div class="top-user-role" id="nav-role"></div>
+    </div>
+    <button class="btn-signout" onclick="confirmAndLogout(event)">Sign Out</button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Senior Officer Panel</div>
+    <a href="dashboard.html"          class="sidebar-item"><i class="bi bi-hammer"></i> Senior Approvals</a>
+    <a href="district-oversight.html" class="sidebar-item"><i class="bi bi-map"></i> District Oversight</a>
+    <a href="flagged.html"  class="sidebar-item"><i class="bi bi-flag"></i> Flagged</a>
+    <a href="audit-log.html"          class="sidebar-item"><i class="bi bi-shield-lock"></i> Blockchain Audit</a>
+    <a href="monthly-reports.html"          class="sidebar-item"><i class="bi bi-bar-chart"></i> Monthly Reports</a>
+    <a href="notifications.html"        class="sidebar-item"><i class="bi bi-bell"></i> Notifications</a>   
+    <div class="sidebar-divider"></div>
+    <a href="manage-profile.html"     class="sidebar-item active"><i class="bi bi-person-gear"></i> Manage Profile</a>
+    <a href="../../index.html"        class="sidebar-item"><i class="bi bi-search"></i> Verify Parcel</a>
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" onclick="confirmAndLogout(event);return false;"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <div class="page-header">
+      <div class="page-title">Manage Profile</div>
+    </div>
+
+    <div id="alertMsg"></div>
+
+    <!-- HERO -->
+    <div class="profile-hero">
+      <div class="hero-avatar-wrap">
+        <div class="hero-avatar" id="heroAvatarCircle" aria-label="Current user"></div>
+        <div class="hero-online"></div>
+      </div>
+      <div class="hero-info">
+        <div class="hero-role-badge" id="heroBadge">Senior Officer</div>
+        <div class="hero-name" id="heroName">Loading…</div>
+        <div class="hero-email"><i class="bi bi-envelope"></i><span id="heroEmail">—</span></div>
+      </div>
+      <div class="hero-actions">
+        <button class="btn-gold-outline" onclick="toggleEdit()" id="editToggleBtn">
+          <i class="bi bi-pencil" id="editBtnIcon"></i><span id="editBtnText">Edit Profile</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── VIEW MODE ── -->
+    <div class="view-mode" id="viewSection">
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="section-card">
+            <div class="section-header">
+              <h6><i class="bi bi-person-vcard"></i> Personal Information</h6>
+            </div>
+            <div class="section-body">
+              <div class="info-row">
+                <div class="info-icon" style="background:var(--navy-light);color:var(--navy-mid);"><i class="bi bi-person"></i></div>
+                <div><div class="info-label">Full Name</div><div class="info-value" id="pvName">—</div></div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon" style="background:#fce7f3;color:#9d174d;"><i class="bi bi-gender-ambiguous"></i></div>
+                <div><div class="info-label">Gender</div><div class="info-value" id="pvGender">—</div></div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon" style="background:#ecfdf5;color:#166534;"><i class="bi bi-telephone"></i></div>
+                <div><div class="info-label">Phone Number</div><div class="info-value" id="pvPhone">—</div></div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon" style="background:var(--gold-light);color:var(--gold-dark);"><i class="bi bi-geo-alt"></i></div>
+                <div><div class="info-label">Address</div><div class="info-value" id="pvAddress">—</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="section-card">
+            <div class="section-header">
+              <h6><i class="bi bi-shield-check"></i> Account &amp; Role</h6>
+            </div>
+            <div class="section-body">
+              <div class="info-row">
+                <div class="info-icon" style="background:var(--navy-light);color:var(--navy-mid);"><i class="bi bi-envelope"></i></div>
+                <div><div class="info-label">Email Address</div><div class="info-value" id="pvEmail">—</div></div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon" style="background:#ede9fe;color:#7c3aed;"><i class="bi bi-person-badge"></i></div>
+                <div>
+                  <div class="info-label">System Role</div>
+                  <div class="info-value"><span class="role-badge-view" id="pvRole">—</span></div>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon" style="background:#ecfdf5;color:#166534;"><i class="bi bi-clock-history"></i></div>
+                <div><div class="info-label">Last Updated</div><div class="info-value" id="pvUpdated">—</div></div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon" style="background:#fef2f2;color:#991b1b;"><i class="bi bi-lock"></i></div>
+                <div><div class="info-label">Password</div><div class="info-value pwd-dots">••••••••••</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /view mode -->
+
+    <!-- ── EDIT MODE ── -->
+    <div class="edit-mode" id="editSection">
+      <form onsubmit="submitProfile(event)">
+        <div class="row g-4">
+
+          <!-- Left: personal + password -->
+          <div class="col-lg-8">
+
+            <!-- Personal Info -->
+            <div class="section-card">
+              <div class="section-header">
+                <h6><i class="bi bi-person-vcard"></i> Personal Information</h6>
+              </div>
+              <div class="section-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label-arm">Full Name</label>
+                      <input type="text" class="form-control-arm" id="peN" placeholder="Enter full name"/>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label-arm">Gender <span class="required">*</span></label>
+                      <select class="form-select-arm" id="peG" required>
+                        <option value="">Select gender</option>
+                        <option value="MALE">Male</option>
+                        <option value="FEMALE">Female</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="form-group">
+                      <label class="form-label-arm">Phone Number <span class="required">*</span></label>
+                      <input type="tel" class="form-control-arm" id="peP" placeholder="+260 XXX XXX XXX" required/>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="form-group" style="margin-bottom:0;">
+                      <label class="form-label-arm">Address <span class="required">*</span></label>
+                      <textarea class="form-control-arm" id="peA" rows="3" placeholder="Enter your full address" required></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Change Password -->
+            <div class="section-card">
+              <div class="section-header">
+                <h6><i class="bi bi-lock"></i> Change Password</h6>
+                <span style="font-size:11.5px;color:var(--text-muted);margin-left:auto;">Leave blank to keep current password</span>
+              </div>
+              <div class="section-body">
+                <div class="pwd-box">
+                  <div class="pwd-box-title"><i class="bi bi-exclamation-triangle-fill"></i> Both fields required to change password</div>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label-arm">Current Password</label>
+                      <input type="password" class="form-control-arm" id="peCp" placeholder="Enter current password"/>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label-arm">New Password</label>
+                      <input type="password" class="form-control-arm" id="peNp" placeholder="Enter new password"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /col-lg-8 -->
+
+          <!-- Right: photo -->
+          <div class="col-lg-4">
+            <div class="section-card" style="position:sticky;top:0;">
+              <div class="section-header">
+                <h6><i class="bi bi-camera"></i> Profile Photo</h6>
+              </div>
+              <div class="section-body" style="text-align:center;">
+                <img id="photoPreview" alt="Preview"/>
+                <div class="photo-upload-area" onclick="document.getElementById('peF').click()">
+                  <i class="bi bi-cloud-arrow-up"></i>
+                  <p>Click to upload photo</p>
+                  <small>JPG, PNG — max 5 MB</small>
+                </div>
+                <input type="file" id="peF" accept="image/*" onchange="previewPhoto(event)"/>
+                <div id="photoFileName" style="margin-top:8px;font-size:11px;color:var(--text-muted);"></div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /row -->
+
+        <!-- Form actions -->
+        <div style="display:flex;gap:10px;margin-top:4px;padding-bottom:24px;">
+          <button type="button" class="btn-cancel" onclick="toggleEdit()"><i class="bi bi-arrow-left"></i> Cancel</button>
+          <button type="submit" class="btn-gold" id="pSaveBtn"><i class="bi bi-check2"></i> Save Changes</button>
+        </div>
+
+      </form>
+    </div><!-- /edit mode -->
+
+  </div><!-- /main-content -->
+</div><!-- /dashboard-container -->
+
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ORIGINAL JAVASCRIPT — UNTOUCHED LOGIC -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+import { requireLogin, getSession, logout, updateSession } from '/js/auth.js';
+
+requireLogin();
+const userRole = localStorage.getItem('lv_role');
+if (userRole !== 'SENIOR_OFFICER') {
+  window.location.href = '/login.html?error=invalid_role';
+}
+window.doLogout = logout;
+const BASE = '';
+
+function toast(msg, type = 'success') {
+  const icons = { success: 'bi-check-circle-fill', error: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill' };
+  const cls   = { success: 't-ok', error: 't-err', warning: 't-wrn' };
+  const el = document.createElement('div');
+  el.className = `toast-item ${cls[type]}`;
+  el.innerHTML = `<i class="bi ${icons[type]}"></i><span>${msg}</span>`;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(() => el.remove(), 5000);
+}
+
+async function loadProfile() {
+  try {
+    const token = localStorage.getItem('lv_token');
+    const res = await fetch(`${BASE}/api/auth/profile/me`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) throw new Error('Failed to load profile');
+    const { data: p } = await res.json();
+    updateSession(p);
+    renderProfile(p);
+  } catch(e) {
+    const session = getSession();
+    if (session) renderProfile(session);
+    else toast('Could not load profile data.', 'error');
+  }
+}
+
+function renderProfile(p) {
+  const name = p.fullName || p.username || '—';
+  const role = (p.role || '—').replace(/_/g, ' ');
+
+  document.getElementById('nav-name').textContent = name;
+  document.getElementById('nav-role').textContent = role;
+  document.getElementById('headerInitials').textContent = name.charAt(0).toUpperCase();
+
+  document.getElementById('heroName').textContent  = name;
+  document.getElementById('heroEmail').textContent = p.email || '—';
+  document.getElementById('heroBadge').textContent = role;
+  document.getElementById('heroAvatarCircle').textContent = name.charAt(0).toUpperCase();
+
+  if (p.photoPath) {
+    const img = document.createElement('img');
+    img.src = `${BASE}/uploads/${p.photoPath}`;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
+    const circle = document.getElementById('heroAvatarCircle');
+    circle.innerHTML = '';
+    circle.appendChild(img);
+    const hi = document.getElementById('headerPhoto');
+    hi.src = `${BASE}/uploads/${p.photoPath}`;
+    hi.style.display = 'block';
+    document.getElementById('headerInitials').style.display = 'none';
+  }
+
+  document.getElementById('pvName').textContent    = name;
+  document.getElementById('pvGender').textContent  = p.gender ? p.gender.charAt(0) + p.gender.slice(1).toLowerCase() : '—';
+  document.getElementById('pvPhone').textContent   = p.phoneNumber || '—';
+  document.getElementById('pvAddress').textContent = p.address || '—';
+  document.getElementById('pvEmail').textContent   = p.email || '—';
+  document.getElementById('pvRole').textContent    = role;
+  document.getElementById('pvUpdated').textContent = p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : 'Recently';
+
+  document.getElementById('peN').value = p.fullName || '';
+  document.getElementById('peG').value = p.gender || '';
+  document.getElementById('peP').value = p.phoneNumber || '';
+  document.getElementById('peA').value = p.address || '';
+}
+
+window.toggleEdit = function() {
+  const view = document.getElementById('viewSection');
+  const edit = document.getElementById('editSection');
+  const isView = view.style.display !== 'none';
+  view.style.display = isView ? 'none' : 'block';
+  edit.style.display = isView ? 'block' : 'none';
+  document.getElementById('editBtnIcon').className = isView ? 'bi bi-x' : 'bi bi-pencil';
+  document.getElementById('editBtnText').textContent = isView ? 'Cancel' : 'Edit Profile';
+  if (!isView) {
+    document.getElementById('peCp').value = '';
+    document.getElementById('peNp').value = '';
+  }
+};
+
+window.previewPhoto = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('photoFileName').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const prev = document.getElementById('photoPreview');
+    prev.src = ev.target.result;
+    prev.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+};
+
+window.submitProfile = async function(e) {
+  e.preventDefault();
+  const n  = document.getElementById('peN').value.trim();
+  const g  = document.getElementById('peG').value;
+  const p  = document.getElementById('peP').value.trim();
+  const a  = document.getElementById('peA').value.trim();
+  const f  = document.getElementById('peF').files[0];
+  const cp = document.getElementById('peCp').value;
+  const np = document.getElementById('peNp').value;
+
+  if (!n && !g && !p && !a && !f && !np) {
+    toast('Please fill in at least one field to update.', 'error');
+    return;
+  }
+  if ((cp && !np) || (!cp && np)) {
+    toast('Both current and new password are required to change your password.', 'error');
+    return;
+  }
+
+  const btn  = document.getElementById('pSaveBtn');
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-arrow-repeat" style="animation:spin 0.7s linear infinite;display:inline-block;margin-right:6px;"></i>Saving…';
+
+  try {
+    const fd = new FormData();
+    if (n)  fd.append('fullName', n);
+    if (g)  fd.append('gender', g);
+    if (p)  fd.append('phoneNumber', p);
+    if (a)  fd.append('address', a);
+    if (f)  fd.append('photo', f);
+    if (cp) fd.append('currentPassword', cp);
+    if (np) fd.append('newPassword', np);
+
+    const token = localStorage.getItem('lv_token');
+    const res = await fetch(`${BASE}/api/auth/profile/request-update`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: fd
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: 'Update failed' }));
+      throw new Error(err.message || 'Update failed');
+    }
+
+    toast('Profile updated successfully.', 'success');
+    toggleEdit();
+    await loadProfile();
+  } catch(err) {
+    toast(err.message || 'Failed to update profile.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+};
+
+loadProfile();
+</script>
+</body>
+</html>

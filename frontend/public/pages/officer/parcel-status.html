@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARMS – Parcel Status Records</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+
+  :root {
+    --navy:          #0e2240;
+    --navy-mid:      #1a3560;
+    --navy-light:    #e8edf6;
+    --navy-xlight:   #f4f6fb;
+    --gold:          #c8a040;
+    --gold-mid:      #b8902e;
+    --gold-dark:     #9a7420;
+    --gold-light:    #fdf6e3;
+    --gold-xlight:   #fefbf3;
+    --text-primary:  #111827;
+    --text-secondary:#4b5568;
+    --text-muted:    #8a94a6;
+    --border:        #e8e3d8;
+    --border-mid:    #d6ceba;
+    --bg-page:       #faf7f2;
+    --bg-card:       #ffffff;
+    --bg-input:      #fbfaf7;
+    --radius:        6px;
+    --radius-lg:     10px;
+    --shadow-sm:     0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+    --shadow-card:   0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+    --focus-ring:    0 0 0 3px rgba(200,160,64,0.15);
+    --sidebar-w:     220px;
+    --header-h:      66px;
+    /* status semantics */
+    --rejected-bg:   #fef2f2;
+    --rejected-fg:   #991b1b;
+    --rejected-brd:  #fecaca;
+    --approved-bg:   #ecfdf5;
+    --approved-fg:   #166534;
+    --approved-brd:  #bbf7d0;
+  }
+
+  body {
+    display: flex; flex-direction: column;
+    background: var(--bg-page);
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 13px; color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── TOP BAR ── */
+  .top-bar {
+    background: var(--navy);
+    display: flex; justify-content: space-between; align-items: stretch;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    height: var(--header-h); flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(14,34,64,0.08); position: relative; z-index: 50;
+  }
+  .logo-block {
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 24px; min-width: 360px; height: 100%;
+    flex-shrink: 0; background: var(--navy);
+  }
+  .logo-emblem {
+    width: 40px; height: 40px; border-radius: 8px;
+    background: var(--gold); display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; overflow: hidden;
+  }
+  .logo-emblem img { width: 100%; height: 100%; object-fit: cover; }
+  .logo-text h2 { font-size: 12.5px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+  .logo-text p  { font-size: 10.5px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+  .top-right { display: flex; align-items: center; gap: 14px; padding-right: 20px; }
+  .user-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--gold-light); border: 1.5px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--navy); flex-shrink: 0;
+    overflow: hidden; position: relative;
+  }
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+  .top-user-name { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.2; }
+  .top-user-role { font-size: 10.5px; color: rgba(255,255,255,0.7); line-height: 1; }
+  .btn-signout {
+    background: transparent; border: 1px solid rgba(255,255,255,0.25);
+    color: #fff; padding: 5px 13px;
+    border-radius: var(--radius); font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; font-family: inherit;
+  }
+  .btn-signout:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+  /* ── LAYOUT ── */
+  .dashboard-container { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w); background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    padding: 14px 0 12px; flex-shrink: 0; height: 100%;
+    overflow-y: auto; display: flex; flex-direction: column;
+  }
+  .sidebar-section-title {
+    font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--text-muted); font-weight: 700; padding: 10px 16px 4px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 16px; color: var(--text-secondary);
+    text-decoration: none; font-size: 12.5px;
+    transition: all 0.13s; border-left: 2px solid transparent; margin: 1px 0;
+    border-radius: 0 8px 8px 0;
+  }
+  .sidebar-item:hover { background: var(--gold-xlight); color: var(--navy); }
+  .sidebar-item.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+  .sidebar-item i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-item.active i { opacity: 1; }
+  .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+  .sidebar-item.signout { color: #ef4444; }
+  .sidebar-item.signout:hover { background: #fef2f2; }
+  .sidebar-item.signout i { opacity: 1; }
+  .badge-notif {
+    margin-left: auto; background: #dc2626; color: #fff;
+    font-size: 10px; font-weight: 700; min-width: 18px; height: 18px;
+    border-radius: 99px; display: inline-flex; align-items: center;
+    justify-content: center; padding: 0 5px;
+  }
+
+  /* ── MAIN ── */
+  .main-content { flex: 1; min-height: 0; padding: 24px 28px; overflow-y: auto; overflow-x: hidden; background: var(--bg-page); }
+  .page-header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+  .page-title { font-size: 20px; font-weight: 600; color: var(--navy); margin-bottom: 4px; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+  .page-subtitle { font-size: 12.5px; color: var(--text-secondary); max-width: 640px; }
+
+  /* ── STATUS TABS ── */
+  .status-tabs { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .status-tab {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px; border-radius: var(--radius-lg);
+    border: 1px solid var(--border); background: var(--bg-card);
+    color: var(--text-secondary); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; font-family: inherit;
+  }
+  .status-tab:hover:not(.active) { background: var(--bg-page); color: var(--text-primary); }
+  .status-tab .tab-count {
+    background: var(--bg-page); color: var(--text-muted);
+    font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 99px;
+  }
+
+  .status-tab.active[data-status="REJECTED"] {
+    background: var(--rejected-bg); color: var(--rejected-fg);
+  }
+  .status-tab.active[data-status="REJECTED"] .tab-count {
+    background: #fff; color: var(--rejected-fg);
+  }
+
+  .status-tab.active[data-status="APPROVED"] {
+    background: var(--approved-bg); color: var(--approved-fg);
+  }
+  .status-tab.active[data-status="APPROVED"] .tab-count {
+    background: #fff; color: var(--approved-fg);
+  }
+
+  /* ── FILTER CARD ── */
+  .filter-card {
+    background: var(--bg-card); border-radius: var(--radius-lg);
+    border: 1px solid var(--border); padding: 18px 22px;
+    margin-bottom: 18px; box-shadow: 0 1px 2px rgba(14,34,64,0.04);
+  }
+
+  .filter-row {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
+  }
+
+  .filter-group { flex: 1; min-width: 150px; }
+
+  .filter-group label {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-muted);
+    display: flex; align-items: center; gap: 5px; margin-bottom: 5px;
+  }
+
+  .filter-group input,
+  .filter-group select {
+    width: 100%; height: 38px; padding: 0 11px;
+    border-radius: var(--radius); border: 1px solid var(--border-mid);
+    font-size: 13px; font-family: inherit; background: var(--bg-input);
+    color: var(--text-primary); outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    appearance: none; -webkit-appearance: none;
+  }
+
+  .filter-group input::placeholder { color: var(--text-muted); font-size: 12.5px; }
+  .filter-group input:focus,
+  .filter-group select:focus { border-color: var(--gold); box-shadow: var(--focus-ring); background: white; }
+
+  .btn-custom-primary {
+    background: var(--gold); color: var(--navy); border: none;
+    padding: 0 18px; height: 38px; border-radius: var(--radius);
+    font-size: 12.5px; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: inherit; transition: background 0.15s; white-space: nowrap;
+  }
+  .btn-custom-primary:hover { background: var(--gold-mid); }
+
+  .btn-custom-outline {
+    background: var(--bg-card); border: 1px solid var(--border-mid);
+    padding: 0 16px; height: 38px; border-radius: var(--radius);
+    font-size: 12.5px; font-weight: 500; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--text-secondary); font-family: inherit; transition: all 0.15s; white-space: nowrap;
+  }
+  .btn-custom-outline:hover { background: var(--bg-page); color: var(--text-primary); }
+
+  .btn-register {
+    background: var(--bg-card); color: var(--text-secondary);
+    border: 1px solid var(--border-mid); padding: 0 16px; height: 36px;
+    border-radius: var(--radius); font-size: 12.5px; font-weight: 500;
+    font-family: inherit; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s;
+  }
+  .btn-register:hover { background: var(--bg-page); color: var(--text-primary); }
+
+  /* ── TABLE CARD ── */
+  .table-card {
+    background: var(--bg-card); border-radius: var(--radius-lg);
+    border: 1px solid var(--border); overflow: hidden;
+    margin-bottom: 20px; box-shadow: 0 1px 2px rgba(14,34,64,0.04);
+  }
+
+  .table-header {
+    background: var(--bg-card); border-bottom: 1px solid var(--border);
+    padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .table-header h6 {
+    margin: 0; font-size: 13.5px; font-weight: 600;
+    color: var(--navy); display: flex; align-items: center; gap: 8px;
+  }
+
+  .table-header h6 i {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    background: var(--rejected-bg); color: var(--rejected-fg);
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .records-badge {
+    font-size: 11px; font-weight: 600; color: var(--navy);
+    background: var(--gold-xlight); border: 1px solid var(--border);
+    padding: 4px 12px; border-radius: 99px;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead th {
+    background: var(--bg-page); padding: 10px 16px;
+    font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; font-size: 10px;
+    letter-spacing: 0.07em; border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    vertical-align: middle; color: var(--text-primary); font-size: 12.5px;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--gold-xlight); }
+
+  .ref-link {
+    color: var(--navy); font-weight: 600; text-decoration: none;
+    font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
+    background: var(--navy-xlight); padding: 2px 7px;
+    border-radius: 4px; transition: background 0.15s;
+    display: inline-block; cursor: pointer;
+  }
+  .ref-link:hover { background: var(--gold-light); color: var(--gold-dark); }
+
+  .badge-status-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 99px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em;
+    white-space: nowrap; border: 1px solid transparent;
+  }
+
+  .badge-status-pill.rejected {
+    background: var(--rejected-bg); color: var(--rejected-fg); border-color: var(--rejected-brd);
+  }
+
+  .badge-status-pill.approved {
+    background: var(--approved-bg); color: var(--approved-fg); border-color: var(--approved-brd);
+  }
+
+  .btn-action {
+    padding: 4px 11px; font-size: 11.5px;
+    border: 1px solid var(--border-mid); background: var(--bg-card);
+    border-radius: var(--radius); cursor: pointer; margin: 0 2px;
+    color: var(--text-secondary); font-family: inherit; font-weight: 500;
+    transition: all 0.13s; display: inline-flex; align-items: center; gap: 4px;
+  }
+  .btn-action:hover { background: var(--navy); color: white; border-color: var(--navy); }
+
+  .empty-state {
+    text-align: center; padding: 40px 20px; color: var(--text-muted);
+  }
+  .empty-state i { font-size: 2rem; margin-bottom: 10px; opacity: 0.4; display: block; }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--bg-card); color: var(--text-muted);
+    padding: 10px 24px; display: flex;
+    justify-content: space-between; align-items: center;
+    font-size: 11px; border-top: 1px solid var(--border); flex-shrink: 0;
+  }
+
+  .footer-session { display: flex; align-items: center; gap: 6px; }
+
+  .session-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--gold); flex-shrink: 0;
+  }
+
+  /* ── TOAST ── */
+  .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+
+  .toast-msg {
+    background: var(--navy); color: white; padding: 10px 16px;
+    border-radius: var(--radius); margin-top: 8px; font-size: 12.5px;
+    animation: slideIn 0.25s ease; display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 14px rgba(14,34,64,0.25);
+  }
+  .toast-msg.success { border-left: 3px solid #22c55e; }
+  .toast-msg.error   { border-left: 3px solid #ef4444; }
+  .toast-msg.info    { border-left: 3px solid var(--gold); }
+
+  @keyframes slideIn {
+    from { transform: translateX(60px); opacity: 0; }
+    to   { transform: translateX(0);   opacity: 1; }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .filter-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../../images/coat-of-arms.png" alt="Zambian Coat of Arms" class="nav-seal" width="42" height="42" />
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar" id="userAvatarInitials" aria-label="Current user"></div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="topUserName">Loading profile...</div>
+      <div class="top-user-role" id="topUserDetails">Land Officer</div>
+    </div>
+    <button class="btn-signout" id="signOutBtn">Sign Out</button>
+  </div>
+</div>
+
+<!-- ── LAYOUT ── -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Main Menu</div>
+    <a href="/pages/officer/dashboard.html"        class="sidebar-item"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="/pages/officer/parcel-registry.html"   class="sidebar-item"><i class="bi bi-collection"></i> Parcel Registry</a>
+    <a href="/pages/officer/register-parcel.html"   class="sidebar-item"><i class="bi bi-plus-circle"></i> Register Parcel</a>
+    <a href="/pages/officer/transfer-requests.html" class="sidebar-item"><i class="bi bi-arrow-left-right"></i> Transfer Requests</a>
+    <a href="/pages/officer/parcel-status.html"  class="sidebar-item active"><i class="bi bi-x-circle"></i> Parcel Status</a>
+    <a href="/pages/officer/notifications.html"     class="sidebar-item">
+      <i class="bi bi-bell"></i> Notifications
+      <span class="badge-notif" id="sidebarNotifCount" style="display:none">0</span>
+    </a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Reports</div>
+    <a href="monthly-report.html" class="sidebar-item" id="monthlyReportBtn"><i class="bi bi-file-earmark-bar-graph"></i> Monthly Report</a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Account</div>
+    <a href="/pages/officer/manage-profile.html" class="sidebar-item"><i class="bi bi-person-circle"></i> My Profile</a>
+
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" id="signOutSidebarBtn"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">
+          <i class="bi bi-x-circle" id="pageTitleIcon" style="color:#b91c1c;"></i>
+          <span id="pageTitleText">Rejected Parcels</span>
+        </div>
+      </div>
+      <a href="/pages/officer/dashboard.html" class="btn-register"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+    </div>
+
+    <!-- Status Tabs -->
+    <div class="status-tabs">
+      <button class="status-tab active" data-status="REJECTED" id="tabRejected">
+        <i class="bi bi-x-circle"></i> Rejected
+        <span class="tab-count" id="countRejected">0</span>
+      </button>
+      <button class="status-tab" data-status="APPROVED" id="tabApproved">
+        <i class="bi bi-check-circle"></i> Approved
+        <span class="tab-count" id="countApproved">0</span>
+      </button>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="filter-card">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label><i class="bi bi-search"></i> Parcel No.</label>
+          <input type="text" id="searchParcel" placeholder="e.g. LUS-2024-001">
+        </div>
+        <div class="filter-group">
+          <label><i class="bi bi-person"></i> Owner Name</label>
+          <input type="text" id="searchOwner" placeholder="Owner name...">
+        </div>
+        <div class="filter-group">
+          <label><i class="bi bi-geo-alt"></i> District</label>
+          <select id="filterDistrict">
+            <option value="">All Districts</option>
+            <option value="Lusaka">Lusaka</option>
+            <option value="Kitwe">Kitwe</option>
+            <option value="Ndola">Ndola</option>
+            <option value="Kabwe">Kabwe</option>
+            <option value="Livingstone">Livingstone</option>
+            <option value="Chipata">Chipata</option>
+          </select>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-end;">
+          <button class="btn-custom-primary" id="filterBtn"><i class="bi bi-funnel"></i> Filter</button>
+          <button class="btn-custom-outline" id="resetBtn"><i class="bi bi-arrow-repeat"></i> Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parcels Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <h6><i class="bi bi-x-circle" id="tableHeaderIcon"></i> <span id="tableHeaderText">Rejected Parcels Registry</span></h6>
+        <span class="records-badge" id="recordsCount">0 records</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Parcel No.</th>
+              <th>Title Deed</th>
+              <th>Current Owner</th>
+              <th>District</th>
+              <th>Province</th>
+              <th>Area (sqm)</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rejectedTableBody">
+            <tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-hourglass-split me-1"></i> Loading parcels...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script type="module">
+  import { api } from '/js/api.js';
+  import { requireLogin, getSession, logout, showLogoutConfirmation } from '/js/auth.js';
+
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast-msg ${type}`;
+    toast.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle-fill' : type === 'error' ? 'exclamation-triangle-fill' : 'info-circle-fill'}"></i> ${message}`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+
+  // Current tab: 'REJECTED' or 'APPROVED'
+  let currentStatus = 'REJECTED';
+
+  // Cache so switching tabs doesn't refetch every time
+  const parcelCache = { REJECTED: null, APPROVED: null };
+  let allParcels = []; // currently displayed dataset (unfiltered)
+
+  const STATUS_CONFIG = {
+    REJECTED: {
+      title: 'Rejected Parcels',
+      subtitle: 'View land parcels that had transfer requests rejected. These parcels are now available for new transfer initiatives.',
+      tableHeading: 'Rejected Parcels Registry',
+      icon: 'bi-x-circle',
+      iconColor: '#b91c1c',
+      badgeClass: 'rejected',
+      badgeLabel: 'Rejected',
+      badgeIcon: 'bi-x-circle',
+      emptyText: 'No rejected parcels found',
+      emptyHint: 'Parcels with rejected status will appear here'
+    },
+    APPROVED: {
+      title: 'Approved Parcels',
+      subtitle: 'View land parcels whose transfer requests have been fully approved and finalized.',
+      tableHeading: 'Approved Parcels Registry',
+      icon: 'bi-check-circle',
+      iconColor: '#15803d',
+      badgeClass: 'approved',
+      badgeLabel: 'Approved',
+      badgeIcon: 'bi-check-circle',
+      emptyText: 'No approved parcels found',
+      emptyHint: 'Parcels with approved status will appear here'
+    }
+  };
+
+  function normalizeParcelList(response) {
+    if (Array.isArray(response)) return response;
+    if (response?.data && Array.isArray(response.data)) return response.data;
+    if (response?.data && response.data?.data && Array.isArray(response.data.data)) return response.data.data;
+    if (response?.data && response.data?.parcels && Array.isArray(response.data.parcels)) return response.data.parcels;
+    if (response?.data && response.data?.content && Array.isArray(response.data.content)) return response.data.content;
+    if (response?.parcels && Array.isArray(response.parcels)) return response.parcels;
+    if (response?.content && Array.isArray(response.content)) return response.content;
+    return [];
+  }
+
+  function parcelMatchesStatus(parcel, status) {
+    const normalizedStatus = String(status).toUpperCase();
+    const candidateValues = [
+      parcel?.status,
+      parcel?.transferStatus,
+      parcel?.approvalStatus,
+      parcel?.approvalStage,
+      parcel?.registrationStatus,
+      parcel?.verificationStatus,
+      parcel?.currentStatus,
+      parcel?.parcelStatus,
+      parcel?.statusLabel,
+      parcel?.state,
+    ].filter(Boolean).map(value => String(value).toUpperCase());
+
+    if (normalizedStatus === 'REJECTED') {
+      return candidateValues.some(value =>
+        value.includes('REJECTED') || value.includes('DISPUTED') || value.includes('ARCHIVED')
+      );
+    }
+
+    if (normalizedStatus === 'APPROVED') {
+      return candidateValues.some(value =>
+        value.includes('APPROVED') || value.includes('VERIFIED') || value.includes('FINAL_APPROVED') || value.includes('PARTIALLY_APPROVED') || value.includes('L1_APPROVED') || value.includes('L2_APPROVED')
+      );
+    }
+
+    return false;
+  }
+
+  async function fetchParcelsByStatus(status) {
+    try {
+      if (status === 'REJECTED') {
+        if (typeof api.rejectedParcels === 'function') {
+          const response = await api.rejectedParcels();
+          const parcels = normalizeParcelList(response);
+          if (parcels.length) return parcels;
+        }
+      } else {
+        if (typeof api.approvedParcels === 'function') {
+          const response = await api.approvedParcels(true);
+          const parcels = normalizeParcelList(response);
+          if (parcels.length) return parcels;
+        }
+      }
+    } catch (err) {
+      console.warn(`Primary ${status} parcel lookup failed`, err);
+    }
+
+    if (typeof api.searchOfficerParcels === 'function') {
+      try {
+        const response = await api.searchOfficerParcels();
+        const parcels = normalizeParcelList(response);
+        return parcels.filter(parcel => parcelMatchesStatus(parcel, status));
+      } catch (fallbackErr) {
+        console.warn(`Fallback ${status} parcel lookup failed`, fallbackErr);
+      }
+    }
+
+    return [];
+  }
+
+  function applyStatusTheme(status) {
+    const cfg = STATUS_CONFIG[status];
+
+    document.getElementById('pageTitleText').textContent = cfg.title;
+    document.getElementById('pageSubtitleText').textContent = cfg.subtitle;
+    document.getElementById('tableHeaderText').textContent = cfg.tableHeading;
+
+    const pageIcon = document.getElementById('pageTitleIcon');
+    pageIcon.className = `bi ${cfg.icon}`;
+    pageIcon.style.color = cfg.iconColor;
+
+    const tableIcon = document.getElementById('tableHeaderIcon');
+    tableIcon.className = `bi ${cfg.icon}`;
+    tableIcon.parentElement.style.background = cfg.badgeClass === 'rejected' ? 'var(--rejected-bg)' : 'var(--approved-bg)';
+    tableIcon.style.color = cfg.iconColor;
+
+    document.querySelectorAll('.status-tab').forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.status === status);
+    });
+  }
+
+  async function loadParcels(status, { silent = false } = {}) {
+    const tbody = document.getElementById('rejectedTableBody');
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4"><i class="bi bi-hourglass-split me-1"></i> Loading parcels...</td></tr>';
+
+    try {
+      const response = await fetchParcelsByStatus(status);
+      const parcels = normalizeParcelList(response);
+
+      parcelCache[status] = parcels;
+      document.getElementById(status === 'REJECTED' ? 'countRejected' : 'countApproved').textContent = parcels.length;
+
+      if (status === currentStatus) {
+        allParcels = parcels;
+        displayParcels(allParcels, status);
+      }
+
+      if (!silent) {
+        showToast(`Loaded ${parcels.length} ${status.toLowerCase()} parcel(s)`, parcels.length ? 'success' : 'info');
+      }
+    } catch (err) {
+      console.error(`Error loading ${status} parcels:`, err);
+      if (status === currentStatus) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-4"><i class="bi bi-exclamation-triangle"></i> Failed to load: ${err.message || 'Unknown error'}</td></tr>`;
+      }
+      if (!silent) showToast(`Failed to load ${status.toLowerCase()} parcels`, 'error');
+    }
+  }
+
+  function displayParcels(parcels, status) {
+    const cfg = STATUS_CONFIG[status];
+    const tbody = document.getElementById('rejectedTableBody');
+    const countSpan = document.getElementById('recordsCount');
+    countSpan.textContent = `${parcels.length} record(s)`;
+
+    if (!parcels.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="bi bi-inbox"></i><p>${cfg.emptyText}</p><small class="text-muted">${cfg.emptyHint}</small></div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = parcels.map(p => {
+      const parcelId     = p.id || p.parcelId;
+      const parcelNumber = p.parcelNumber || p.parcel_number || '—';
+      const titleDeed    = p.titleDeedNumber || p.titleDeed || p.title_deed_number || '—';
+      const ownerName    = p.ownerFullName || p.ownerName || p.owner_name || '—';
+      const district     = p.district || '—';
+      const province     = p.province || '—';
+      const area         = p.areaSqm || p.area_sqm || p.area || '—';
+      const areaDisplay  = area !== '—' ? parseFloat(area).toLocaleString() : '—';
+
+      const approvalSummary = (p.approvalHistory && p.approvalHistory.length)
+        ? p.approvalHistory.map(item => item).join(' • ')
+        : 'Fully approved by the required officers';
+
+      return `
+        <tr>
+          <td><span class="ref-link view-parcel" data-parcel-id="${parcelId || ''}" data-parcel-number="${parcelNumber}">${parcelNumber}</span></td>
+          <td>${titleDeed}</td>
+          <td>${ownerName}</td>
+          <td>${district}</td>
+          <td>${province}</td>
+          <td>${areaDisplay}</td>
+          <td>
+            <div class="d-flex flex-column gap-1">
+              <span class="badge-status-pill ${cfg.badgeClass}"><i class="bi ${cfg.badgeIcon}"></i> ${cfg.badgeLabel}</span>
+              ${status === 'APPROVED' ? `<small class="text-muted">${approvalSummary}</small>` : ''}
+            </div>
+          </td>
+          <td><button class="btn-action view-parcel-btn" data-parcel-id="${parcelId || ''}" data-parcel-number="${parcelNumber}"><i class="bi bi-eye"></i> View</button></td>
+        </tr>
+      `;
+    }).join('');
+
+    document.querySelectorAll('.view-parcel, .view-parcel-btn').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        const pnum = el.getAttribute('data-parcel-number');
+        const pid  = el.getAttribute('data-parcel-id');
+        if (pnum && pnum !== '—') {
+          window.location.href = `/pages/officer/parcel-detail.html?parcel=${encodeURIComponent(pnum)}`;
+        } else if (pid && pid !== 'null' && pid !== 'undefined') {
+          window.location.href = `/pages/officer/parcel-detail.html?id=${encodeURIComponent(pid)}`;
+        } else {
+          showToast('Unable to view parcel details', 'error');
+        }
+      });
+    });
+  }
+
+  function filterParcels() {
+    const searchParcel  = document.getElementById('searchParcel').value.toLowerCase().trim();
+    const searchOwner   = document.getElementById('searchOwner').value.toLowerCase().trim();
+    const district      = document.getElementById('filterDistrict').value;
+
+    const filtered = allParcels.filter(p => {
+      const parcelNum  = (p.parcelNumber || p.parcel_number || '').toLowerCase();
+      const owner      = (p.ownerFullName || p.ownerName || p.owner_name || '').toLowerCase();
+      const pDistrict  = p.district || '';
+      return (!searchParcel || parcelNum.includes(searchParcel)) &&
+             (!searchOwner  || owner.includes(searchOwner)) &&
+             (!district     || pDistrict === district);
+    });
+    displayParcels(filtered, currentStatus);
+    showToast(`Found ${filtered.length} matching parcel(s)`, 'info');
+  }
+
+  function resetFilters() {
+    document.getElementById('searchParcel').value = '';
+    document.getElementById('searchOwner').value = '';
+    document.getElementById('filterDistrict').value = '';
+    displayParcels(allParcels, currentStatus);
+    showToast('Filters reset', 'success');
+  }
+
+  async function switchTab(status) {
+    if (status === currentStatus) return;
+    currentStatus = status;
+    applyStatusTheme(status);
+    resetFilters.call(null); // clear filter inputs on tab switch
+    document.getElementById('searchParcel').value = '';
+    document.getElementById('searchOwner').value = '';
+    document.getElementById('filterDistrict').value = '';
+
+    if (parcelCache[status]) {
+      allParcels = parcelCache[status];
+      displayParcels(allParcels, status);
+    } else {
+      await loadParcels(status, { silent: true });
+    }
+  }
+
+  async function updateTopBar() {
+    try {
+      requireLogin();
+      const session  = getSession();
+      const userName = session.fullName || session.name || session.email || 'Land Officer';
+      const userRole = session.role ? session.role.replace(/_/g, ' ') : 'Land Officer';
+      const userNameElement = document.getElementById('topUserName');
+      const userRoleElement = document.getElementById('topUserDetails');
+      if (userNameElement) userNameElement.textContent = userName;
+      if (userRoleElement) userRoleElement.textContent = userRole;
+
+      const av = document.getElementById('userAvatarInitials');
+      const initials = userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      if (av && !av.querySelector('img')) av.textContent = initials;
+
+      // The session identity is rendered immediately; the optional photo never blocks the page shell.
+      api.getMyProfile().then(profileResult => {
+        const profile = profileResult?.data || profileResult || {};
+        const savedPhoto = profile.photoPath || session.photoPath || localStorage.getItem('lv_photo') || '';
+        if (profile.photoPath) localStorage.setItem('lv_photo', profile.photoPath);
+        if (!savedPhoto || !av) return;
+        const photoUrl = savedPhoto.startsWith('http') || savedPhoto.startsWith('/') ? savedPhoto : `/uploads/${savedPhoto}`;
+        av.innerHTML = `<img src="${photoUrl}" alt="Profile photo" />`;
+      }).catch(() => {});
+
+      try {
+        const notifResult = await api.officerUnreadNotificationCount?.();
+        const count = notifResult?.data?.count ?? notifResult?.data ?? 0;
+        const sn = document.getElementById('sidebarNotifCount');
+        if (sn) { sn.textContent = count > 0 ? count : ''; sn.style.display = count > 0 ? 'inline' : 'none'; }
+      } catch(e) {}
+    } catch(e) { console.warn('Session error', e); }
+  }
+
+  function doSignOut(e) {
+    e.preventDefault();
+    showLogoutConfirmation(logout);
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    await updateTopBar();
+    applyStatusTheme(currentStatus);
+    await loadParcels('REJECTED');
+    // Fetch approved count/data quietly in the background so the tab count is ready
+    loadParcels('APPROVED', { silent: true });
+
+    document.getElementById('tabRejected').addEventListener('click', () => switchTab('REJECTED'));
+    document.getElementById('tabApproved').addEventListener('click', () => switchTab('APPROVED'));
+
+    document.getElementById('filterBtn').addEventListener('click', filterParcels);
+    document.getElementById('resetBtn').addEventListener('click', resetFilters);
+
+    let timeout;
+    const debouncedFilter = () => { clearTimeout(timeout); timeout = setTimeout(filterParcels, 300); };
+    document.getElementById('searchParcel').addEventListener('input', debouncedFilter);
+    document.getElementById('searchOwner').addEventListener('input', debouncedFilter);
+    document.getElementById('filterDistrict').addEventListener('change', filterParcels);
+
+    document.getElementById('exportDataBtn')?.addEventListener('click',   e => { e.preventDefault(); showToast('Export feature coming soon', 'info'); });
+    document.getElementById('signOutBtn')?.addEventListener('click', doSignOut);
+    document.getElementById('signOutSidebarBtn')?.addEventListener('click', doSignOut);
+  });
+</script>
+</body>
+</html>

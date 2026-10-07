@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="module" src="/js/auth.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Details – ARMS Admin</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+
+  :root {
+    --navy: #0e2240;
+    --navy-mid: #1a3560;
+    --gold: #c8a040;
+    --gold-light: #fdf6e3;
+    --gold-xlight: #fefbf3;
+    --bg-page: #faf7f2;
+    --bg-card: #ffffff;
+    --text-primary: #111827;
+    --text-secondary: #4b5568;
+    --text-muted: #8a94a6;
+    --border: #e8e3d8;
+    --border-mid: #d6ceba;
+    --font-family: 'Inter', Arial, sans-serif;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(14,34,64,0.06);
+    --header-h: 64px;
+    --sidebar-w: 220px;
+    --danger-fg: #b91c1c;
+    --danger-bg: #fef2f2;
+    --danger-brd: #fecaca;
+    --success-fg: #166534;
+    --success-bg: #ecfdf5;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-page);
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 13px;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .top-bar, .top-bar button, .sidebar, .sidebar a, .sidebar-section-title, .sidebar-item { font-family: 'Inter', Arial, sans-serif; }
+
+  /* ── TOP BAR ── */
+  .top-bar {
+    background: var(--navy);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    height: var(--header-h);
+    flex-shrink: 0;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.18);
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 2000 !important;
+  }
+
+  .logo-block {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 24px;
+    min-width: 360px;
+    border-right: 1px solid rgba(255,255,255,0.12);
+    height: 100%;
+    flex-shrink: 0;
+    background: var(--navy);
+  }
+
+  .logo-emblem {
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    background: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800;
+    color: var(--navy); flex-shrink: 0; letter-spacing: -0.5px;
+  }
+  .logo-emblem img {
+    width: 100%; height: 100%; display: block; object-fit: contain;
+  }
+
+  .logo-text h2 {
+    font-size: 12.5px; font-weight: 700; margin: 0;
+    line-height: 1.35; color: #fff;
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+
+  .logo-text p {
+    font-size: 10.5px; margin: 2px 0 0;
+    color: rgba(255,255,255,0.5); line-height: 1.3;
+  }
+
+  .top-right { display: flex; align-items: center; gap: 16px; padding-right: 20px; }
+
+  .user-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--gold-light); border: 1.5px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11.5px; font-weight: 700; color: var(--navy); flex-shrink: 0;
+  }
+
+  .top-user-name { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.2; }
+  .top-user-role { font-size: 10.5px; color: rgba(255,255,255,0.72); line-height: 1; }
+
+  .btn-signout {
+    background: transparent; border: 1px solid rgba(255,255,255,0.25);
+    color: #fff; padding: 5px 13px;
+    border-radius: var(--radius); font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; font-family: inherit;
+  }
+  .btn-signout:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+  /* ── LAYOUT ── */
+  .dashboard-container { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w); background: var(--bg-card);
+    border-right: 1px solid var(--border); padding: 14px 0 12px;
+    flex-shrink: 0; height: calc(100vh - var(--header-h)); overflow-y: auto;
+    display: flex; flex-direction: column;
+    position: sticky !important;
+    top: var(--header-h) !important;
+    z-index: 1500 !important;
+  }
+
+  .sidebar-section-title {
+    font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--navy-mid); font-weight: 700; padding: 10px 16px 4px;
+  }
+
+  .sidebar-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 16px; color: var(--text-secondary);
+    text-decoration: none; font-size: 13px; font-weight: 500;
+    transition: all 0.13s; border-left: 2px solid transparent; margin: 1px 0;
+  }
+
+  .sidebar-item:hover { background: var(--gold-xlight); color: var(--navy); }
+
+  .sidebar-item.active {
+    background: var(--gold-xlight); color: var(--navy);
+    font-weight: 600; border-left-color: var(--gold);
+  }
+
+  .sidebar-item i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-item.active i { opacity: 1; }
+
+  .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+  .sidebar-item.signout { color: #ef4444; }
+  .sidebar-item.signout:hover { background: #fef2f2; }
+  .sidebar-item.signout i { opacity: 1; }
+
+  /* ── MAIN CONTENT ── */
+  .main-content {
+    flex: 1; min-height: 0; padding: 24px 28px;
+    overflow-y: auto; overflow-x: hidden; background: var(--bg-page);
+    position: relative; z-index: 1;
+  }
+
+  .page-header {
+    margin-bottom: 20px; display: flex;
+    justify-content: space-between; align-items: flex-start; gap: 16px;
+  }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--navy); text-decoration: none; font-weight: 600;
+    font-size: 12px; margin-bottom: 10px;
+  }
+  .back-link:hover { text-decoration: underline; }
+
+  .page-title {
+    font-size: 20px; font-weight: 600; color: var(--navy);
+    margin-bottom: 4px; letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .page-subtitle { font-size: 12.5px; color: var(--text-secondary); max-width: 560px; }
+
+  .header-right {
+    display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0;
+  }
+
+  #actionButtons { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+
+  /* ── STATUS PILL (rendered by JS via setStatus) ── */
+  .status {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: 99px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.02em;
+    white-space: nowrap; border: 1px solid var(--border);
+  }
+
+  /* ── ROLE TAG (rendered by JS inside userRole) ── */
+  .tag {
+    display: inline-flex; align-items: center;
+    padding: 4px 12px; border-radius: 99px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em;
+    background: var(--gold-xlight); color: var(--gold-dark);
+    border: 1px solid var(--border-mid);
+  }
+
+  /* ── ACTION BUTTONS ── */
+  .btn-action {
+    border: none; padding: 8px 16px; border-radius: var(--radius);
+    font-weight: 600; font-size: 12.5px; cursor: pointer;
+    font-family: inherit; transition: all 0.15s;
+    background: var(--gold); color: var(--navy);
+  }
+  .btn-action:hover { background: var(--gold-mid); }
+
+  .btn-secondary {
+    background: var(--bg-card); color: var(--text-secondary);
+    border: 1px solid var(--border-mid);
+  }
+  .btn-secondary:hover { background: var(--bg-page); color: var(--text-primary); }
+
+  .btn-danger { background: #ef4444; color: #fff; }
+  .btn-danger:hover { background: #dc2626; }
+
+  /* ── DETAILS CARD ── */
+  .table-card {
+    background: var(--bg-card); border-radius: 6px;
+    border: 1px solid var(--border); overflow: hidden;
+    margin-bottom: 20px; box-shadow: 0 1px 2px rgba(14,34,64,0.04);
+  }
+
+  .table-header {
+    background: var(--bg-card); border-bottom: 1px solid var(--border);
+    padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .table-header h6 {
+    margin: 0; font-size: 13.5px; font-weight: 600;
+    color: var(--navy); display: flex; align-items: center; gap: 8px;
+  }
+
+  .table-header h6 i {
+    width: 28px; height: 28px;
+    background: var(--gold-light); border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; color: var(--gold-dark);
+  }
+
+  .card-body-pad { padding: 22px; }
+
+  .grid {
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .field {
+    background: var(--bg-page); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 13px 15px;
+  }
+
+  .field label {
+    display: block; font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--text-muted); margin-bottom: 5px;
+  }
+
+  .field div {
+    font-size: 13px; line-height: 1.5; color: var(--text-primary);
+    white-space: pre-line;
+  }
+
+  .field-full { grid-column: 1 / -1; }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--bg-card); color: var(--text-muted);
+    padding: 10px 24px; display: flex;
+    justify-content: space-between; align-items: center;
+    font-size: 11px; border-top: 1px solid var(--border); flex-shrink: 0;
+  }
+
+  .footer-session { display: flex; align-items: center; gap: 6px; }
+
+  .session-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--gold); flex-shrink: 0;
+  }
+
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem"><img src="../../images/coat-of-arms.png" alt="Zambian Coat of Arms"></div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar">SA</div>
+    <div style="text-align:left;">
+      <div class="top-user-name">System Admin</div>
+      <div class="top-user-role">Administrator</div>
+    </div>
+    <button class="btn-signout" onclick="confirmAndLogout(event)">Sign Out</button>
+  </div>
+</div>
+
+<!-- ── LAYOUT ── -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Overview</div>
+    <a href="dashboard.html" class="sidebar-item"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <div class="sidebar-section-title">Land Management</div>
+    <a href="/index.html" class="sidebar-item"><i class="bi bi-search"></i> Verify Parcel</a>
+    <a href="system-monitoring.html" class="sidebar-item"><i class="bi bi-check2-square"></i> System Monitoring</a>
+    <a href="system-alerts.html" class="sidebar-item"><i class="bi bi-exclamation-triangle"></i> System Alerts</a>
+    <div class="sidebar-section-title">Blockchain</div>
+    <a href="blockchain-status.html" class="sidebar-item"><i class="bi bi-link-45deg"></i> Blockchain Status</a>
+    <a href="system-statistics.html" class="sidebar-item"><i class="bi bi-file-earmark-bar-graph"></i> System Statistics</a>
+    <div class="sidebar-section-title">Administration</div>
+    <a href="all-users.html" class="sidebar-item active"><i class="bi bi-people"></i> Users</a>
+    <a href="create-user.html" class="sidebar-item"><i class="bi bi-person-plus"></i> Create User</a>
+
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" onclick="confirmAndLogout(event); return false;"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+
+      <script>
+        function confirmAndLogout(e){
+          if(e) e.preventDefault();
+          if(window.showLogoutConfirmation && window.logout){ window.showLogoutConfirmation(window.logout); return false; }
+          setTimeout(() => confirmAndLogout(), 50);
+          return false;
+        }
+        function logout(){ localStorage.clear(); window.location.href='/login.html'; }
+      </script>
+        <a class="back-link" href="all-users.html"><i class="bi bi-arrow-left"></i> Back to all users</a>
+        <div class="page-title"><i class="bi bi-person-vcard" style="color:var(--navy);"></i> User Details</div>
+      </div>
+      <div class="header-right">
+        <div id="userStatus"></div>
+        <div id="actionButtons"></div>
+      </div>
+    </div>
+
+    <!-- Details Card -->
+    <div class="table-card">
+      <div class="table-header">
+        <h6><i class="bi bi-person-lines-fill"></i> Account Information</h6>
+      </div>
+      <div class="card-body-pad">
+        <div class="grid" id="detailsGrid">
+          <div class="field">
+            <label>User ID</label>
+            <div id="userId">Not provided</div>
+          </div>
+            <div class="field">
+            <label>Role</label>
+            <div id="userRole">Not provided</div>
+          </div>
+          <div class="field">
+            <label>Full Name</label>
+            <div id="fullName">Not provided</div>
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <div id="email">Not provided</div>
+          </div>
+          <div class="field">
+            <label>Username</label>
+            <div id="username">Not provided</div>
+          </div>
+          <div class="field">
+            <label>District</label>
+            <div id="district">Not provided</div>
+          </div>
+          <div class="field">
+            <label>Gender</label>
+            <div id="gender">Not provided</div>
+          </div>
+          <div class="field">
+            <label>Phone Number</label>
+            <div id="phoneNumber">Not provided</div>
+          </div>
+          <div class="field">
+            <label>National ID</label>
+            <div id="nationalId">Not provided</div>
+          </div>
+          <div class="field">
+            <label>Invitation Code</label>
+            <div id="invitationCode">Not provided</div>
+          </div>
+          <div class="field">
+            <label>Profile Complete</label>
+            <div id="profileComplete">Not provided</div>
+          </div>
+          <div class="field">
+            <label>Is Active</label>
+            <div id="isActive">Not provided</div>
+          </div>
+          <div class="field">
+            <label>Invitation Used</label>
+            <div id="codeUsed">Not provided</div>
+          </div>
+          <div class="field field-full">
+            <label>Photo Path</label>
+            <div id="photoPath">Not provided</div>
+          </div>
+          <div class="field field-full">
+            <label>Address</label>
+            <div id="address">Not provided</div>
+          </div>
+          <div class="field">
+            <label>Created</label>
+            <div id="createdAt">Not provided</div>
+          </div>
+          <div class="field">
+            <label>Updated</label>
+            <div id="updatedAt">Not provided</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<!-- ── ORIGINAL JAVASCRIPT — UNTOUCHED ── -->
+<script>
+  const BASE = '/api';
+  const token = localStorage.getItem('lv_token');
+  if (localStorage.getItem('lv_role') !== 'SYSTEM_ADMIN') {
+    location.href = '/login.html';
+  }
+
+  function getQueryParam(name) {
+    return new URLSearchParams(window.location.search).get(name);
+  }
+
+  function formatValue(value) {
+    return value === null || value === undefined || value === '' ? 'Not provided' : value;
+  }
+
+  function setStatus(message, isError = false) {
+    const statusContainer = document.getElementById('userStatus');
+    if (!statusContainer) return;
+    statusContainer.innerHTML = `<span class="status" style="background:${isError ? '#fef2f2' : '#ecfdf5'};color:${isError ? '#b91c1c' : '#166534'};">${message}</span>`;
+  }
+
+  function createActionButtons(u) {
+    const actionButtons = document.getElementById('actionButtons');
+    if (!actionButtons) return;
+    actionButtons.innerHTML = '';
+
+    const activateButton = document.createElement('button');
+    activateButton.className = 'btn-action';
+    activateButton.textContent = u.isActive ? 'Deactivate User' : 'Activate User';
+    activateButton.onclick = () => toggleActive(u.userId || u.id);
+
+    const roleButton = document.createElement('button');
+    roleButton.className = 'btn-action btn-secondary';
+    roleButton.textContent = 'Change Role';
+    if (u.role === 'LAND_OWNER') {
+      roleButton.disabled = true;
+      roleButton.title = 'Landowner roles cannot be changed';
+      roleButton.style.opacity = '0.65';
+      roleButton.style.cursor = 'not-allowed';
+    } else {
+      roleButton.onclick = () => changeRole(u);
+    }
+
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'btn-action btn-danger';
+    deleteButton.textContent = 'Delete User';
+    deleteButton.onclick = () => deleteUser(u.userId || u.id, u.email);
+
+    actionButtons.appendChild(activateButton);
+    actionButtons.appendChild(roleButton);
+    actionButtons.appendChild(deleteButton);
+  }
+
+  async function fetchJson(url, options) {
+    const response = await fetch(url, options);
+    const json = await response.json();
+    if (!response.ok || json.success !== true) {
+      throw new Error(json.message || 'Request failed');
+    }
+    return json;
+  }
+
+  async function toggleActive(id) {
+    try {
+      await fetchJson(`${BASE}/admin/users/${id}/toggle-active`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        }
+      });
+      setStatus('User active status updated successfully.');
+      await loadUserDetails();
+    } catch (err) {
+      setStatus(err.message, true);
+    }
+  }
+
+  async function changeRole(u) {
+    if (u.role === 'LAND_OWNER') {
+      setStatus('Cannot change role for landowner users; they represent external entities.', true);
+      return;
+    }
+    const newRole = prompt('Enter new role (LAND_OWNER, LAND_OFFICER, SENIOR_OFFICER, SYSTEM_ADMIN, PUBLIC_VERIFIER):', u.role);
+    if (!newRole) {
+      return;
+    }
+    try {
+      await fetchJson(`${BASE}/admin/users/${u.userId || u.id}/role?role=${encodeURIComponent(newRole)}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        }
+      });
+      setStatus('User role updated successfully.');
+      await loadUserDetails();
+    } catch (err) {
+      setStatus(err.message, true);
+    }
+  }
+
+  async function deleteUser(id, email) {
+    if (!confirm(`Delete user ${email || id}? This action cannot be undone.`)) {
+      return;
+    }
+    try {
+      await fetchJson(`${BASE}/admin/users/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        }
+      });
+      alert('User deleted successfully.');
+      window.location.href = 'all-users.html';
+    } catch (err) {
+      setStatus(err.message, true);
+    }
+  }
+
+  async function loadUserDetails() {
+    const id = getQueryParam('id');
+    if (!id) {
+      setStatus('Missing user id', true);
+      return;
+    }
+    try {
+      const response = await fetch(`${BASE}/admin/users/${id}`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const json = await response.json();
+      if (!response.ok || !json || json.success !== true || !json.data) {
+        throw new Error(json?.message || 'Unable to load user');
+      }
+      const u = json.data;
+      const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = value;
+      };
+
+      setText('userId', formatValue(u.userId || u.id));
+      const roleEl = document.getElementById('userRole');
+      if (roleEl) roleEl.innerHTML = `<span class="tag">${formatValue((u.role||'').replace(/_/g, ' '))}</span>`;
+      setText('fullName', formatValue(u.fullName || u.name));
+      setText('email', formatValue(u.email));
+      setText('username', formatValue(u.username));
+      setText('district', formatValue(u.district));
+      setText('gender', formatValue(u.gender ? u.gender.replace(/_/g, ' ') : null));
+      setText('phoneNumber', formatValue(u.phoneNumber));
+      setText('nationalId', formatValue(u.nationalId));
+      setText('invitationCode', formatValue(u.invitationCode));
+      setText('profileComplete', u.profileComplete ? 'Yes' : 'No');
+      setText('isActive', u.isActive ? 'Yes' : 'No');
+      setText('codeUsed', u.codeUsed ? 'Yes' : 'No');
+      setText('photoPath', formatValue(u.photoPath));
+      setText('address', formatValue(u.address));
+      setText('createdAt', u.createdAt ? new Date(u.createdAt).toLocaleString() : 'Not provided');
+      setText('updatedAt', u.updatedAt ? new Date(u.updatedAt).toLocaleString() : 'Not provided');
+      setStatus(`Loaded user ${formatValue(u.email)}`);
+      createActionButtons(u);
+    } catch (err) {
+      setStatus(err.message, true);
+    }
+  }
+
+  loadUserDetails();
+</script>
+<style>
+/* Restored ARMS inline styles */
+:root{--primary:#0e2240;--gold:#c8a040;--text:#111827;--bg:#faf7f2;--border:#e8e3d8;--radius:10px}
+.page-header{background:linear-gradient(135deg,var(--primary),#1a3560);padding:16px;border-radius:10px;color:#fff;border:1px solid rgba(255,255,255,0.1)}
+.nav-seal{background:url('/images/coat-of-arms.png') center/contain no-repeat}
+.alert-custom{display:none;padding:10px;border-radius:6px}
+.alert-custom.alert-success{background:#e6f7ed;color:#1e8c4a;border:1px solid #dff2e3}
+.alert-custom.alert-danger{background:#fdecea;color:#c0392b;border:1px solid #f7d3d1}
+.toast-stack{position:fixed;right:18px;bottom:18px;z-index:1200;display:flex;flex-direction:column;gap:8px}
+.btn-primary-custom{background:var(--gold);color:#fff;padding:8px 12px;border-radius:6px;border:none}
+.btn-secondary-custom{background:#f3f6fb;color:var(--text);padding:8px 12px;border-radius:6px;border:1px solid var(--border)}
+.coat-watermark{background:url('/images/coat-of-arms.png') center center no-repeat;opacity:.06}
+</style>
+</body>
+</html>

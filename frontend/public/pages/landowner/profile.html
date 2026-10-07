@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LandVerify ZM — Manage Profile</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════════════
+       ARMS DESIGN SYSTEM — Manage Profile
+       Navy #0e2240 + Gold #c8a040 + Warm off-white #faf7f2
+    ═══════════════════════════════════════════════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    :root {
+      --navy:          #0e2240;
+      --navy-mid:      #1a3560;
+      --navy-light:    #e8edf6;
+      --navy-xlight:   #f4f6fb;
+      --gold:          #c8a040;
+      --gold-mid:      #b8902e;
+      --gold-dark:     #9a7420;
+      --gold-light:    #fdf6e3;
+      --gold-xlight:   #fefbf3;
+      --green:         #22c55e;
+      --green-light:   #f0fdf4;
+      --green-dark:    #15803d;
+      --text-primary:  #111827;
+      --text-secondary:#4b5568;
+      --text-muted:    #8a94a6;
+      --border:        #e8e3d8;
+      --border-mid:    #d6ceba;
+      --bg-page:       #faf7f2;
+      --bg-card:       #ffffff;
+      --radius:        6px;
+      --radius-lg:     10px;
+      --shadow-sm:     0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+      --shadow-card:   0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+      --sidebar-w:     200px;
+      --header-h:      66px;
+    }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── TOP BAR (STICKY) ── */
+    .top-bar {
+      background: var(--bg-card);
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      border-bottom: 1px solid var(--border);
+      height: var(--header-h);
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: 1050;
+      flex-shrink: 0;
+    }
+    .logo-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 24px;
+      min-width: 340px;
+      height: 100%;
+      flex-shrink: 0;
+      background: var(--navy);
+    }
+    .logo-emblem {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .logo-emblem img { width: 100%; height: 100%; object-fit: contain; }
+    .logo-text h2 { font-size: 12.5px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+    .logo-text p  { font-size: 10.5px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+
+    .top-right { display: flex; align-items: center; gap: 14px; padding-right: 20px; }
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--gold-light);
+      border: 1.5px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--navy);
+      flex-shrink: 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .user-avatar img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; border-radius: 50%; }
+    .top-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+    .top-user-role { font-size: 10.5px; color: var(--text-muted); line-height: 1; }
+    .btn-signout {
+      background: transparent;
+      border: 1px solid var(--border-mid);
+      color: var(--text-secondary);
+      padding: 5px 13px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .btn-signout:hover { background: var(--bg-page); color: var(--text-primary); }
+
+    /* ── LAYOUT (flex container with scroll) ── */
+    .dashboard-container {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR (STICKY) ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 14px 0 12px;
+      flex-shrink: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: var(--header-h);
+      height: calc(100vh - var(--header-h));
+      align-self: flex-start;
+    }
+    .sidebar-section-title {
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+      font-weight: 700;
+      padding: 10px 16px 4px;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 16px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 12.5px;
+      transition: all 0.13s;
+      border-left: 2px solid transparent;
+      margin: 1px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .sidebar-link:hover { background: var(--gold-xlight); color: var(--navy); }
+    .sidebar-link.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+    .sidebar-link i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+    .sidebar-link.active i { opacity: 1; }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+
+    /* ── MAIN CONTENT (SCROLLABLE) ── */
+    .main-content {
+      flex: 1;
+      padding: 24px 28px;
+      background: var(--bg-page);
+      overflow-y: auto;
+      height: calc(100vh - var(--header-h));
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header { margin-bottom: 22px; }
+    .page-title { font-size: 20px; font-weight: 700; color: var(--navy); letter-spacing: -0.4px; margin-bottom: 3px; display: flex; align-items: center; gap: 10px; }
+    .page-title i { color: var(--gold); font-size: 22px; }
+    .page-subtitle { font-size: 12.5px; color: var(--text-secondary); }
+
+    /* ── SECTION CARD ── */
+    .section-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+    .section-card-header {
+      padding: 13px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .section-card-header h5 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0;
+    }
+    .section-card-header h5 .hdr-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--gold-light);
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--gold-dark);
+      flex-shrink: 0;
+    }
+    .section-card-body { padding: 18px 20px; }
+
+    /* ── PROFILE HEADER ── */
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 20px 24px;
+      background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    .profile-avatar-large {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--gold-light);
+      border: 3px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--navy);
+      flex-shrink: 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .profile-avatar-large img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: center;
+      border-radius: 50%;
+    }
+    .profile-info {
+      color: #fff;
+    }
+    .profile-info h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 2px 0;
+    }
+    .profile-info p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      margin: 0;
+    }
+    .verified-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 6px;
+      padding: 2px 10px;
+      background: rgba(200,160,64,0.2);
+      border: 1px solid var(--gold);
+      border-radius: 99px;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--gold-light);
+    }
+    .verified-badge i {
+      font-size: 12px;
+    }
+
+    /* ── FORM STYLES ── */
+    .form-section {
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .form-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .form-section h4 {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-section h4 i {
+      color: var(--gold);
+      font-size: 16px;
+    }
+    .form-label-custom {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .form-control-custom {
+      background: var(--bg-page);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius);
+      padding: 7px 12px;
+      font-size: 12.5px;
+      font-family: 'Inter', Arial, sans-serif;
+      color: var(--text-primary);
+      transition: all 0.15s;
+      width: 100%;
+    }
+    .form-control-custom:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(200,160,64,0.15);
+      outline: none;
+      background: #fff;
+    }
+    .form-control-custom[readonly] {
+      background: var(--bg-page);
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    select.form-control-custom {
+      appearance: auto;
+    }
+    textarea.form-control-custom {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    /* ── ALERT STYLES ── */
+    .alert-custom {
+      display: none;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      font-size: 12.5px;
+      font-weight: 500;
+      align-items: center;
+      gap: 10px;
+    }
+    .alert-custom.show {
+      display: flex;
+    }
+    .alert-custom.alert-success {
+      background: #ecfdf5;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    .alert-custom.alert-success i {
+      color: #22c55e;
+      font-size: 16px;
+    }
+    .alert-custom.alert-danger {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    .alert-custom.alert-danger i {
+      color: #ef4444;
+      font-size: 16px;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-primary-custom {
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      border-radius: var(--radius);
+      padding: 6px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 34px;
+      box-shadow: 0 2px 8px rgba(200,160,64,0.28);
+    }
+    .btn-primary-custom:hover { background: var(--gold-mid); color: var(--navy); }
+    .btn-primary-custom:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary-custom {
+      background: transparent;
+      color: var(--navy);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius);
+      padding: 6px 18px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 34px;
+      text-decoration: none;
+    }
+    .btn-secondary-custom:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    .spinner-small {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── TOAST ── */
+    .toast-stack { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast-item {
+      background: var(--navy);
+      color: #fff;
+      padding: 11px 16px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12.5px;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(14,34,64,0.25);
+      animation: slideUp 0.28s ease;
+      max-width: 340px;
+      min-width: 260px;
+    }
+    .toast-item i { font-size: 15px; flex-shrink: 0; }
+    .toast-item.success { border-left: 3px solid #22c55e; }
+    .toast-item.error   { border-left: 3px solid #ef4444; }
+    .toast-item.info    { border-left: 3px solid var(--gold); }
+    @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .footer-session { display: flex; align-items: center; gap: 6px; }
+    .session-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main-content { padding: 16px; }
+      .profile-header { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ TOP BAR (STICKY) ══ -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../../images/coat-of-arms.png" alt="Coat of Arms"/>
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar" id="nav-avatar" aria-label="Current user"></div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="nav-name">Loading profile...</div>
+      <div class="top-user-role" id="nav-role">Land Owner</div>
+    </div>
+    <a href="#" class="btn-signout" onclick="showLogoutConfirm(event)">
+      <i class="bi bi-box-arrow-right"></i> Sign Out
+    </a>
+  </div>
+</div>
+
+<!-- ══ LAYOUT ══ -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR (STICKY) -->
+  <aside class="sidebar">
+    <div class="sidebar-section-title">Navigation</div>
+    <a href="my-parcels.html"    class="sidebar-link"><i class="bi bi-grid-1x2"></i> My Parcels</a>
+    <a href="notifications.html" class="sidebar-link"><i class="bi bi-bell"></i> Notifications</a>
+    <a href="parcels-list.html"  class="sidebar-link"><i class="bi bi-map"></i> All Parcels</a>
+    <a href="transfer.html"      class="sidebar-link"><i class="bi bi-arrow-left-right"></i> Initiate Transfer</a>
+    <a href="transfer-requests.html" class="sidebar-link"><i class="bi bi-clock-history"></i> My Transfer Requests</a>
+    <a href="title-deeds.html"   class="sidebar-link"><i class="bi bi-file-earmark-text"></i> Title Deeds</a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Account</div>
+    <a href="profile.html"       class="sidebar-link active"><i class="bi bi-person-gear"></i> Manage Profile</a>
+    <a href="#"                  class="sidebar-link"><i class="bi bi-shield-lock"></i> Security</a>
+    <a href="../../index.html"   class="sidebar-link"><i class="bi bi-search"></i> Verify a Parcel</a>
+  </aside>
+
+  <!-- MAIN CONTENT (SCROLLABLE) -->
+  <main class="main-content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-title">
+        <i class="bi bi-person-gear"></i> Manage Your Profile
+      </div>
+    </div>
+
+    <!-- ALERT MESSAGES -->
+    <div id="alertSuccess" class="alert-custom alert-success">
+      <i class="bi bi-check-circle"></i>
+      <span id="alertSuccessMsg">Profile updated successfully!</span>
+    </div>
+    <div id="alertError" class="alert-custom alert-danger">
+      <i class="bi bi-exclamation-circle"></i>
+      <span id="alertErrorMsg">An error occurred. Please try again.</span>
+    </div>
+
+    <!-- PROFILE OVERVIEW CARD -->
+    <div class="section-card">
+      <div class="profile-header">
+        <div class="profile-avatar-large" id="prf-avatar-lg">--</div>
+        <div class="profile-info">
+          <h2 id="prf-fullname-display">Loading profile...</h2>
+          <p id="prf-email-display">Loading profile...</p>
+          <div class="verified-badge"><i class="bi bi-shield-check"></i> Verified Landowner</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE EDIT FORM -->
+    <div class="section-card">
+      <div class="section-card-body">
+        <form id="profileForm" class="needs-validation" novalidate>
+          <div class="form-section">
+            <h4><i class="bi bi-person-fill"></i> Personal Information</h4>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label form-label-custom" for="prf-name">Full Name</label>
+                <input class="form-control form-control-custom" id="prf-name" placeholder="Your full name" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label form-label-custom" for="prf-email">Email Address</label>
+                <input class="form-control form-control-custom" id="prf-email" placeholder="your@email.com" readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label form-label-custom" for="prf-phone">Phone Number <span class="text-danger">*</span></label>
+                <input class="form-control form-control-custom" id="prf-phone" type="tel" placeholder="e.g. +260 XXX XXX XXX" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label form-label-custom" for="prf-gender">Gender <span class="text-danger">*</span></label>
+                <select class="form-select form-control-custom" id="prf-gender" required>
+                  <option value="">Select...</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h4><i class="bi bi-geo-alt-fill"></i> Location &amp; ID</h4>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label form-label-custom" for="prf-national-id">National ID</label>
+                <input class="form-control form-control-custom" id="prf-national-id" placeholder="e.g. 123456/78/9">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label form-label-custom" for="prf-district">District</label>
+                <input class="form-control form-control-custom" id="prf-district" placeholder="e.g. Lusaka">
+              </div>
+              <div class="col-12">
+                <label class="form-label form-label-custom" for="prf-address">Address <span class="text-danger">*</span></label>
+                <textarea class="form-control form-control-custom" id="prf-address" placeholder="Your residential address" rows="2" required></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h4><i class="bi bi-key-fill"></i> Security</h4>
+            <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 14px;">To change your password, enter your current password and the new password you'd like to use.</p>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label form-label-custom" for="prf-current-pwd">Current Password</label>
+                <input type="password" class="form-control form-control-custom" id="prf-current-pwd" placeholder="••••••••">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label form-label-custom" for="prf-new-pwd">New Password (optional)</label>
+                <input type="password" class="form-control form-control-custom" id="prf-new-pwd" placeholder="Leave blank to keep current password">
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex gap-2 justify-content-end">
+            <a href="my-parcels.html" class="btn-secondary-custom">Cancel</a>
+            <button type="button" class="btn-primary-custom" onclick="updateProfile()" id="saveBtn">
+              <i class="bi bi-check-lg"></i> Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<!-- TOAST STACK -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// ── GLOBAL DATA ─────────────────────────────────────────────────────────────
+const BASE_URL = '/api';
+let api = null;
+let getSession = null;
+let logout = null;
+
+function getToken() {
+  return localStorage.getItem('lv_token');
+}
+
+function getSessionData() {
+  if (getSession) {
+    return getSession();
+  }
+  return {
+    token: localStorage.getItem('lv_token'),
+    email: localStorage.getItem('lv_email'),
+    fullName: localStorage.getItem('lv_fullName'),
+    role: localStorage.getItem('lv_role'),
+    userId: localStorage.getItem('lv_userId'),
+    phoneNumber: localStorage.getItem('lv_phone'),
+    address: localStorage.getItem('lv_address'),
+    photoPath: localStorage.getItem('lv_photo'),
+    gender: localStorage.getItem('lv_gender'),
+    username: localStorage.getItem('lv_username'),
+    district: localStorage.getItem('lv_district'),
+    nationalId: localStorage.getItem('lv_national_id'),
+  };
+}
+
+function clearSession() {
+  const keys = ['lv_token','lv_email','lv_name','lv_fullName','lv_role','lv_userId',
+                'lv_phone','lv_address','lv_photo','lv_gender','lv_profile_complete',
+                'lv_username','lv_district','lv_national_id'];
+  keys.forEach(k => localStorage.removeItem(k));
+}
+
+// ── UTILITY FUNCTIONS ──────────────────────────────────────────────────────
+function showToast(message, type = 'info') {
+  const icons = { success:'bi-check-circle-fill', error:'bi-x-circle-fill', info:'bi-info-circle-fill' };
+  const toastStack = document.getElementById('toastStack');
+  const toast = document.createElement('div');
+  toast.className = `toast-item ${type}`;
+  toast.innerHTML = `<i class="bi ${icons[type] || icons.info}"></i><span>${message}</span>`;
+  toastStack.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity .3s';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+}
+
+function showAlert(msg, type) {
+  const successEl = document.getElementById('alertSuccess');
+  const errorEl = document.getElementById('alertError');
+  
+  if (type === 'success') {
+    document.getElementById('alertSuccessMsg').textContent = msg;
+    successEl.classList.add('show');
+    errorEl.classList.remove('show');
+    setTimeout(() => successEl.classList.remove('show'), 3000);
+  } else {
+    document.getElementById('alertErrorMsg').textContent = msg;
+    errorEl.classList.add('show');
+    successEl.classList.remove('show');
+    setTimeout(() => errorEl.classList.remove('show'), 3000);
+  }
+}
+
+function showLogoutConfirm(e) {
+  e.preventDefault();
+  if (window.showLogoutConfirmation && window.logout) {
+    window.showLogoutConfirmation(window.logout);
+  } else if (window.logout) {
+    window.logout();
+  } else {
+    if (confirm('Are you sure you want to sign out?')) {
+      clearSession();
+      window.location.href = '/login.html';
+    }
+  }
+}
+
+// ── LOAD API & SESSION ────────────────────────────────────────────────────
+function loadApiAndSession() {
+  return new Promise((resolve) => {
+    const checkApi = setInterval(() => {
+      if (window.api && window.getSession && window.logout) {
+        api = window.api;
+        getSession = window.getSession;
+        logout = window.logout;
+        clearInterval(checkApi);
+        resolve();
+      }
+    }, 50);
+    setTimeout(() => clearInterval(checkApi), 5000);
+  });
+}
+
+function initNavbar() {
+  const session = getSession ? getSession() : getSessionData();
+  const fullName = session.fullName || 'User';
+  const initials = fullName.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+  const avatar = document.getElementById('nav-avatar');
+  const photoUrl = session.photoPath || localStorage.getItem('lv_photo') || '';
+  if (avatar) avatar.innerHTML = photoUrl ? `<img src="${photoUrl}" alt="Profile photo">` : initials;
+  if (document.getElementById('nav-name')) {
+    document.getElementById('nav-name').textContent = fullName;
+  }
+  if (document.getElementById('nav-role')) {
+    document.getElementById('nav-role').textContent = 'Land Owner';
+  }
+}
+
+// ── LOAD PROFILE ──────────────────────────────────────────────────────────
+function loadProfile() {
+  const session = getSession ? getSession() : getSessionData();
+  
+  // Check if user is logged in
+  if (!session.token) {
+    window.location.href = '/login.html';
+    return;
+  }
+
+  // Update navbar
+  const fullName = session.fullName || 'User';
+  const initials = fullName.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+  
+  const navAvatar = document.getElementById('nav-avatar');
+  const navPhotoUrl = session.photoPath || localStorage.getItem('lv_photo') || '';
+  if (navAvatar) navAvatar.innerHTML = navPhotoUrl ? `<img src="${navPhotoUrl}" alt="Profile photo">` : initials;
+  document.getElementById('nav-name').textContent = fullName;
+  const profileAvatar = document.getElementById('prf-avatar-lg');
+  if (navPhotoUrl) {
+    profileAvatar.innerHTML = `<img src="${navPhotoUrl}" alt="Profile photo">`;
+  } else {
+    profileAvatar.textContent = initials;
+  }
+  
+  // Populate form with current data
+  document.getElementById('prf-name').value = fullName;
+  document.getElementById('prf-email').value = session.email || '';
+  document.getElementById('prf-phone').value = session.phoneNumber || '';
+  document.getElementById('prf-address').value = session.address || '';
+  document.getElementById('prf-national-id').value = session.nationalId || '';
+  document.getElementById('prf-district').value = session.district || '';
+  document.getElementById('prf-gender').value = session.gender || '';
+  
+  // Display info
+  document.getElementById('prf-fullname-display').textContent = fullName;
+  document.getElementById('prf-email-display').textContent = session.email || 'Email not available';
+}
+
+// ── UPDATE PROFILE ────────────────────────────────────────────────────────
+async function updateProfile() {
+  const fullName = document.getElementById('prf-name').value.trim();
+  const phone = document.getElementById('prf-phone').value.trim();
+  const address = document.getElementById('prf-address').value.trim();
+  const gender = document.getElementById('prf-gender').value;
+  const nationalId = document.getElementById('prf-national-id').value.trim();
+  const district = document.getElementById('prf-district').value.trim();
+  const currentPassword = document.getElementById('prf-current-pwd').value;
+  const newPassword = document.getElementById('prf-new-pwd').value;
+
+  if (!fullName) {
+    showAlert('Full name is required', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-small me-2"></span>Saving...';
+
+  try {
+    const formData = new FormData();
+    formData.append('fullName', fullName);
+    formData.append('phoneNumber', phone);
+    formData.append('address', address);
+    formData.append('gender', gender);
+    formData.append('nationalId', nationalId);
+    formData.append('district', district);
+    if (currentPassword) {
+      formData.append('currentPassword', currentPassword);
+      formData.append('newPassword', newPassword);
+    }
+
+    const response = await fetch(`${BASE_URL}/landowner/profile/update-direct`, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + getToken()
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || 'Failed to update profile');
+    }
+
+    const data = await response.json();
+    
+    // Update session storage with new data
+    localStorage.setItem('lv_fullName', fullName);
+    localStorage.setItem('lv_phone', phone);
+    localStorage.setItem('lv_address', address);
+    localStorage.setItem('lv_gender', gender);
+    localStorage.setItem('lv_national_id', nationalId);
+    localStorage.setItem('lv_district', district);
+
+    showAlert('Profile updated successfully!', 'success');
+    showToast('Profile updated successfully!', 'success');
+    
+    // Reload after 1.5 seconds
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+
+  } catch (err) {
+    showAlert(err.message, 'error');
+    showToast(err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-lg"></i> Save Changes';
+  }
+}
+
+// ── EXPOSE TO GLOBAL ──────────────────────────────────────────────────────
+window.showLogoutConfirm = showLogoutConfirm;
+window.updateProfile = updateProfile;
+window.showToast = showToast;
+
+// ── INITIALIZE ────────────────────────────────────────────────────────────
+async function init() {
+  await loadApiAndSession();
+  initNavbar();
+  loadProfile();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<!-- ── MODULE LOADER ── -->
+<script type="module">
+  import { api as apiModule } from '/js/api.js';
+  import { requireLogin, getSession as getSessionFn, logout as logoutFn, updateSession as updateSessionFn, showLogoutConfirmation } from '/js/auth.js';
+
+  api = apiModule;
+  getSession = getSessionFn;
+  logout = logoutFn;
+  window.api = apiModule;
+  window.getSession = getSessionFn;
+  window.logout = logoutFn;
+  window.updateSession = updateSessionFn;
+  window.showLogoutConfirmation = showLogoutConfirmation;
+
+  try {
+    requireLogin();
+  } catch (error) {
+    console.error('Login requirement failed:', error);
+    window.location.href = '/login.html';
+  }
+</script>
+
+</body>
+</html>

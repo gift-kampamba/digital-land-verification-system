@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Land Verification — Public Portal</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    :root {
+      --navy:          #0e2240;
+      --navy-mid:      #1a3560;
+      --navy-light:    #e8edf6;
+      --navy-xlight:   #f4f6fb;
+      --gold:          #c8a040;
+      --gold-mid:      #b8902e;
+      --gold-dark:     #9a7420;
+      --gold-light:    #fdf6e3;
+      --gold-xlight:   #fefbf3;
+      --text-primary:  #111827;
+      --text-secondary:#4b5568;
+      --text-muted:    #8a94a6;
+      --border:        #e8e3d8;
+      --border-mid:    #d6ceba;
+      --bg-page:       #faf7f2;
+      --bg-card:       #ffffff;
+      --radius:        6px;
+      --radius-lg:     10px;
+      --shadow-sm:     0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+      --shadow-card:   0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+    }
+    html, body { margin: 0; min-height: 100%; background: var(--bg-page); }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 13px; color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* NAVBAR (matches dashboard top-bar) */
+    .navbar {
+      background: var(--navy); color: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 66px;
+      box-shadow: var(--shadow-sm); position: relative; z-index: 50;
+    }
+    .brand { font-size: 15px; font-weight: 700; letter-spacing: 0.4px; }
+    .brand span { color: var(--gold); }
+    .navbar-right a {
+      color: rgba(255,255,255,0.85); text-decoration: none; font-size: 12.5px;
+      font-weight: 500; padding: 7px 14px; border: 1px solid rgba(255,255,255,0.25);
+      border-radius: var(--radius); transition: all 0.15s;
+    }
+    .navbar-right a:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.4); }
+
+    /* HERO */
+    .hero {
+      background: var(--navy);
+      color: #fff; padding: 64px 20px 72px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .hero::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+      background: var(--gold);
+    }
+    .hero-emblem {
+      width: 54px; height: 54px; border-radius: 10px; background: var(--gold);
+      display: flex; align-items: center; justify-content: center; margin: 0 auto 18px;
+      overflow: hidden;
+    }
+    .hero-emblem img { width: 100%; height: 100%; object-fit: cover; }
+    .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.3px; }
+    .hero p  { opacity: .78; font-size: 14.5px; max-width: 560px; margin: 0 auto 30px; line-height: 1.5; }
+    .search-box { display: flex; max-width: 520px; margin: 0 auto; gap: 0; box-shadow: 0 8px 24px rgba(0,0,0,0.18); border-radius: var(--radius); }
+    .search-box input {
+      flex: 1; padding: 13px 16px; border: none; border-radius: var(--radius) 0 0 var(--radius);
+      font-size: 14px; font-family: inherit; outline: none;
+    }
+    .search-box button {
+      padding: 13px 26px; background: var(--gold); color: var(--navy); border: none;
+      border-radius: 0 var(--radius) var(--radius) 0; font-weight: 700; cursor: pointer;
+      font-size: 14px; font-family: inherit; transition: background 0.15s;
+    }
+    .search-box button:hover { background: var(--gold-mid); }
+
+    /* RESULT SECTION */
+    .result-section { max-width: 760px; margin: -34px auto 60px; padding: 0 20px; position: relative; }
+    .alert {
+      padding: 11px 16px; border-radius: var(--radius); font-size: 13px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .alert-info    { background: var(--navy-xlight); color: var(--navy-mid); border: 1px solid var(--navy-light); }
+    .alert-danger  { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    .result-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      padding: 28px; box-shadow: var(--shadow-card);
+    }
+    .result-card h3 {
+      font-size: 17px; font-weight: 600; color: var(--navy); margin-bottom: 18px;
+      font-family: 'JetBrains Mono', monospace; letter-spacing: -0.2px;
+    }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 26px; }
+    .info-row label {
+      font-size: 10.5px; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    .info-row span  { font-size: 14px; color: var(--text-primary); display: block; margin-top: 3px; }
+
+    .verify-badge {
+      display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 99px;
+      font-weight: 700; font-size: 12.5px; margin-bottom: 22px; border: 1px solid transparent;
+    }
+    .verify-badge.ok  { background: #ecfdf5; color: #166534; border-color: #bbf7d0; }
+    .verify-badge.err { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+
+    .history-list { list-style: none; padding: 0; margin-top: 8px; }
+    .history-list li {
+      padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px;
+      font-family: 'JetBrains Mono', monospace; color: var(--text-secondary);
+    }
+    .history-list li:last-child { border-bottom: none; }
+
+    .hidden { display: none; }
+
+    footer.site-footer {
+      text-align: center; color: var(--text-muted); font-size: 11px;
+      padding: 20px; border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="brand">Land<span>Verify</span> ZM</div>
+  <div class="navbar-right">
+    <a href="search-parcel.html">Search Parcel</a>
+    <a href="track-application.html">Track Application</a>
+    <a href="login.html">Officer / Owner Login</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-emblem">
+    <img src="images/coat-of-arms.png" alt="Coat of Arms">
+  </div>
+  <h1>Verify Land Ownership</h1>
+  <p>Enter a parcel number to instantly verify ownership and check the blockchain record.</p>
+  <div class="search-box">
+    <input type="text" id="parcelInput" placeholder="e.g. ZM-LSK-00123" />
+    <button onclick="verifyParcel()">Verify</button>
+  </div>
+</div>
+
+<div class="result-section">
+  <div id="msg"></div>
+  <div id="result" class="hidden"></div>
+</div>
+
+<footer class="site-footer">
+  © 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved
+</footer>
+
+<script type="module">
+  import { api } from '/js/api.js';
+  window.verifyParcel = async function() {
+    const num = document.getElementById('parcelInput').value.trim();
+    if (!num) { showMsg('Please enter a parcel number.', 'danger'); return; }
+
+    showMsg('Searching blockchain...', 'info');
+    document.getElementById('result').classList.add('hidden');
+
+    try {
+      const res = await api.verifyParcel(num);
+      const d   = res.data;
+      document.getElementById('msg').innerHTML = '';
+
+      const statusOk = d.blockchainVerificationStatus === 'VERIFIED';
+      document.getElementById('result').innerHTML = `
+        <div class="result-card">
+          <div class="verify-badge ${statusOk ? 'ok' : 'err'}">
+            ${statusOk ? '✔ Verified on Blockchain' : '✘ ' + d.blockchainVerificationStatus}
+          </div>
+          <h3>Parcel: ${d.parcelNumber || num}</h3>
+          <div class="info-grid">
+            <div class="info-row"><label>Province</label><span>${d.province || '—'}</span></div>
+            <div class="info-row"><label>District</label><span>${d.district || '—'}</span></div>
+            <div class="info-row"><label>Location</label><span>${d.locationAddress || '—'}</span></div>
+            <div class="info-row"><label>Area (sqm)</label><span>${d.areaSqm || '—'}</span></div>
+            <div class="info-row"><label>Land Use</label><span>${d.landUse || '—'}</span></div>
+            <div class="info-row"><label>Registered</label><span>${d.registeredAt ? new Date(d.registeredAt).toLocaleDateString() : '—'}</span></div>
+            <div class="info-row"><label>Current Owner</label><span>${d.currentOwnerName || '—'}</span></div>
+            <div class="info-row"><label>National ID (masked)</label><span>${d.currentOwnerMaskedId || '—'}</span></div>
+          </div>
+          ${d.blockchainHash ? `<div class="info-row" style="margin-top:14px"><label>Blockchain Hash</label><span style="font-size:12px;word-break:break-all;font-family:'JetBrains Mono',monospace">${d.blockchainHash}</span></div>` : ''}
+          ${d.ownershipHistory && d.ownershipHistory.length ? `
+            <div style="margin-top:16px">
+              <label style="font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em">Ownership History</label>
+              <ul class="history-list">${d.ownershipHistory.map(h => `<li>${h}</li>`).join('')}</ul>
+            </div>` : ''}
+        </div>`;
+      document.getElementById('result').classList.remove('hidden');
+    } catch (err) {
+      showMsg(err.message || 'Parcel not found.', 'danger');
+    }
+  };
+
+  document.getElementById('parcelInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.verifyParcel();
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const presetParcel = params.get('parcelNumber') || params.get('q');
+  if (presetParcel) {
+    document.getElementById('parcelInput').value = presetParcel;
+    window.verifyParcel();
+  }
+
+  function showMsg(text, type) {
+    document.getElementById('msg').innerHTML =
+      `<div class="alert alert-${type}">${text}</div>`;
+  }
+</script>
+</body>
+</html>

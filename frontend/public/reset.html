@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Password Reset — LandVerify ZM</title>
+  <link href="/public/css/main.css" rel="stylesheet"/>
+</head>
+<body>
+  <main style="max-width:680px;margin:60px auto;padding:24px;background:#fff;border-radius:8px;">
+    <h2>Password Reset</h2>
+    <p>Set a new password for your account.</p>
+    <div id="message" style="color:#b00;margin-bottom:12px;display:none"></div>
+    <div style="margin-bottom:12px;">
+      <label>New password</label>
+      <input id="pw" type="password" style="width:100%;padding:8px;margin-top:6px" />
+    </div>
+    <div style="margin-bottom:12px;">
+      <label>Confirm password</label>
+      <input id="pw2" type="password" style="width:100%;padding:8px;margin-top:6px" />
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <a href="/index.html" class="btn-cancel">Cancel</a>
+      <button id="submit" class="btn-submit">Reset Password</button>
+    </div>
+  </main>
+
+  <script>
+    function qs(name){
+      const params = new URLSearchParams(location.search);
+      return params.get(name);
+    }
+    const token = qs('token');
+    const msg = document.getElementById('message');
+    const pw = document.getElementById('pw');
+    const pw2 = document.getElementById('pw2');
+    const submit = document.getElementById('submit');
+
+    if (!token) {
+      msg.style.display = 'block'; msg.textContent = 'Missing token in URL.'; submit.disabled = true;
+    }
+
+    submit.addEventListener('click', async (e)=>{
+      e.preventDefault();
+      msg.style.display = 'none';
+      if (!pw.value || pw.value.length < 8) { msg.style.display='block'; msg.textContent='Password must be at least 8 characters.'; return; }
+      if (pw.value !== pw2.value) { msg.style.display='block'; msg.textContent='Passwords do not match.'; return; }
+      submit.disabled = true;
+      try {
+        const res = await fetch('/api/auth/reset', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ token, newPassword: pw.value }) });
+        const data = await res.json().catch(()=>({}));
+        if (res.ok) {
+          alert(data?.message || 'Password reset successful. You may now sign in.');
+          location.href = '/index.html';
+        } else {
+          msg.style.display='block'; msg.textContent = data?.message || 'Reset failed.';
+        }
+      } catch (err) {
+        console.error(err); msg.style.display='block'; msg.textContent='Network error.';
+      } finally { submit.disabled = false; }
+    });
+  </script>
+</body>
+</html>

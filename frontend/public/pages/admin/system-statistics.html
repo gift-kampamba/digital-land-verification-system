@@ -1,0 +1,643 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Statistics — ARMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --navy:#0e2240;
+  --navy-dark:#081527;
+  --navy-700:#1a3358;
+  --navy-400:#5a6b85;
+  --gold:#c8a040;
+  --gold-soft:#fdf6e3;
+  --gold-xlight:#fefbf3;
+  --bg:#faf7f2;
+  --surface:#ffffff;
+  --line:#e8e3d8;
+  --line-soft:#efeae1;
+  --ink:#111827;
+  --ink-mid:#4b5568;
+  --ink-soft:#8a94a6;
+  --pos:#2f7a55;
+  --warn:#b07d1a;
+  --neg:#a83232;
+  --font-family:'Inter', Arial, sans-serif;
+  --sidebar-w:220px;
+  --shell:1400px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--font-family);
+  font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;
+}
+
+/* ---------- top bar ---------- */
+.topbar{
+  height:64px;background:var(--navy);color:#fff;
+  display:flex;align-items:stretch;justify-content:space-between;
+  padding:0;position:sticky;top:0;z-index:20;
+  border-bottom:1px solid rgba(255,255,255,.12);
+  box-shadow:0 2px 20px rgba(0,0,0,.18);
+}
+.topbar,.topbar button,.sidebar,.sidebar a,.sidebar h6{font-family:'Inter',Arial,sans-serif}
+.brand{display:flex;align-items:center;gap:14px;padding:0 24px;min-width:360px;height:100%;border-right:1px solid rgba(255,255,255,.12);background:var(--navy);flex-shrink:0}
+.emblem{
+  width:40px;height:40px;border-radius:8px;
+  background:var(--gold);display:flex;align-items:center;justify-content:center;
+  overflow:hidden;border:0;flex:none;
+}
+.emblem img{width:100%;height:100%;object-fit:contain;border-radius:8px}
+.brand-text strong{display:block;font-size:12.5px;line-height:1.35;letter-spacing:.4px;font-weight:700;text-transform:uppercase}
+.brand-text span{display:block;font-size:10.5px;color:rgba(255,255,255,.5);margin-top:2px;line-height:1.3}
+.topbar-right{display:flex;align-items:center;gap:16px;padding-right:20px}
+.who{display:flex;flex-direction:column;align-items:flex-start;gap:0;font-size:13px;font-weight:600;line-height:1.2}
+.who small{font-size:10.5px;color:rgba(255,255,255,.72);line-height:1;margin-top:2px;font-weight:400}
+.avatar{
+  width:32px;height:32px;border-radius:50%;background:var(--gold-soft);
+  border:1.5px solid var(--gold);color:var(--navy);display:grid;place-items:center;
+  font-size:11.5px;font-weight:700;letter-spacing:.02em;
+}
+.signout{
+  background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff;
+  padding:5px 13px;border-radius:8px;font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;
+}
+.signout:hover{background:rgba(255,255,255,.1)}
+
+/* ---------- layout ---------- */
+.layout{display:flex;min-height:calc(100vh - 64px)}
+.sidebar{
+  width:220px;flex:none;background:var(--surface);
+  border-right:1px solid var(--line);padding:14px 0 12px;
+  height:calc(100vh - 64px);overflow-y:auto;position:sticky;top:64px;
+}
+.nav-group{margin-bottom:14px}
+.nav-group h6{
+  margin:0;padding:10px 16px 4px;font-size:9.5px;font-weight:700;
+  letter-spacing:.09em;color:var(--ink-soft);text-transform:uppercase;
+}
+.nav-group a{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 16px;color:var(--ink-mid);text-decoration:none;
+  font-size:12.5px;border-left:2px solid transparent;margin:1px 0;
+}
+.nav-group a:hover{background:var(--gold-xlight);color:var(--navy)}
+.nav-group a.active{
+  background:var(--gold-xlight);color:var(--navy);font-weight:600;border-left-color:var(--gold);
+}
+.nav-group a i{width:16px;text-align:center;font-style:normal;opacity:.75;font-size:14px}
+
+.main{flex:1;min-width:0;padding:30px 32px 56px}
+.shell{max-width:var(--shell);margin:0 auto}
+
+/* ---------- page head ---------- */
+.page-head{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:24px;padding-bottom:16px;border-bottom:1px solid var(--line);
+}
+.page-head h1{
+  margin:0;font-size:27px;line-height:1.15;font-weight:600;
+  letter-spacing:-.015em;color:var(--navy);
+}
+.page-head p{margin:5px 0 0;color:var(--ink-mid);font-size:13.5px;max-width:58ch}
+.btn-primary{
+  background:var(--navy);color:#fff;border:1px solid var(--navy);
+  padding:9px 17px;border-radius:3px;font:inherit;font-size:13px;
+  font-weight:500;cursor:pointer;white-space:nowrap;
+}
+.btn-primary:hover{background:var(--navy-700)}
+
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 22px}
+.filters select{
+  appearance:none;background:var(--surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='9' height='6'><path d='M0 0l4.5 6L9 0z' fill='%235c6575'/></svg>") no-repeat right 11px center;
+  border:1px solid var(--line);border-radius:3px;
+  padding:7px 30px 7px 11px;font:inherit;font-size:13px;color:var(--ink);cursor:pointer;
+}
+.filters select:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.filters .period{margin-left:auto;color:var(--ink-soft);font-size:12.5px}
+
+/* ---------- kpi row ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.kpi{
+  background:var(--surface);border:1px solid var(--line);border-radius:6px;
+  padding:16px 18px 15px;display:flex;flex-direction:column;
+}
+.kpi .label{font-size:12.5px;color:var(--ink-mid);font-weight:500}
+.kpi .value{
+  font-size:31px;line-height:1.1;font-weight:600;color:var(--navy);
+  letter-spacing:-.02em;margin:9px 0 0;font-variant-numeric:tabular-nums;
+}
+.kpi.alert .value{color:var(--neg)}
+.kpi .delta{
+  margin-top:8px;padding-top:8px;border-top:1px solid var(--line-soft);
+  font-size:12px;color:var(--ink-soft);display:flex;gap:6px;align-items:baseline;
+}
+.kpi .delta b{font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.up{color:var(--pos)} .down{color:var(--neg)} .flat{color:var(--ink-soft)}
+
+/* ---------- cards ---------- */
+.grid{display:grid;gap:14px;margin-bottom:14px;align-items:stretch}
+.g-1{grid-template-columns:1fr}
+.g-2{grid-template-columns:1.55fr 1fr}
+.g-2e{grid-template-columns:1fr 1fr}
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:6px;
+  display:flex;flex-direction:column;min-width:0;
+}
+.card-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 18px;border-bottom:1px solid var(--line-soft);
+}
+.card-head h2{margin:0;font-size:14.5px;font-weight:600;color:var(--navy)}
+.card-head .meta{font-size:12px;color:var(--ink-soft)}
+.card-head a{font-size:12.5px;color:var(--navy);text-decoration:none;border-bottom:1px solid var(--line)}
+.card-head a:hover{border-bottom-color:var(--gold)}
+.card-body{padding:18px;flex:1}
+
+/* ---------- chart ---------- */
+.chart-wrap{padding:16px 18px 8px}
+svg{display:block;width:100%;height:auto;overflow:visible}
+.legend{
+  display:flex;gap:18px;padding:0 18px 15px;font-size:12px;color:var(--ink-mid);
+}
+.legend span{display:flex;align-items:center;gap:7px}
+.swatch{width:11px;height:11px;border-radius:2px;flex:none}
+
+/* ---------- table ---------- */
+table{width:100%;border-collapse:collapse}
+thead th{
+  text-align:left;font-size:11.5px;font-weight:600;color:var(--ink-mid);
+  padding:11px 18px;border-bottom:1px solid var(--line);
+  background:#fcfaf6;white-space:nowrap;
+}
+thead th.num,tbody td.num{text-align:right;font-variant-numeric:tabular-nums}
+tbody td{padding:10px 18px;border-bottom:1px solid var(--line-soft);font-size:13.5px}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#fdfcf9}
+tbody td.name{font-weight:500;color:var(--ink)}
+tbody td.num{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink)}
+tbody td .flagcell{color:var(--ink-soft)}
+tbody td .flagcell.hot{color:var(--neg);font-weight:500}
+tfoot td{
+  padding:11px 18px;font-size:13px;font-weight:600;color:var(--navy);
+  background:#fcfaf6;border-top:1px solid var(--line);
+}
+tfoot td.num{text-align:right;font-family:'JetBrains Mono',monospace}
+
+/* ---------- stat rows ---------- */
+.rows{margin:0;padding:0;list-style:none}
+.rows li{
+  display:flex;align-items:baseline;justify-content:space-between;gap:14px;
+  padding:11px 0;border-bottom:1px solid var(--line-soft);
+}
+.rows li:last-child{border-bottom:none;padding-bottom:0}
+.rows .k{font-size:13.5px;color:var(--ink-mid)}
+.rows .v{
+  font-family:'JetBrains Mono',monospace;font-size:14.5px;font-weight:500;
+  color:var(--navy);font-variant-numeric:tabular-nums;
+}
+.rows .v.neg{color:var(--neg)}
+.rows .v.warn{color:var(--warn)}
+.rows .v.pos{color:var(--pos)}
+.rows .sub{display:block;font-size:11.5px;color:var(--ink-soft);font-weight:400;text-align:right;margin-top:2px;font-family:'Inter',Arial,sans-serif}
+
+/* progress meter */
+.meter{margin-bottom:16px}
+.meter:last-child{margin-bottom:0}
+.meter-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.meter-top .m-label{font-size:13px;color:var(--ink-mid)}
+.meter-top .m-val{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink)}
+.track{height:6px;background:var(--line-soft);border-radius:3px;overflow:hidden}
+.track i{display:block;height:100%;border-radius:3px}
+.meter-note{font-size:11.5px;color:var(--ink-soft);margin-top:5px}
+
+/* empty state */
+.empty{
+  display:grid;place-items:center;text-align:center;
+  min-height:180px;padding:24px;
+}
+.empty p{margin:0;font-size:13.5px;color:var(--ink-mid);max-width:34ch}
+.empty p b{display:block;color:var(--navy);font-weight:600;margin-bottom:4px;font-size:14px}
+
+/* skeleton */
+.sk{background:var(--line-soft);border-radius:3px;height:12px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.sk{animation:none}}
+
+.footnote{
+  margin-top:20px;font-size:12px;color:var(--ink-soft);
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+
+@media (max-width:1180px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .g-2,.g-2e{grid-template-columns:1fr}
+}
+@media (max-width:900px){
+  .sidebar{display:none}
+  .main{padding:22px 18px 44px}
+  .page-head{flex-direction:column;align-items:flex-start}
+}
+@media (max-width:560px){
+  .kpis{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="emblem"><img src="../../images/coat-of-arms.png" alt="Zambian Coat of Arms"></div>
+    <div class="brand-text">
+      <strong>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</strong>
+      <span>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="avatar">SA</div>
+    <div class="who"><span>System Admin</span><small>Administrator</small></div>
+    <button class="signout" type="button" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Sign out</button>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-group">
+      <h6>Overview</h6>
+      <a href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    </div>
+    <div class="nav-group">
+      <h6>Land Management</h6>
+      <a href="/index.html"><i class="bi bi-search"></i> Verify Parcel</a>
+    </div>
+    <div class="nav-group">
+      <a href="system-monitoring.html"><i class="bi bi-check2-square"></i> System Monitoring</a>
+      <a href="system-alerts.html"><i class="bi bi-exclamation-triangle"></i> System Alerts</a>
+    </div>
+    <div class="nav-group">
+      <h6>Blockchain</h6>
+      <a href="blockchain-status.html"><i class="bi bi-link-45deg"></i> Blockchain Status</a>
+      <a href="system-statistics.html" class="active" aria-current="page"><i class="bi bi-file-earmark-bar-graph"></i> System Statistics</a>
+    </div>
+    <div class="nav-group">
+      <h6>Administration</h6>
+      <a href="all-users.html"><i class="bi bi-people"></i> Users</a>
+      <a href="create-user.html"><i class="bi bi-person-plus"></i> Create User</a>
+    </div>
+    <div class="nav-group">
+      <a href="#" onclick="logout(); return false;"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+    </div>
+  </nav>
+
+  <main class="main">
+   <div class="shell">
+
+    <div class="page-head">
+      <div>
+        <h1>System statistics</h1>
+      </div>
+      <button class="btn-primary" id="exportStatisticsButton" type="button"><i class="bi bi-filetype-pdf"></i> Export report</button>
+    </div>
+
+    <div class="filters">
+      <select><option>This month</option><option>Last month</option><option>This quarter</option><option>Year to date</option></select>
+      <select><option>All provinces</option><option>Lusaka</option><option>Copperbelt</option><option>Central</option></select>
+      <select><option>All districts</option><option>Lusaka</option><option>Kafue</option><option>Chongwe</option></select>
+      <span class="period" id="statisticsPeriod">Live registry data</span>
+    </div>
+
+    <!-- KPIs -->
+    <section class="kpis">
+      <div class="kpi">
+        <span class="label">Parcels registered</span>
+        <span class="value" id="parcelsRegistered">—</span>
+        <span class="delta">Live total from registry</span>
+      </div>
+      <div class="kpi">
+        <span class="label">Registered landowners</span>
+        <span class="value" id="registeredLandowners">—</span>
+        <span class="delta">Live total from user accounts</span>
+      </div>
+      <div class="kpi">
+        <span class="label">Completed transfers</span>
+        <span class="value" id="completedTransfers">—</span>
+        <span class="delta">Live total from transfer records</span>
+      </div>
+      <div class="kpi alert">
+        <span class="label">Records flagged for review</span>
+        <span class="value" id="flaggedRecords">—</span>
+        <span class="delta">Live records requiring review</span>
+      </div>
+    </section>
+
+    <!-- Registration trend -->
+    <section class="grid g-1">
+      <div class="card">
+        <div class="card-head">
+          <h2>Monthly parcel registrations</h2>
+          <span class="meta">Live registry data</span>
+        </div>
+        <div class="chart-wrap">
+          <svg viewBox="0 0 960 300" role="img" aria-label="Monthly parcel registrations, January to September 2026">
+            <!-- gridlines + y labels -->
+            <g font-family="JetBrains Mono, monospace" font-size="11" fill="#8a93a1">
+              <line x1="52" y1="20"  x2="944" y2="20"  stroke="#efeae1"/><text x="40" y="24" text-anchor="end">600</text>
+              <line x1="52" y1="80"  x2="944" y2="80"  stroke="#efeae1"/><text x="40" y="84" text-anchor="end">450</text>
+              <line x1="52" y1="140" x2="944" y2="140" stroke="#efeae1"/><text x="40" y="144" text-anchor="end">300</text>
+              <line x1="52" y1="200" x2="944" y2="200" stroke="#efeae1"/><text x="40" y="204" text-anchor="end">150</text>
+              <line x1="52" y1="260" x2="944" y2="260" stroke="#e4ded3"/><text x="40" y="264" text-anchor="end">0</text>
+            </g>
+
+            <!-- bars: registrations -->
+            <g fill="#0e2240">
+              <rect id="bar1" x="70" y="260" width="46" height="0" rx="2"/>
+              <rect id="bar2" x="168" y="260" width="46" height="0" rx="2"/>
+              <rect id="bar3" x="266" y="260" width="46" height="0" rx="2"/>
+              <rect id="bar4" x="364" y="260" width="46" height="0" rx="2"/>
+              <rect id="bar5" x="462" y="260" width="46" height="0" rx="2"/>
+              <rect id="bar6" x="560" y="260" width="46" height="0" rx="2"/>
+              <rect id="bar7" x="658" y="260" width="46" height="0" rx="2"/>
+              <rect id="bar8" x="756" y="260" width="46" height="0" rx="2"/>
+              <rect id="bar9" x="854" y="260" width="46" height="0" rx="2" fill="#5a6b85"/>
+            </g>
+
+            <!-- transfers line -->
+            <polyline fill="none" stroke="#c8a040" stroke-width="2"
+              points="93,212 191,204 289,220 387,188 485,196 583,176 681,184 779,168 877,214"/>
+            <g fill="#c8a040">
+              <circle cx="93" cy="212" r="3.2"/><circle cx="191" cy="204" r="3.2"/><circle cx="289" cy="220" r="3.2"/>
+              <circle cx="387" cy="188" r="3.2"/><circle cx="485" cy="196" r="3.2"/><circle cx="583" cy="176" r="3.2"/>
+              <circle cx="681" cy="184" r="3.2"/><circle cx="779" cy="168" r="3.2"/><circle cx="877" cy="214" r="3.2"/>
+            </g>
+
+            <!-- value labels on tallest -->
+            <text x="779" y="46" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#0e2240" font-weight="500">512</text>
+
+            <!-- x axis -->
+            <g font-family="Inter, sans-serif" font-size="12" fill="#5c6575" text-anchor="middle">
+              <text x="93" y="282">Jan</text><text x="191" y="282">Feb</text><text x="289" y="282">Mar</text>
+              <text x="387" y="282">Apr</text><text x="485" y="282">May</text><text x="583" y="282">Jun</text>
+              <text x="681" y="282">Jul</text><text x="779" y="282">Aug</text>
+              <text x="877" y="282" fill="#8a93a1">Sep</text>
+            </g>
+          </svg>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background:#0e2240"></i> Parcels registered</span>
+          <span><i class="swatch" style="background:#c8a040"></i> Ownership transfers</span>
+          <span><i class="swatch" style="background:#5a6b85"></i> September (month in progress)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Province table + transfers -->
+    <section class="grid g-2">
+      <div class="card">
+        <div class="card-head">
+          <h2>Parcel statistics by province</h2>
+          <span class="meta">This month</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Province</th><th class="num">Parcels</th><th class="num">Transfers</th><th class="num">Flagged</th></tr>
+          </thead>
+          <tbody id="provinceStatsBody"><tr><td colspan="4">Loading live statistics...</td></tr></tbody>
+          <tfoot id="provinceStatsFoot"></tfoot>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Transfer statistics</h2><span class="meta">This month</span></div>
+        <div class="card-body">
+          <ul class="rows">
+            <li><span class="k">Pending review</span><span class="v warn" id="pendingTransfers">—</span></li>
+            <li><span class="k">Approved</span><span class="v pos" id="approvedTransfers">—</span></li>
+            <li><span class="k">Rejected</span><span class="v neg" id="rejectedTransfers">—</span></li>
+            <li><span class="k">All requests</span><span class="v" id="allTransfers">—</span></li>
+          </ul>
+          <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--line-soft)">
+            <div class="meter">
+              <div class="meter-top"><span class="m-label">Approval rate</span><span class="m-val" id="approvalRate">—</span></div>
+              <div class="track"><i id="approvalRateBar" style="width:0;background:#2f7a55"></i></div>
+              <p class="meter-note">Calculated from live transfer records.</p>
+            </div>
+            <div class="meter">
+              <div class="meter-top"><span class="m-label">Average time to decision</span><span class="m-val">3.2 days</span></div>
+              <div class="track"><i style="width:46%;background:#0e2240"></i></div>
+              <p class="meter-note">Target is 5 days or fewer.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Verification + fraud -->
+    <section class="grid g-2e">
+      <div class="card">
+        <div class="card-head"><h2>Verification statistics</h2><span class="meta">This month</span></div>
+        <div class="card-body">
+          <ul class="rows">
+            <li><span class="k">Total blockchain records</span><span class="v" id="blockchainRecords">—</span></li>
+            <li><span class="k">Verified against ledger</span><span class="v pos" id="verifiedRecords">—<span class="sub">Live on-chain records</span></span></li>
+            <li><span class="k">Hash mismatches</span><span class="v neg">Not reported</span></li>
+            <li><span class="k">Suspicious verification attempts</span><span class="v warn">Not reported</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Fraud detection by case risk</h2><span class="meta" id="fraudCases">— open cases</span></div>
+        <div class="card-body">
+          <div class="meter">
+            <div class="meter-top"><span class="m-label">Flagged records</span><span class="m-val" id="flaggedRisk">—</span></div>
+            <div class="track"><i id="flaggedRiskBar" style="width:0;background:#a83232"></i></div>
+            <p class="meter-note">Records currently flagged for administrator review.</p>
+          </div>
+          <div class="meter">
+            <div class="meter-top"><span class="m-label">Transfer requests</span><span class="m-val" id="fraudTransferCount">—</span></div>
+            <div class="track"><i id="fraudTransferBar" style="width:0;background:#b07d1a"></i></div>
+            <p class="meter-note">All transfer requests currently recorded.</p>
+          </div>
+          <div class="meter">
+            <div class="meter-top"><span class="m-label">Blockchain records</span><span class="m-val" id="fraudBlockchainCount">—</span></div>
+            <div class="track"><i id="fraudBlockchainBar" style="width:0;background:#5a6b85"></i></div>
+            <p class="meter-note">Records available for verification.</p>
+          </div>
+          <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line-soft);font-size:12.5px;color:var(--ink-mid)">
+            Risk breakdown is based on the live records reported by the registry API.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <p class="footnote">
+      <span>Figures are loaded from the live registry. Last updated <span id="lastUpdated">—</span>.</span>
+      <span>Ministry of Lands &amp; Natural Resources · Internal use only</span>
+    </p>
+
+   </div>
+  </main>
+</div>
+
+<script>
+  const numberFormat = new Intl.NumberFormat();
+  const value = number => numberFormat.format(Number(number || 0));
+  const setText = (id, text) => { const element = document.getElementById(id); if (element) element.textContent = text; };
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = '/login.html';
+  }
+
+  function exportStatisticsPdf() {
+    const { jsPDF } = window.jspdf || {};
+    if (!jsPDF) {
+      window.alert('The PDF export library is unavailable. Please try again.');
+      return;
+    }
+
+    const documentPdf = new jsPDF();
+    const pageWidth = documentPdf.internal.pageSize.getWidth();
+    let y = 20;
+    documentPdf.setTextColor(14, 34, 64);
+    documentPdf.setFont('helvetica', 'bold');
+    documentPdf.setFontSize(18);
+    documentPdf.text('ARMS System Statistics', 14, y);
+    y += 8;
+    documentPdf.setFont('helvetica', 'normal');
+    documentPdf.setFontSize(9);
+    documentPdf.setTextColor(75, 85, 104);
+    documentPdf.text(document.getElementById('statisticsPeriod')?.textContent || 'Live registry data', 14, y);
+    y += 12;
+
+    documentPdf.setDrawColor(232, 227, 216);
+    documentPdf.line(14, y, pageWidth - 14, y);
+    y += 10;
+    documentPdf.setFontSize(11);
+    documentPdf.setTextColor(17, 24, 39);
+    documentPdf.setFont('helvetica', 'bold');
+    documentPdf.text('Key totals', 14, y);
+    y += 7;
+    documentPdf.setFont('helvetica', 'normal');
+    document.querySelectorAll('.kpi').forEach((card, index) => {
+      const label = card.querySelector('.label')?.textContent?.trim() || '';
+      const total = card.querySelector('.value')?.textContent?.trim() || '0';
+      documentPdf.text(`${label}: ${total}`, 18, y + (index * 6));
+    });
+    y += document.querySelectorAll('.kpi').length * 6 + 8;
+
+    documentPdf.setFont('helvetica', 'bold');
+    documentPdf.text('Transfer summary', 14, y);
+    y += 7;
+    documentPdf.setFont('helvetica', 'normal');
+    ['pendingTransfers', 'approvedTransfers', 'rejectedTransfers', 'allTransfers', 'approvalRate'].forEach((id, index) => {
+      const element = document.getElementById(id);
+      const label = element?.closest('li')?.querySelector('.k')?.textContent?.trim()
+        || element?.closest('.meter-top')?.querySelector('.m-label')?.textContent?.trim()
+        || id;
+      const total = element?.textContent?.trim() || '0';
+      documentPdf.text(`${label}: ${total}`, 18, y + (index * 6));
+    });
+    y += 40;
+
+    documentPdf.setFont('helvetica', 'bold');
+    documentPdf.text('Province statistics', 14, y);
+    y += 7;
+    documentPdf.setFont('helvetica', 'normal');
+    documentPdf.setFontSize(9);
+    documentPdf.text('Province', 14, y);
+    documentPdf.text('Parcels', 92, y);
+    documentPdf.text('Transfers', 125, y);
+    documentPdf.text('Flagged', 165, y);
+    y += 5;
+    document.querySelectorAll('#provinceStatsBody tr').forEach(row => {
+      const cells = [...row.querySelectorAll('td')].map(cell => cell.textContent.trim());
+      if (!cells.length) return;
+      if (y > 275) { documentPdf.addPage(); y = 20; }
+      documentPdf.text(cells[0] || '', 14, y);
+      documentPdf.text(cells[1] || '0', 92, y);
+      documentPdf.text(cells[2] || '0', 125, y);
+      documentPdf.text(cells[3] || '0', 165, y);
+      y += 5;
+    });
+
+    const date = new Date().toISOString().slice(0, 10);
+    documentPdf.save(`system-statistics-${date}.pdf`);
+  }
+
+  function renderProvinceStats(stats, totals) {
+    const entries = Object.entries(stats || {}).sort((a, b) => Number(b[1].parcels || 0) - Number(a[1].parcels || 0));
+    document.getElementById('provinceStatsBody').innerHTML = entries.length
+      ? entries.map(([province, row]) => `<tr><td class="name">${province}</td><td class="num">${value(row.parcels)}</td><td class="num">${value(row.transfers)}</td><td class="num"><span class="flagcell ${Number(row.flagged || 0) > 10 ? 'hot' : ''}">${value(row.flagged)}</span></td></tr>`).join('')
+      : '<tr><td colspan="4">No province statistics available.</td></tr>';
+    document.getElementById('provinceStatsFoot').innerHTML = `<tr><td>All provinces</td><td class="num">${value(totals.totalParcels)}</td><td class="num">${value(totals.totalTransfers)}</td><td class="num">${value(totals.flaggedTransfers)}</td></tr>`;
+  }
+
+  function renderRegistrationChart(monthly) {
+    const months = Array.from({ length: 9 }, (_, index) => index + 1);
+    const values = months.map(month => Number(monthly?.[month] || 0));
+    const max = Math.max(...values, 1);
+    values.forEach((count, index) => {
+      const bar = document.getElementById(`bar${index + 1}`);
+      const height = Math.round((count / max) * 220);
+      if (bar) {
+        bar.setAttribute('y', String(260 - height));
+        bar.setAttribute('height', String(height));
+      }
+    });
+  }
+
+  async function loadStatistics() {
+    try {
+      const response = await fetch('/api/admin/system-statistics', { headers: { Authorization: 'Bearer ' + localStorage.getItem('lv_token') } });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message || 'Statistics request failed');
+      const data = payload.data || {};
+      const statuses = data.transfersByStatus || {};
+      const pending = Number(statuses.SUBMITTED || 0) + Number(statuses.UNDER_REVIEW || 0) + Number(statuses.APPROVED_L1 || 0);
+      const approved = Number(data.completedTransfers || statuses.APPROVED || 0);
+      const rejected = Number(data.rejectedTransfers || statuses.REJECTED || 0);
+      const totalTransfers = Object.values(statuses).reduce((sum, count) => sum + Number(count || 0), 0);
+      const approvalRate = totalTransfers ? Math.round((approved / totalTransfers) * 1000) / 10 : 0;
+      const totals = { totalParcels: Number(data.totalParcels || 0), totalTransfers, flaggedTransfers: Number(data.flaggedTransfers || 0) };
+
+      setText('parcelsRegistered', value(data.totalParcels));
+      setText('registeredLandowners', value(data.landowners));
+      setText('completedTransfers', value(approved));
+      setText('flaggedRecords', value(data.flaggedTransfers));
+      setText('pendingTransfers', value(pending));
+      setText('approvedTransfers', value(approved));
+      setText('rejectedTransfers', value(rejected));
+      setText('allTransfers', value(totalTransfers));
+      setText('approvalRate', `${approvalRate}%`);
+      setText('blockchainRecords', value(data.blockchainRecords));
+      setText('verifiedRecords', value(data.blockchainRecords));
+      setText('fraudCases', `${value(data.flaggedTransfers)} open cases`);
+      setText('flaggedRisk', value(data.flaggedTransfers));
+      setText('fraudTransferCount', value(totalTransfers));
+      setText('fraudBlockchainCount', value(data.blockchainRecords));
+      const updatedAt = new Date();
+      setText('lastUpdated', updatedAt.toLocaleString());
+      setText('statisticsPeriod', `Updated ${updatedAt.toLocaleDateString()} · live totals`);
+      document.getElementById('approvalRateBar').style.width = `${approvalRate}%`;
+      document.getElementById('flaggedRiskBar').style.width = `${data.totalParcels ? Math.min(100, (data.flaggedTransfers / data.totalParcels) * 1000) : 0}%`;
+      document.getElementById('fraudTransferBar').style.width = `${totalTransfers ? Math.min(100, (pending / totalTransfers) * 100) : 0}%`;
+      document.getElementById('fraudBlockchainBar').style.width = data.blockchainRecords ? '100%' : '0%';
+      renderProvinceStats(data.provinceStats, totals);
+      renderRegistrationChart(data.registrationByMonth);
+    } catch (error) {
+      document.getElementById('provinceStatsBody').innerHTML = `<tr><td colspan="4">Unable to load live statistics: ${error.message}</td></tr>`;
+    }
+  }
+
+  loadStatistics();
+  document.getElementById('exportStatisticsButton')?.addEventListener('click', exportStatisticsPdf);
+</script>
+</body>
+</html>

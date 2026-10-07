@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Notifications – ARMS</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  :root {
+    --navy:           #0e2240;
+    --navy-dark:      #081527;
+    --navy-mid:       #1a3560;
+    --navy-light:     #e8edf6;
+    --navy-xlight:    #f4f6fb;
+    --gold:           #c8a040;
+    --gold-mid:       #b8902e;
+    --gold-dark:      #9a7420;
+    --gold-light:     #fdf6e3;
+    --gold-xlight:    #fefbf3;
+    --green:          #22c55e;
+    --green-light:    #f0fdf4;
+    --green-dark:     #15803d;
+    --red:            #ef4444;
+    --red-light:      #fef2f2;
+    --red-dark:       #b91c1c;
+    --text-primary:   #111827;
+    --text-secondary: #4b5568;
+    --text-muted:     #8a94a6;
+    --border:         #e8e3d8;
+    --border-mid:     #d6ceba;
+    --page-bg:        #faf7f2;
+    --bg-page:        #faf7f2;
+    --surface:        #ffffff;
+    --bg-card:        #ffffff;
+    --font-family:    'Inter', Arial, sans-serif;
+    --radius:         8px;
+    --radius-lg:      12px;
+    --shadow:         0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+    --shadow-sm:      0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+    --shadow-card:    0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+    --sidebar-w:      220px;
+    --nav-h:          64px;
+    --header-h:       64px;
+  }
+  body {
+    display: flex; flex-direction: column;
+    background: var(--bg-page);
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 13px; color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* TOP BAR */
+  .top-bar {
+    background: var(--bg-card);
+    display: flex; justify-content: space-between; align-items: stretch;
+    border-bottom: 1px solid var(--border);
+    height: var(--header-h); flex-shrink: 0;
+    box-shadow: var(--shadow-sm); position: relative; z-index: 50;
+  }
+  .logo-block {
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 24px; min-width: 360px; height: 100%;
+    flex-shrink: 0; background: var(--navy);
+  }
+   .logo-emblem {
+     width: 40px; height: 40px; border-radius: 8px;
+     background: var(--gold); display: flex; align-items: center;
+     justify-content: center; flex-shrink: 0; overflow: hidden;
+    }
+    .logo-emblem img {
+     width: 100%; height: 100%; object-fit: cover;
+    }
+  .logo-text h2 { font-size: 12.5px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+  .logo-text p  { font-size: 10.5px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+  .top-right { display: flex; align-items: center; gap: 14px; padding-right: 20px; }
+  .user-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--gold-light); border: 1.5px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--navy);
+    overflow: hidden; flex-shrink: 0;
+  }
+  .top-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+  .top-user-role { font-size: 10.5px; color: var(--text-muted); line-height: 1; }
+  .btn-signout {
+    background: transparent; border: 1px solid var(--border-mid);
+    color: var(--text-secondary); padding: 5px 13px;
+    border-radius: var(--radius); font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; font-family: inherit;
+  }
+  .btn-signout:hover { background: var(--bg-page); color: var(--text-primary); }
+  .bell-btn {
+    position: relative; width: 34px; height: 34px; border-radius: 50%;
+    background: var(--navy-xlight); border: 1px solid var(--navy-light);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--navy-mid); font-size: 15px; cursor: pointer;
+  }
+  .bell-dot {
+    position: absolute; top: -3px; right: -3px;
+    background: #db2777; color: #fff; font-size: 9.5px; font-weight: 700;
+    min-width: 16px; height: 16px; border-radius: 99px;
+    display: flex; align-items: center; justify-content: center; padding: 0 3px;
+  }
+
+  /* LAYOUT */
+  .dashboard-container { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar-w); background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    padding: 14px 0 12px; flex-shrink: 0; height: 100%;
+    overflow-y: auto; display: flex; flex-direction: column;
+  }
+  .sidebar-section-title {
+    font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--text-muted); font-weight: 700; padding: 10px 16px 4px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 16px; color: var(--text-secondary);
+    text-decoration: none; font-size: 12.5px;
+    transition: all 0.13s; border-left: 2px solid transparent; margin: 1px 0;
+  }
+  .sidebar-item:hover { background: var(--gold-xlight); color: var(--navy); }
+  .sidebar-item.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+  .sidebar-item i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-item.active i { opacity: 1; }
+  .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+  .sidebar-item.signout { color: #991b1b; }
+  .sidebar-item.signout:hover { background: #fdecea; }
+  .sidebar-item.signout i { opacity: 1; }
+  .flag-count {
+    margin-left: auto; background: #ef4444; color: #fff;
+    font-size: 10px; font-weight: 700; min-width: 18px; height: 18px;
+    border-radius: 99px; display: inline-flex; align-items: center;
+    justify-content: center; padding: 0 5px;
+  }
+  .flag-count.hidden { display: none; }
+
+  /* MAIN */
+  .main-content {
+    flex: 1; min-height: 0; padding: 24px 28px;
+    overflow-y: auto; overflow-x: hidden; background: var(--bg-page);
+  }
+  .page-header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; }
+  .page-title   { font-size: 20px; font-weight: 600; color: var(--navy); margin-bottom: 4px; letter-spacing: -0.3px; }
+  .page-subtitle{ font-size: 12.5px; color: var(--text-secondary); }
+
+  /* TABLE / PANEL CARD */
+  .table-card {
+    background: var(--bg-card); border-radius: var(--radius-lg);
+    border: 1px solid var(--border); overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+  .panel-header {
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: stretch; justify-content: space-between;
+    flex-wrap: wrap; gap: 0;
+  }
+  .tab-nav { display: flex; flex: 1; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 13px 16px; border: none; background: transparent;
+    font-size: 12.5px; font-weight: 500; color: var(--text-secondary);
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    cursor: pointer; transition: all 0.15s; font-family: inherit;
+    display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--navy); background: var(--gold-xlight); }
+  .tab-btn.active { color: var(--navy); font-weight: 600; border-bottom-color: var(--gold); background: var(--gold-xlight); }
+  .tab-btn i { font-size: 13px; }
+  .tab-count {
+    background: var(--navy-xlight); color: var(--navy-mid);
+    font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 99px;
+  }
+  .tab-btn.active .tab-count { background: var(--gold); color: var(--navy); }
+
+  .panel-actions { display: flex; align-items: center; gap: 8px; padding: 0 16px; }
+  .btn-outline-arm {
+    height: 32px; padding: 0 13px; border-radius: var(--radius);
+    border: 1px solid var(--border-mid); background: var(--bg-card);
+    font-size: 12px; font-family: inherit; color: var(--text-secondary);
+    cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px;
+  }
+  .btn-outline-arm:hover { background: var(--bg-page); color: var(--navy); border-color: var(--navy-mid); }
+
+  /* FILTER BAR */
+  .filter-bar {
+    padding: 12px 18px; border-bottom: 1px solid var(--border);
+    background: var(--bg-page); display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  }
+  .filter-search {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg-card); border: 1px solid var(--border-mid);
+    border-radius: var(--radius); padding: 0 12px; height: 34px; flex: 1; min-width: 200px;
+  }
+  .filter-search i { color: var(--text-muted); font-size: 13px; flex-shrink: 0; }
+  .filter-search input {
+    border: none; outline: none; background: transparent;
+    font-size: 12.5px; font-family: inherit; color: var(--text-primary); width: 100%;
+  }
+  .filter-search input::placeholder { color: var(--text-muted); }
+  .filter-select {
+    height: 34px; border: 1px solid var(--border-mid); border-radius: var(--radius);
+    padding: 0 10px; font-size: 12px; font-family: inherit;
+    color: var(--text-secondary); background: var(--bg-card); cursor: pointer; outline: none;
+  }
+  .filter-select:focus { border-color: var(--gold); }
+  .btn-clear {
+    height: 34px; padding: 0 14px; border-radius: var(--radius);
+    border: 1px solid var(--border-mid); background: var(--bg-card);
+    font-size: 12px; font-family: inherit; color: var(--text-secondary);
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .btn-clear:hover { background: var(--bg-page); color: var(--navy); }
+
+  /* NOTIFICATION LIST */
+  .notif-item {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 16px 18px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.15s; position: relative;
+  }
+  .notif-item:last-child { border-bottom: none; }
+  .notif-item.unread { background: var(--gold-xlight); }
+  .notif-item:hover { background: var(--navy-xlight); }
+  .notif-item.unread:hover { background: var(--gold-light); }
+
+  .notif-icon {
+    width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 15px; flex-shrink: 0;
+  }
+  .ic-approval  { background: var(--gold-mid); }
+  .ic-blockchain{ background: #166534; }
+  .ic-flag      { background: #9d174d; }
+  .ic-officer   { background: var(--navy-mid); }
+  .ic-document  { background: #b8902e; }
+  .ic-security  { background: var(--navy-mid); }
+  .ic-ok        { background: #22c55e; }
+
+  .notif-body { flex: 1; min-width: 0; }
+  .notif-title { font-weight: 700; font-size: 13.3px; color: var(--navy); margin-bottom: 3px; }
+  .notif-desc  { color: var(--text-secondary); font-size: 12.3px; line-height: 1.45; }
+
+  .notif-meta { text-align: right; flex-shrink: 0; min-width: 96px; }
+  .notif-time { font-size: 11.3px; color: var(--text-muted); margin-bottom: 4px; }
+  .notif-status { font-size: 10.8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+  .status-new { color: #db2777; }
+
+  .notif-dot-arrow { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-gold   { background: var(--gold); }
+  .dot-navy   { background: var(--navy-mid); }
+  .dot-pink   { background: #db2777; }
+  .dot-green  { background: #22c55e; }
+  .arrow { color: var(--border-mid); font-size: 16px; }
+
+  .empty-state { text-align: center; padding: 40px 24px; color: var(--text-muted); font-size: 13px; }
+  .empty-state i { font-size: 28px; margin-bottom: 8px; display: block; opacity: 0.35; }
+
+  /* PAGINATION */
+  .pagination-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; flex-wrap: wrap; gap: 10px;
+  }
+  .pagination-text { color: var(--text-muted); font-size: 12.3px; }
+  .pagination-controls { display: flex; align-items: center; gap: 6px; }
+  .page-btn {
+    width: 32px; height: 32px; border-radius: var(--radius);
+    border: 1px solid var(--border-mid); background: var(--bg-card);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 12.5px; color: var(--text-secondary); cursor: pointer;
+  }
+  .page-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .page-btn:hover:not(.active) { background: var(--bg-page); color: var(--navy); }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../images/coat-of-arms.png" alt="Coat of Arms"/>
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="bell-btn">
+      <i class="bi bi-bell"></i>
+      <span id="bellDot" class="bell-dot">0</span>
+    </div>
+    <div class="user-avatar" id="userAvatarInitials" aria-label="Current user"></div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="topUserName">Loading profile...</div>
+      <div class="top-user-role" id="topUserRole">Lusaka Province</div>
+    </div>
+    <button class="btn-signout" id="signOutBtn">Sign Out</button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Senior Officer Panel</div>
+    <a href="dashboard.html"   class="sidebar-item"><i class="bi bi-hammer"></i> Senior Approvals</a>
+    <a href="district-oversight.html"class="sidebar-item"><i class="bi bi-map"></i> District Oversight</a>
+    <a href="flagged.html" class="sidebar-item">
+      <i class="bi bi-flag"></i> Flagged
+      <span id="sidebarFlaggedCount" class="flag-count">0</span>
+    </a>
+    <a href="audit-log.html"class="sidebar-item"><i class="bi bi-shield-lock"></i> Blockchain Audit</a>
+    <a href="monthly-reports.html"   class="sidebar-item"><i class="bi bi-bar-chart"></i> Monthly Reports</a>
+    <a  class="sidebar-item active"><i class="bi bi-bell"></i> Notifications <span id="sidebarNotificationsCount" class="flag-count" style="background:var(--gold);color:var(--navy);">0</span></a>
+    <div class="sidebar-divider"></div>
+    <a href="manage-profile.html" class="sidebar-item"><i class="bi bi-person-gear"></i> Manage Profile</a>
+    <a class="sidebar-item"><i class="bi bi-search"></i> Verify Parcel</a>
+    <div class="sidebar-divider"></div>
+    <a class="sidebar-item signout"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">Notifications</div>
+      </div>
+    </div>
+
+    <div class="table-card">
+
+      <div class="panel-header">
+        <div class="tab-nav">
+          <button class="tab-btn active" data-filter="all"><i class="bi bi-collection"></i> All <span id="tabCountAll" class="tab-count">0</span></button>
+          <button class="tab-btn" data-filter="approvals"><i class="bi bi-check2-square"></i> Approvals <span id="tabCountApprovals" class="tab-count">0</span></button>
+          <button class="tab-btn" data-filter="blockchain"><i class="bi bi-shield-lock"></i> Blockchain <span id="tabCountBlockchain" class="tab-count">0</span></button>
+          <button class="tab-btn" data-filter="flagged"><i class="bi bi-flag"></i> Flagged <span id="tabCountFlagged" class="tab-count">0</span></button>
+          <button class="tab-btn" data-filter="officer"><i class="bi bi-person"></i> Officer Activity <span id="tabCountOfficer" class="tab-count">0</span></button>
+          <button class="tab-btn" data-filter="documents"><i class="bi bi-file-earmark-text"></i> Documents <span id="tabCountDocuments" class="tab-count">0</span></button>
+          <button class="tab-btn" data-filter="system"><i class="bi bi-gear"></i> System <span id="tabCountSystem" class="tab-count">0</span></button>
+          <button class="tab-btn" data-filter="security"><i class="bi bi-shield-check"></i> Security <span id="tabCountSecurity" class="tab-count">0</span></button>
+        </div>
+        <div class="panel-actions">
+          <button class="btn-outline-arm"><i class="bi bi-check2-all"></i> Mark all as read</button>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-search">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Search notifications…"/>
+        </div>
+        <select class="filter-select">
+          <option>All Priorities</option>
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+        <button class="btn-clear"><i class="bi bi-x-circle" style="margin-right:4px;"></i>Clear</button>
+      </div>
+
+      <div id="notifList">
+          <div class="empty-state">
+            <i class="bi bi-hourglass-split"></i>
+            <p>Loading notifications…</p>
+          </div>
+        </div>
+      <div class="pagination-bar">
+        <div id="paginationText" class="pagination-text">Showing 0 notifications</div>
+        <div class="pagination-controls">
+          <div class="page-btn active">1</div>
+        </div>
+      </div>
+
+    </div><!-- /table-card -->
+  </div><!-- /main-content -->
+</div><!-- /dashboard-container -->
+
+<!-- FOOTER -->
+<div style="background:var(--bg-card);color:var(--text-muted);padding:10px 24px;display:flex;justify-content:space-between;align-items:center;font-size:11px;border-top:1px solid var(--border);flex-shrink:0;">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div style="display:flex;align-items:center;gap:6px;">
+    <div style="width:6px;height:6px;border-radius:50%;background:var(--gold);"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<script type="module">
+  import { api } from '/js/api.js';
+  import { requireLogin, getSession, logout } from '/js/auth.js';
+
+  const notifList = document.getElementById('notifList');
+  const bellDot = document.getElementById('bellDot');
+  const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+  const topUserName = document.getElementById('topUserName');
+  const topUserRole = document.getElementById('topUserRole');
+  const userAvatarInitials = document.getElementById('userAvatarInitials');
+  const markAllBtn = document.querySelector('.btn-outline-arm');
+  const signOutBtn = document.getElementById('signOutBtn');
+  const sidebarNotificationsCount = document.getElementById('sidebarNotificationsCount');
+  const sidebarFlaggedCount = document.getElementById('sidebarFlaggedCount');
+  const paginationText = document.getElementById('paginationText');
+
+  let notifications = [];
+  let flaggedTransferCount = 0;
+  let activeFilter = 'all';
+
+  function normalizeType(type) {
+    return (type || '').toUpperCase();
+  }
+
+  function formatTime(value) {
+    if (!value) return '—';
+    const date = new Date(value);
+    return date.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function getIconClass(type) {
+    const normalized = normalizeType(type);
+    if (normalized.includes('FLAGGED') || normalized.includes('MISMATCH')) return 'ic-flag';
+    if (normalized.includes('APPROVED')) return 'ic-ok';
+    if (normalized.includes('REJECTED')) return 'ic-flag';
+    if (normalized.includes('BLOCKCHAIN') || normalized.includes('TRANSFER')) return 'ic-blockchain';
+    if (normalized.includes('DOCUMENT') || normalized.includes('REGISTRATION') || normalized.includes('VERIFICATION')) return 'ic-document';
+    if (normalized.includes('PROFILE')) return 'ic-officer';
+    if (normalized.includes('SECURITY')) return 'ic-security';
+    return 'ic-approval';
+  }
+
+  function getIconHtml(type) {
+    const normalized = normalizeType(type);
+    if (normalized.includes('FLAGGED') || normalized.includes('MISMATCH')) return '<i class="bi bi-flag-fill"></i>';
+    if (normalized.includes('APPROVED')) return '<i class="bi bi-check-lg"></i>';
+    if (normalized.includes('REJECTED')) return '<i class="bi bi-x-circle-fill"></i>';
+    if (normalized.includes('BLOCKCHAIN')) return '<i class="bi bi-link-45deg"></i>';
+    if (normalized.includes('TRANSFER')) return '<i class="bi bi-arrow-left-right"></i>';
+    if (normalized.includes('DOCUMENT') || normalized.includes('REGISTRATION') || normalized.includes('VERIFICATION')) return '<i class="bi bi-file-earmark-text"></i>';
+    if (normalized.includes('PROFILE')) return '<i class="bi bi-person-fill"></i>';
+    if (normalized.includes('SECURITY')) return '<i class="bi bi-shield-lock-fill"></i>';
+    return '<i class="bi bi-bell"></i>';
+  }
+
+  function getTitle(type) {
+    const normalized = normalizeType(type);
+    return normalized ? normalized.replace(/_/g, ' ').toLowerCase().replace(/^(\w|\s\w)/g, m => m.toUpperCase()) : 'Notification';
+  }
+
+  function matchesFilter(notification, filter) {
+    const type = normalizeType(notification.notificationType);
+    const message = (notification.message || '').toUpperCase();
+    if (filter === 'all') return true;
+    if (filter === 'approvals') return type.includes('APPROVED') || type.includes('REJECTED');
+    if (filter === 'blockchain') return type.includes('TRANSFER') || type.includes('BLOCKCHAIN');
+    if (filter === 'flagged') return type.includes('FLAGGED') || type.includes('MISMATCH');
+    if (filter === 'officer') return type.includes('OFFICER') || type.includes('TRANSFER');
+    if (filter === 'documents') return type.includes('DOCUMENT') || type.includes('REGISTRATION') || type.includes('VERIFICATION') || type.includes('PROFILE');
+    if (filter === 'system') return type.includes('SYSTEM') || type.includes('SECURITY') || message.includes('SYSTEM');
+    if (filter === 'security') return type.includes('SECURITY') || message.includes('LOGIN') || message.includes('AUTH');
+    return true;
+  }
+
+  function updateSummary() {
+    const unread = notifications.filter(n => !n.isRead).length;
+    const filtered = notifications.filter(n => matchesFilter(n, activeFilter));
+
+    bellDot.textContent = unread > 0 ? unread : '0';
+    bellDot.style.display = 'flex';
+
+    sidebarNotificationsCount.textContent = unread > 0 ? unread : '0';
+    sidebarFlaggedCount.textContent = flaggedTransferCount > 0 ? flaggedTransferCount : '0';
+    sidebarFlaggedCount.classList.toggle('hidden', flaggedTransferCount === 0);
+    paginationText.textContent = filtered.length
+      ? `Showing ${filtered.length} notification${filtered.length === 1 ? '' : 's'}`
+      : 'No notifications to display';
+
+    document.getElementById('tabCountAll').textContent = notifications.length;
+    document.getElementById('tabCountApprovals').textContent = notifications.filter(n => matchesFilter(n, 'approvals')).length;
+    document.getElementById('tabCountBlockchain').textContent = notifications.filter(n => matchesFilter(n, 'blockchain')).length;
+    document.getElementById('tabCountFlagged').textContent = flaggedTransferCount;
+    document.getElementById('tabCountOfficer').textContent = notifications.filter(n => matchesFilter(n, 'officer')).length;
+    document.getElementById('tabCountDocuments').textContent = notifications.filter(n => matchesFilter(n, 'documents')).length;
+    document.getElementById('tabCountSystem').textContent = notifications.filter(n => matchesFilter(n, 'system')).length;
+    document.getElementById('tabCountSecurity').textContent = notifications.filter(n => matchesFilter(n, 'security')).length;
+  }
+
+  function renderNotifications() {
+    updateSummary();
+    const filtered = notifications.filter(n => matchesFilter(n, activeFilter));
+    if (!filtered.length) {
+      notifList.innerHTML = `
+        <div class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <p>No notifications available for this category.</p>
+        </div>
+      `;
+      return;
+    }
+
+    notifList.innerHTML = filtered.map(n => `
+      <div class="notif-item ${n.isRead ? '' : 'unread'}" data-id="${n.notificationId}">
+        <div class="notif-icon ${getIconClass(n.notificationType)}">${getIconHtml(n.notificationType)}</div>
+        <div class="notif-body">
+          <div class="notif-title">${getTitle(n.notificationType)}</div>
+          <div class="notif-desc">${n.message || 'No details available.'}</div>
+        </div>
+        <div class="notif-meta">
+          <div class="notif-time">${formatTime(n.createdAt)}</div>
+          <div class="notif-status ${n.isRead ? '' : 'status-new'}">${n.isRead ? 'Read' : 'New'}</div>
+        </div>
+        <div class="notif-dot-arrow">
+          <div class="status-dot ${n.isRead ? 'dot-navy' : 'dot-pink'}"></div>
+          <i class="bi bi-chevron-right arrow"></i>
+        </div>
+      </div>
+    `).join('');
+
+    notifList.querySelectorAll('.notif-item').forEach(item => {
+      item.addEventListener('click', async () => {
+        const id = Number(item.dataset.id);
+        const notification = notifications.find(n => n.notificationId === id);
+        if (notification && !notification.isRead) {
+          try {
+            await api.markSeniorNotificationRead(id);
+            notification.isRead = true;
+            renderNotifications();
+          } catch (e) {
+            console.warn('Failed to mark notification read', e);
+          }
+        }
+      });
+    });
+  }
+
+  async function loadNotifications() {
+    try {
+      requireLogin();
+      const session = getSession();
+      if (session?.fullName) {
+        topUserName.textContent = session.fullName;
+        topUserRole.textContent = session.role ? session.role.replace(/_/g, ' ') : 'Senior Officer';
+        userAvatarInitials.textContent = session.fullName.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
+      }
+
+      const [notificationsResult, flaggedResult] = await Promise.allSettled([
+        api.seniorNotifications(),
+        api.seniorTransfers('FLAGGED')
+      ]);
+
+      if (notificationsResult.status === 'fulfilled') {
+        const response = notificationsResult.value;
+        notifications = Array.isArray(response?.data) ? response.data : [];
+      } else {
+        notifications = [];
+      }
+
+      if (flaggedResult.status === 'fulfilled') {
+        const response = flaggedResult.value;
+        const flaggedItems = Array.isArray(response?.data) ? response.data : [];
+        flaggedTransferCount = flaggedItems.filter(r => r.flagged || r.status === 'FLAGGED').length;
+      } else {
+        flaggedTransferCount = 0;
+      }
+
+      renderNotifications();
+    } catch (err) {
+      console.error('Failed loading senior notifications', err);
+      notifList.innerHTML = `
+        <div class="empty-state">
+          <i class="bi bi-exclamation-triangle"></i>
+          <p>Unable to load notifications. Please refresh the page.</p>
+        </div>
+      `;
+    }
+  }
+
+  async function markAllRead() {
+    const unread = notifications.filter(n => !n.isRead);
+    if (!unread.length) return;
+    await Promise.all(unread.map(n => api.markSeniorNotificationRead(n.notificationId)
+      .then(() => { n.isRead = true; })
+      .catch(() => null)
+    ));
+    renderNotifications();
+  }
+
+  function setActiveTab(filter) {
+    activeFilter = filter;
+    tabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.filter === filter));
+    renderNotifications();
+  }
+
+  function signOutHandler(event) {
+    event.preventDefault();
+    showLogoutConfirmation(logout);
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => setActiveTab(btn.dataset.filter));
+    });
+    markAllBtn?.addEventListener('click', markAllRead);
+    signOutBtn?.addEventListener('click', signOutHandler);
+    await loadNotifications();
+  });
+</script>
+</body>
+</html>

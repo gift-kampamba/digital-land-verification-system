@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="module" src="/js/auth.js"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ARMS – Create User</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* ═══════════════════════════════════════════════════
+       ARMS DESIGN SYSTEM — Navy + Gold, Zambian Palette
+       (same tokens as transfer-requests.html / transfer-detail.html)
+    ═══════════════════════════════════════════════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+
+    :root {
+      --navy: #0e2240;
+      --navy-mid: #1a3560;
+      --navy-xlight: #e8edf6;
+      --gold: #c8a040;
+      --gold-mid: #b8902e;
+      --gold-dark: #9a7420;
+      --gold-light: #fdf6e3;
+      --gold-xlight: #fefbf3;
+
+      --bg-page: #faf7f2;
+      --bg-card: #ffffff;
+      --bg-input: #fbfaf7;
+
+      --text-primary: #111827;
+      --text-secondary: #4b5568;
+      --text-muted: #8a94a6;
+
+      --border: #e8e3d8;
+      --border-mid: #d6ceba;
+
+      --font-family: 'Inter', Arial, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --shadow: 0 1px 3px rgba(14,34,64,0.06);
+      --shadow-card: 0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+      --nav-h: 64px;
+      --sidebar-w: 220px;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-page);
+      font-family: var(--font-family);
+      font-size: 13px;
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    .top-bar, .top-bar button, .sidebar, .sidebar a, .sidebar-section-title, .sidebar-item { font-family: 'Inter', Arial, sans-serif; }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      background: var(--navy);
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      height: var(--nav-h);
+      flex-shrink: 0;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.18);
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 2000 !important;
+    }
+
+    .logo-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 24px;
+      min-width: 360px;
+      border-right: 1px solid rgba(255,255,255,0.12);
+      height: 100%;
+      flex-shrink: 0;
+      background: var(--navy);
+    }
+
+    .logo-emblem {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--navy);
+      flex-shrink: 0;
+      overflow: hidden;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-emblem img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+    }
+
+    .logo-text h2 {
+      font-size: 12.5px;
+      font-weight: 700;
+      margin: 0;
+      line-height: 1.35;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .logo-text p {
+      font-size: 10px;
+      margin: 2px 0 0;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.3;
+    }
+
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-right: 24px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gold-light);
+      border: 1.5px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--navy);
+      flex-shrink: 0;
+    }
+
+    .top-user-name  { font-size: 13px;   font-weight: 600; color: #fff; line-height: 1.2; }
+    .top-user-role  { font-size: 10.5px; color: rgba(255,255,255,0.72); line-height: 1; }
+
+    .btn-signout {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      padding: 5px 13px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .btn-signout:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+    /* ── LAYOUT ── */
+    .dashboard-container { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 14px 0 12px;
+      flex-shrink: 0;
+      height: calc(100vh - var(--nav-h));
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      position: sticky !important;
+      top: var(--nav-h) !important;
+      z-index: 1500 !important;
+    }
+
+    .sidebar-section-title {
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--navy-mid);
+      font-weight: 700;
+      padding: 10px 16px 4px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 16px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.13s;
+      border-left: 2px solid transparent;
+      margin: 1px 0;
+    }
+    .sidebar-item:hover { background: var(--gold-xlight); color: var(--navy); }
+    .sidebar-item.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+    .sidebar-item i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+    .sidebar-item.active i { opacity: 1; }
+
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+
+    .sidebar-item.signout { color: #991b1b; }
+    .sidebar-item.signout:hover { background: #fdecea; }
+    .sidebar-item.signout i { opacity: 1; }
+
+    /* ── MAIN ── */
+    .main-content {
+      flex: 1;
+      min-height: 0;
+      padding: 24px 28px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: var(--bg-page);
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-header { margin-bottom: 22px; }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 4px;
+      letter-spacing: -0.3px;
+    }
+
+    .page-subtitle { font-size: 12.5px; color: var(--text-secondary); }
+
+    /* ── FORM CARDS ── */
+    .form-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 1px 2px rgba(14,34,64,0.04);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .form-card-header {
+      padding: 13px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .form-card-header i {
+      width: 28px;
+      height: 28px;
+      background: var(--gold-light);
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--gold-dark);
+      flex-shrink: 0;
+    }
+
+    .form-card-body { padding: 20px; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .form-row:last-child { margin-bottom: 0; }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    label .req { color: #ef4444; margin-left: 2px; }
+
+    .form-control,
+    .form-select {
+      padding: 8px 11px;
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius);
+      font-size: 12.5px;
+      font-family: inherit;
+      color: var(--text-primary);
+      background: var(--bg-input);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(200,160,64,0.18);
+    }
+
+    .form-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a94a6' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+    }
+
+    /* Alert */
+    .form-alert {
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      font-size: 12.5px;
+      font-weight: 500;
+      margin-bottom: 14px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-alert.error   { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+    .form-alert.success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+
+    /* Submit card */
+    .submit-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 1px 2px rgba(14,34,64,0.04);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn-cancel {
+      background: transparent;
+      border: 1px solid var(--border-mid);
+      color: var(--text-secondary);
+      padding: 8px 18px;
+      border-radius: var(--radius);
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .btn-cancel:hover { background: var(--bg-page); color: var(--text-primary); }
+
+    .btn-submit {
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      padding: 8px 20px;
+      border-radius: var(--radius);
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: background 0.15s;
+    }
+    .btn-submit:hover { background: var(--gold-mid); }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .footer-session { display: flex; align-items: center; gap: 6px; }
+    .session-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url('../images/coat-of-arms.png') center center no-repeat;
+      background-size: 500px;
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem"><img src="/images/coat-of-arms.png" alt="Zambian Coat of Arms"></div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar">SA</div>
+    <div style="text-align:left;">
+      <div class="top-user-name">System Admin</div>
+      <div class="top-user-role">Administrator</div>
+    </div>
+    <button class="btn-signout" onclick="confirmAndLogout(event)">Sign Out</button>
+  </div>
+</div>
+
+<!-- ── LAYOUT ── -->
+<div class="dashboard-container">
+
+  <!-- ── SIDEBAR ── -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Overview</div>
+    <a href="dashboard.html" class="sidebar-item"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <div class="sidebar-section-title">Land Management</div>
+    <a href="/index.html" class="sidebar-item"><i class="bi bi-search"></i> Verify Parcel</a>
+    <a href="system-monitoring.html" class="sidebar-item"><i class="bi bi-check2-square"></i> System Monitoring</a>
+    <a href="system-alerts.html" class="sidebar-item"><i class="bi bi-exclamation-triangle"></i> System Alerts</a>
+    <div class="sidebar-section-title">Blockchain</div>
+    <a href="blockchain-status.html" class="sidebar-item"><i class="bi bi-link-45deg"></i> Blockchain Status</a>
+    <a href="system-statistics.html" class="sidebar-item"><i class="bi bi-file-earmark-bar-graph"></i> System Statistics</a>
+    <div class="sidebar-section-title">Administration</div>
+    <a href="all-users.html" class="sidebar-item"><i class="bi bi-people"></i> Users</a>
+    <a href="create-user.html" class="sidebar-item active"><i class="bi bi-person-plus"></i> Create User</a>
+
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" onclick="confirmAndLogout(event); return false;"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- ── MAIN CONTENT ── -->
+  <div class="main-content">
+
+    <div class="page-header">
+      <div class="page-title">Create User</div>
+    </div>
+
+    <form id="createUserForm">
+
+      <!-- Personal Information -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <i class="bi bi-person"></i> Personal Information
+        </div>
+        <div class="form-card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Full Name <span class="req">*</span></label>
+              <input type="text" id="fullName" class="form-control" placeholder="Full name" required/>
+            </div>
+            <div class="form-group">
+              <label>Email Address <span class="req">*</span></label>
+              <input type="email" id="email" class="form-control" placeholder="Email address" required/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Username <span class="req">*</span></label>
+              <input type="text" id="username" class="form-control" placeholder="Username" required/>
+            </div>
+            <div class="form-group">
+              <label>National ID</label>
+              <input type="text" id="nationalId" class="form-control" placeholder="e.g. 123456/78/9"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Phone Number <span class="req">*</span></label>
+              <input type="tel" id="phone" class="form-control" placeholder="e.g. +260 97X XXX XXX" required/>
+            </div>
+            <div class="form-group">
+              <label>District Office</label>
+              <select id="district" class="form-select">
+                <option>Lusaka</option>
+                <option>Chongwe</option>
+                <option>Kafue</option>
+                <option>Ndola</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Information -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <i class="bi bi-shield-lock"></i> Account &amp; Access
+        </div>
+        <div class="form-card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Role <span class="req">*</span></label>
+              <select id="role" class="form-select">
+                <option value="LAND_OFFICER">Land Officer</option>
+                <option value="SENIOR_OFFICER">Senior Officer</option>
+                <option value="SYSTEM_ADMIN">System Admin</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Temporary Password <span class="req">*</span></label>
+              <input type="password" id="password" class="form-control" placeholder="Min. 8 characters" required/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Confirm Password</label>
+              <input type="password" id="confirmPassword" class="form-control" placeholder="Re-enter password"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert -->
+      <div id="formAlert" class="form-alert"></div>
+
+      <!-- Submit -->
+      <div class="submit-card">
+        <button type="button" class="btn-cancel" onclick="document.getElementById('createUserForm').reset()">Clear Form</button>
+        <button type="button" class="btn-submit" id="createUserButton" onclick="createUser()">
+          <i class="bi bi-person-check"></i> Create User &amp; Send Credentials
+        </button>
+      </div>
+
+    </form>
+  </div><!-- /main-content -->
+</div><!-- /dashboard-container -->
+
+<!-- Footer -->
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<!-- ── ORIGINAL JAVASCRIPT — UNTOUCHED ── -->
+<script>
+    const BASE='/api';
+    function getToken(){return localStorage.getItem('lv_token');}
+    async function createUser(){
+      const submitButton=document.getElementById('createUserButton');
+        const payload={fullName:document.getElementById('fullName').value.trim(),email:document.getElementById('email').value.trim(),username:document.getElementById('username').value.trim(),nationalId:document.getElementById('nationalId').value.trim(),phoneNumber:document.getElementById('phone').value.trim(),district:document.getElementById('district').value,role:document.getElementById('role').value,temporaryPassword:document.getElementById('password').value};
+        const confirm=document.getElementById('confirmPassword').value;
+        const alertDiv=document.getElementById('formAlert');
+        if(!payload.fullName||!payload.email||!payload.username||!payload.role||!payload.temporaryPassword){alertDiv.style.display='flex';alertDiv.className='form-alert error';alertDiv.innerText='Required fields missing.';return;}
+        if(payload.temporaryPassword!==confirm){alertDiv.style.display='flex';alertDiv.className='form-alert error';alertDiv.innerText='Passwords do not match.';return;}
+      submitButton.disabled=true;
+      submitButton.innerHTML='<i class="bi bi-hourglass-split"></i> Submitting...';
+        try{
+            const res=await fetch(`${BASE}/admin/officers/create`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+getToken()},body:JSON.stringify(payload)});
+        const data=await res.json().catch(()=>({}));
+        if(!res.ok)throw new Error(data.message||data.error||'Unable to submit the user details.');
+            alertDiv.style.display='flex';alertDiv.className='form-alert success';alertDiv.innerText='User created! Credentials sent to email.';
+        window.alert('Details have been submitted successfully.');
+            document.getElementById('createUserForm').reset();
+            setTimeout(()=>{alertDiv.style.display='none';},3000);
+      }catch(e){alertDiv.style.display='flex';alertDiv.className='form-alert error';alertDiv.innerText='Error: '+e.message;}
+      finally{
+        submitButton.disabled=false;
+        submitButton.innerHTML='<i class="bi bi-person-check"></i> Create User &amp; Send Credentials';
+      }
+    }
+    function confirmAndLogout(e){
+      if(e) e.preventDefault();
+      if(window.showLogoutConfirmation && window.logout){ window.showLogoutConfirmation(window.logout); return false; }
+      setTimeout(() => confirmAndLogout(), 50);
+      return false;
+    }
+    function logout(){localStorage.clear();location.href='/login.html';}
+    if(localStorage.getItem('lv_role')!=='SYSTEM_ADMIN') location.href='/login.html';
+</script>
+</body>
+</html>

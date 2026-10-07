@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Monthly Report – ARMS</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  :root {
+    --navy:          #0e2240;
+    --navy-mid:      #1a3560;
+    --navy-light:    #e8edf6;
+    --navy-xlight:   #f4f6fb;
+    --gold:          #c8a040;
+    --gold-mid:      #b8902e;
+    --gold-dark:     #9a7420;
+    --gold-light:    #fdf6e3;
+    --gold-xlight:   #fefbf3;
+    --good:          #166534;
+    --bad:           #991b1b;
+    --text-primary:  #111827;
+    --text-secondary:#4b5568;
+    --text-muted:    #8a94a6;
+    --border:        #e8e3d8;
+    --border-mid:    #d6ceba;
+    --bg-page:       #faf7f2;
+    --bg-card:       #ffffff;
+    --radius:        6px;
+    --radius-lg:     10px;
+    --shadow-sm:     0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+    --shadow-card:   0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+    --sidebar-w:     232px;
+    --header-h:      76px;
+  }
+  body {
+    display: flex; flex-direction: column;
+    background: var(--bg-page);
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 13px; color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── TOP BAR ── */
+  .top-bar {
+    background: var(--bg-card);
+    display: flex; justify-content: space-between; align-items: stretch;
+    border-bottom: 1px solid var(--border);
+    height: var(--header-h); flex-shrink: 0;
+    box-shadow: var(--shadow-sm); position: relative; z-index: 50;
+  }
+  .logo-block {
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 24px; min-width: 500px; height: 100%;
+    flex-shrink: 0; background: var(--navy);
+  }
+  .logo-emblem {
+    width: 44px; height: 44px; min-width: 44px; border-radius: 6px;
+    background: #fff; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; overflow: hidden; padding: 3px;
+  }
+  .logo-emblem img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .logo-text h2 {
+    font-size: 15px; font-weight: 700; margin: 0; line-height: 1.3; color: #fff;
+    text-transform: uppercase; letter-spacing: 0.2px;
+  }
+  .logo-text p { font-size: 11px; margin: 4px 0 0; color: rgba(255,255,255,0.55); line-height: 1.3; }
+  .top-right { display: flex; align-items: center; gap: 14px; padding-right: 22px; }
+  .user-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--gold-light); border: 1.5px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--navy); flex-shrink: 0;
+  }
+  .top-user-name { font-size: 14px; font-weight: 700; color: var(--text-primary); line-height: 1.25; }
+  .top-user-role { font-size: 11px; color: var(--text-muted); line-height: 1; text-transform: uppercase; letter-spacing: 0.04em; }
+  .btn-signout {
+    height: 38px; padding: 0 15px; border-radius: var(--radius);
+    border: 1px solid var(--border-mid); background: var(--bg-card);
+    font-size: 13px; font-family: inherit; color: var(--text-secondary);
+    cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-signout:hover { background: var(--bg-page); color: var(--navy); border-color: var(--navy-mid); }
+
+  /* ── LAYOUT ── */
+  .dashboard-container { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w); background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    padding: 16px 0 12px; flex-shrink: 0; height: 100%;
+    overflow-y: auto; display: flex; flex-direction: column;
+  }
+  .sidebar-section-title {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--text-muted); font-weight: 700; padding: 10px 20px 8px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 20px; color: var(--text-secondary);
+    text-decoration: none; font-size: 13.5px;
+    transition: all 0.13s; border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: var(--gold-xlight); color: var(--navy); }
+  .sidebar-item.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+  .sidebar-item i { font-size: 16px; width: 18px; flex-shrink: 0; opacity: 0.75; }
+  .sidebar-item.active i { opacity: 1; }
+  .sidebar-divider { height: 1px; background: var(--border); margin: 10px 18px; }
+  .sidebar-item.signout { color: #ef4444; }
+  .sidebar-item.signout:hover { background: #fef2f2; }
+  .sidebar-item.signout i { opacity: 1; }
+
+  /* ── MAIN ── */
+  .main-content { flex: 1; min-height: 0; padding: 22px 28px 28px; overflow-y: auto; overflow-x: hidden; background: var(--bg-page); }
+
+  /* ── FILTER / ACTION BAR ── */
+  .filter-bar {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm); padding: 16px 20px; margin-bottom: 22px;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex-wrap: wrap;
+  }
+  .f-field { display: flex; flex-direction: column; gap: 8px; }
+  .f-field > label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; }
+  .report-range-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .filter-select, .date-input {
+    height: 40px; border: 1px solid var(--border-mid); border-radius: var(--radius);
+    padding: 0 12px; font-size: 13.5px; font-family: inherit; color: var(--text-primary);
+    background: var(--bg-card); min-width: 168px; cursor: pointer; outline: none;
+  }
+  input.date-input { display: inline-flex; align-items: center; }
+  .report-quarter-group { display: none; gap: 10px; align-items: center; }
+  .filter-select:focus, .date-input:focus { border-color: var(--gold); }
+  .report-range-hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .f-actions { display: flex; gap: 10px; flex-shrink: 0; align-items: center; padding-top: 22px; }
+  .btn-outline-arm, .btn-gold, .btn-navy {
+    height: 40px; padding: 0 16px; border-radius: var(--radius);
+    font-size: 13.5px; font-family: inherit; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-outline-arm { border: 1px solid var(--border-mid); background: var(--bg-card); color: var(--text-secondary); font-weight: 500; }
+  .btn-outline-arm:hover { background: var(--bg-page); color: var(--navy); border-color: var(--navy-mid); }
+  .btn-gold { border: none; background: var(--gold); color: var(--navy); }
+  .btn-gold:hover { background: var(--gold-mid); }
+  .btn-navy { border: none; background: var(--navy); color: #fff; }
+  .btn-navy:hover { background: var(--navy-mid); }
+
+  /* ── SECTION HEAD ── */
+  .sec { margin-bottom: 26px; }
+  .sec-head { display: flex; align-items: center; margin-bottom: 16px; padding-left: 13px; border-left: 4px solid var(--gold); }
+  .sec-head h3 { font-size: 16px; font-weight: 700; color: var(--navy); letter-spacing: -0.1px; }
+
+  /* ═══════════════════════════════════════════
+     THREE MONTHLY TREND CARDS
+     Title row (dot + name) → chart with labelled axes →
+     footer with the period total. One colour per card.
+  ═══════════════════════════════════════════ */
+  .trend-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 20px; }
+
+  .trend-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-card);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+
+  .trend-head { padding: 18px 20px 4px; display: flex; align-items: center; gap: 10px; }
+  .trend-head .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .trend-head h4 { font-size: 15px; font-weight: 700; color: var(--navy); letter-spacing: -0.1px; }
+
+  .trend-body { padding: 10px 14px 14px; height: 268px; position: relative; }
+  .trend-body canvas { width: 100% !important; height: 100% !important; display: block; }
+
+  .trend-foot {
+    border-top: 1px solid var(--border); padding: 14px 20px;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  .trend-foot .foot-label { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+  .trend-foot .foot-label .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .trend-foot .foot-value { font-size: 20px; font-weight: 700; color: var(--navy); letter-spacing: -0.4px; }
+
+  .chart-empty { display:flex; align-items:center; justify-content:center; height:100%; font-size:12.5px; color: var(--text-muted); }
+
+  /* offline fallback (no Chart.js) */
+  .fallback-chart { width: 100%; height: 100%; }
+  .fallback-bars { display: flex; align-items: flex-end; justify-content: space-between; gap: 5px; height: 100%; padding: 14px 4px 0; }
+  .fallback-bar-item { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; height: 100%; gap: 5px; }
+  .fallback-bar-track { width: 100%; flex: 1; display: flex; align-items: flex-end; justify-content: center; }
+  .fallback-bar { width: 100%; max-width: 16px; border-radius: 3px 3px 0 0; min-height: 3px; }
+  .fallback-label { font-size: 9px; color: var(--text-muted); text-align: center; white-space: nowrap; }
+
+  /* ── EXECUTIVE SUMMARY ── */
+  .exec-card {
+    display: flex; gap: 18px; align-items: flex-start;
+    background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid var(--gold);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 22px 24px;
+  }
+  .exec-ic {
+    width: 38px; height: 38px; border-radius: 8px; background: var(--gold-light); color: var(--gold-dark);
+    display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;
+  }
+  .exec-card h4 { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 7px; }
+  .exec-card p { font-size: 13.5px; line-height: 1.7; color: var(--text-secondary); max-width: 900px; }
+  .exec-card p strong { color: var(--navy); font-weight: 700; }
+
+  /* ── SENIOR OFFICER ACTIVITY ── */
+  .activity-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden;
+  }
+  .activity-table-wrap { overflow-x: auto; }
+  .activity-table { width: 100%; border-collapse: collapse; min-width: 760px; }
+  .activity-table th { background: var(--navy-xlight); color: var(--text-muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; text-align: left; padding: 12px 16px; }
+  .activity-table td { padding: 13px 16px; border-top: 1px solid var(--border); color: var(--text-secondary); white-space: nowrap; }
+  .activity-table td:first-child { color: var(--navy); font-weight: 700; }
+  .activity-action { color: var(--navy); font-weight: 700; }
+  .activity-status { display: inline-flex; padding: 4px 8px; border-radius: 999px; background: var(--gold-light); color: var(--gold-dark); font-size: 11px; font-weight: 700; }
+  .activity-empty { padding: 28px 20px; color: var(--text-muted); text-align: center; }
+
+  /* ── FOOTER ── */
+  .page-footer {
+    background: var(--bg-card); color: var(--text-muted); padding: 12px 26px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; border-top: 1px solid var(--border); flex-shrink: 0;
+  }
+  .page-footer .session { display: flex; align-items: center; gap: 7px; }
+  .page-footer .session .dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; }
+
+  @media (max-width: 1280px) { .trend-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 768px)  { .sidebar { display: none; } .logo-block { min-width: 0; } .logo-text p { display: none; } }
+
+  @media print {
+    .sidebar, .filter-bar, .top-right { display: none !important; }
+    html, body { overflow: visible; height: auto; }
+    .main-content { overflow: visible; }
+    .trend-grid { grid-template-columns: repeat(3, 1fr); }
+    .trend-card { break-inside: avoid; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="/images/coat-of-arms.png" alt="Coat of Arms"/>
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar" id="headerInitials" aria-label="Current user">A</div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="headerName">Senior Officer</div>
+      <div class="top-user-role" id="headerRole">Senior Officer</div>
+    </div>
+    <button class="btn-signout" onclick="confirmAndLogout(event)"><i class="bi bi-box-arrow-right"></i> Sign Out</button>
+  </div>
+</div>
+
+<!-- ── LAYOUT ── -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Senior Officer Panel</div>
+    <a href="dashboard.html"          class="sidebar-item"><i class="bi bi-check2-square"></i> Senior Approvals</a>
+    <a href="district-oversight.html" class="sidebar-item"><i class="bi bi-columns-gap"></i> District Oversight</a>
+    <a href="flagged.html"            class="sidebar-item"><i class="bi bi-flag"></i> Flagged</a>
+    <a href="audit-log.html"          class="sidebar-item"><i class="bi bi-shield-check"></i> Blockchain Audit</a>
+    <a href="monthly-reports.html"    class="sidebar-item active"><i class="bi bi-bar-chart-line"></i> Monthly Reports</a>
+    <a href="notifications.html"      class="sidebar-item"><i class="bi bi-bell"></i> Notifications</a>
+    <div class="sidebar-divider"></div>
+    <a href="manage-profile.html"     class="sidebar-item"><i class="bi bi-person"></i> Manage Profile</a>
+    <a href="../../index.html"        class="sidebar-item"><i class="bi bi-search"></i> Verify Parcel</a>
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" onclick="confirmAndLogout(event);return false;"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <div class="f-field">
+        <label>Report Period</label>
+        <div id="reportPeriodControls" class="report-range-controls">
+          <select class="filter-select" id="periodTypeSelect">
+            <option value="monthly">Monthly</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="annual">Annual</option>
+          </select>
+          <input type="month" class="date-input" id="periodMonthInput" aria-label="Select month report" />
+          <div id="periodQuarterGroup" class="report-quarter-group">
+            <select class="filter-select" id="periodQuarterSelect" aria-label="Select quarter">
+              <option value="Q1">Q1</option><option value="Q2">Q2</option>
+              <option value="Q3">Q3</option><option value="Q4">Q4</option>
+            </select>
+          </div>
+          <input type="number" class="date-input" id="periodYearInput" min="2020" max="2050" style="display:none;min-width:120px" aria-label="Select year" />
+          <button class="btn-outline-arm" id="btnReloadReport" type="button">Load</button>
+        </div>
+        <div id="reportRangeHint" class="report-range-hint">Loading report range…</div>
+      </div>
+      <div class="f-actions">
+        <button class="btn-outline-arm" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+        <button class="btn-gold" id="btnExportCsv"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</button>
+        <button class="btn-navy" onclick="window.print()"><i class="bi bi-file-earmark-pdf"></i> Export PDF</button>
+      </div>
+    </div>
+
+    <!-- ═══ THREE MONTHLY TREND CHARTS ═══ -->
+    <div class="sec">
+      <div class="sec-head"><h3>Monthly Transfer Outcomes</h3></div>
+
+      <div class="trend-grid">
+
+        <div class="trend-card" style="--accent:#166534">
+          <div class="trend-head"><span class="dot"></span><h4>Approved Transfers</h4></div>
+          <div class="trend-body"><canvas id="chartApproved"></canvas></div>
+          <div class="trend-foot">
+            <span class="foot-label"><span class="dot"></span> Total Approved</span>
+            <span class="foot-value" id="valApproved">—</span>
+          </div>
+        </div>
+
+        <div class="trend-card" style="--accent:#c8a040">
+          <div class="trend-head"><span class="dot"></span><h4>Flagged Transfers</h4></div>
+          <div class="trend-body"><canvas id="chartFlagged"></canvas></div>
+          <div class="trend-foot">
+            <span class="foot-label"><span class="dot"></span> Total Flagged</span>
+            <span class="foot-value" id="valFlagged">—</span>
+          </div>
+        </div>
+
+        <div class="trend-card" style="--accent:#991b1b">
+          <div class="trend-head"><span class="dot"></span><h4>Rejected Transfers</h4></div>
+          <div class="trend-body"><canvas id="chartRejected"></canvas></div>
+          <div class="trend-foot">
+            <span class="foot-label"><span class="dot"></span> Total Rejected</span>
+            <span class="foot-value" id="valRejected">—</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- EXECUTIVE SUMMARY -->
+    <div class="sec">
+      <div class="exec-card">
+        <div class="exec-ic"><i class="bi bi-journal-text"></i></div>
+        <div>
+          <h4>Executive Summary</h4>
+          <p id="execSummaryText">Loading report summary…</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head"><h3>Senior Officer Activity</h3></div>
+      <div class="activity-card">
+        <div class="activity-table-wrap">
+          <table class="activity-table">
+            <thead><tr><th>Reference</th><th>Action</th><th>District</th><th>Officer</th><th>Date</th><th>Status</th><th>Blockchain</th></tr></thead>
+            <tbody id="activityLogBody"><tr><td colspan="7" class="activity-empty">Loading activity…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /dashboard-container -->
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="session">
+    <span class="dot"></span>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<script type="module">
+import { logout, showLogoutConfirmation } from '/js/auth.js';
+
+const ink='#8a94a6', good='#166534', gold='#c8a040', bad='#991b1b', gridLine='#eceadf';
+
+const ChartLib = window.Chart;
+if (ChartLib) {
+  ChartLib.defaults.font.family = "Inter, Arial, sans-serif";
+  ChartLib.defaults.font.size = 11;
+  ChartLib.defaults.color = ink;
+}
+
+let reportData = null;
+const charts = { approved: null, flagged: null, rejected: null };
+
+/* One place to change a series' colour, label or target elements. */
+const METRICS = [
+  { key:'approved', label:'Approved', canvas:'chartApproved', color:good, total:'valApproved' },
+  { key:'flagged',  label:'Flagged',  canvas:'chartFlagged',  color:gold, total:'valFlagged'  },
+  { key:'rejected', label:'Rejected', canvas:'chartRejected', color:bad,  total:'valRejected' }
+];
+
+function hexToRgba(hex, alpha){
+  const h = hex.replace('#','');
+  return `rgba(${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)},${alpha})`;
+}
+function setElementHtml(sel, html){ const el = document.querySelector(sel); if (el) el.innerHTML = html; }
+function setElementText(sel, text){ const el = document.querySelector(sel); if (el) el.textContent = text; }
+function escapeHtml(value){
+  return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+}
+
+/* ── period controls ── */
+function getSelectedPeriod() {
+  const type = document.getElementById('periodTypeSelect')?.value || 'monthly';
+  const month = document.getElementById('periodMonthInput')?.value;
+  const year = document.getElementById('periodYearInput')?.value;
+  const quarter = document.getElementById('periodQuarterSelect')?.value;
+  if (type === 'monthly')   return month || '';
+  if (type === 'quarterly') return year && quarter ? `${year}-${quarter}` : '';
+  return year || '';
+}
+
+function setPeriodMode(mode) {
+  const monthInput = document.getElementById('periodMonthInput');
+  const quarterGroup = document.getElementById('periodQuarterGroup');
+  const yearInput = document.getElementById('periodYearInput');
+  if (!monthInput || !quarterGroup || !yearInput) return;
+  monthInput.style.display   = mode === 'monthly' ? 'inline-flex' : 'none';
+  quarterGroup.style.display = mode === 'quarterly' ? 'flex' : 'none';
+  yearInput.style.display    = mode === 'monthly' ? 'none' : 'inline-flex';
+}
+
+function updatePeriodHint(text) {
+  const hint = document.getElementById('reportRangeHint');
+  if (hint) hint.textContent = text;
+}
+
+function initializePeriodControls() {
+  const typeSelect = document.getElementById('periodTypeSelect');
+  const monthInput = document.getElementById('periodMonthInput');
+  const quarterSelect = document.getElementById('periodQuarterSelect');
+  const yearInput = document.getElementById('periodYearInput');
+  const now = new Date();
+
+  if (typeSelect) typeSelect.value = 'monthly';
+  if (monthInput) monthInput.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  if (quarterSelect) quarterSelect.value = `Q${Math.floor(now.getMonth()/3)+1}`;
+  if (yearInput) yearInput.value = now.getFullYear();
+
+  setPeriodMode('monthly');
+
+  const reload = () => loadReportData(getSelectedPeriod());
+  typeSelect?.addEventListener('change', (e) => { setPeriodMode(e.target.value); reload(); });
+  monthInput?.addEventListener('change', reload);
+  quarterSelect?.addEventListener('change', reload);
+  yearInput?.addEventListener('change', reload);
+  document.getElementById('btnReloadReport')?.addEventListener('click', reload);
+}
+
+/* Pin the tooltip open on the final data point, the way the mockup shows it.
+   Hovering takes over normally; leaving the canvas restores the pin. */
+function pinLastPoint(chart, index){
+  if (!chart || index < 0) return;
+  const meta = chart.getDatasetMeta(0);
+  const point = meta?.data?.[index];
+  if (!point) return;
+  chart.tooltip.setActiveElements([{ datasetIndex: 0, index }], { x: point.x, y: point.y });
+  chart.setActiveElements([{ datasetIndex: 0, index }]);
+  chart.update();
+}
+
+function buildLineChart(metric, labels, values){
+  const canvas = document.getElementById(metric.canvas);
+  if (!canvas) return;
+
+  if (charts[metric.key]) { charts[metric.key].destroy(); charts[metric.key] = null; }
+  canvas.parentElement.querySelector('.fallback-chart')?.remove();
+  canvas.parentElement.querySelector('.chart-empty')?.remove();
+
+  if (!labels.length) {
+    canvas.style.display = 'none';
+    const empty = document.createElement('div');
+    empty.className = 'chart-empty';
+    empty.textContent = 'No data for this period.';
+    canvas.parentElement.appendChild(empty);
+    return;
+  }
+  canvas.style.display = 'block';
+
+  if (!ChartLib) { renderFallbackChart(metric, labels, values); return; }
+
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.parentElement.clientHeight || 260);
+  gradient.addColorStop(0, hexToRgba(metric.color, 0.20));
+  gradient.addColorStop(1, hexToRgba(metric.color, 0.01));
+
+  const lastIndex = values.length - 1;
+
+  charts[metric.key] = new ChartLib(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: metric.label,
+        data: values,
+        borderColor: metric.color,
+        backgroundColor: gradient,
+        fill: true,
+        tension: 0,                    // straight segments, as in the mockup
+        borderWidth: 2.2,
+        /* every point is a small marker; the final one is emphasised */
+        pointRadius: values.map((_, i) => (i === lastIndex ? 6 : 3.2)),
+        pointHoverRadius: 6,
+        pointBackgroundColor: metric.color,
+        pointBorderColor: values.map((_, i) => (i === lastIndex ? '#ffffff' : metric.color)),
+        pointBorderWidth: values.map((_, i) => (i === lastIndex ? 2.5 : 1)),
+        pointHitRadius: 16
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      layout: { padding: { top: 26, right: 10, left: 2, bottom: 2 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: metric.color,
+          titleColor: '#ffffff',
+          bodyColor: '#ffffff',
+          padding: { top: 8, bottom: 8, left: 11, right: 11 },
+          cornerRadius: 6,
+          caretSize: 0,
+          displayColors: true,
+          usePointStyle: true,
+          boxWidth: 7, boxHeight: 7, boxPadding: 5,
+          titleFont: { size: 11.5, weight: '600' },
+          bodyFont: { size: 11.5, weight: '600' },
+          callbacks: {
+            labelPointStyle: () => ({ pointStyle: 'circle', rotation: 0 }),
+            labelColor: () => ({ backgroundColor: '#ffffff', borderColor: '#ffffff', borderWidth: 0, borderRadius: 4 }),
+            label: (c) => `${metric.label}: ${c.parsed.y}`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          border: { display: false },
+          grid: { color: gridLine, drawTicks: false },
+          ticks: { padding: 8, maxTicksLimit: 6, font: { size: 10.5 } },
+          title: { display: true, text: 'Number of Transfers', color: ink, font: { size: 11, weight: '500' }, padding: { bottom: 6 } }
+        },
+        x: {
+          border: { display: false },
+          grid: { display: false },
+          ticks: { padding: 6, font: { size: 10.5 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 5 },
+          title: { display: true, text: 'Date', color: ink, font: { size: 11, weight: '500' }, padding: { top: 6 } }
+        }
+      }
+    }
+  });
+
+  pinLastPoint(charts[metric.key], lastIndex);
+  canvas.addEventListener('mouseleave', () => pinLastPoint(charts[metric.key], lastIndex));
+}
+
+function renderFallbackChart(metric, labels, values) {
+  const canvas = document.getElementById(metric.canvas);
+  const holder = canvas?.parentElement;
+  if (!holder) return;
+  canvas.style.display = 'none';
+  const fallback = document.createElement('div');
+  fallback.className = 'fallback-chart';
+  const max = Math.max(...values.map(v => Number(v) || 0), 1);
+  fallback.innerHTML = `
+    <div class="fallback-bars">
+      ${labels.map((label, i) => {
+        const value = Number(values[i]) || 0;
+        const height = value > 0 ? Math.max(4, Math.round((value / max) * 100)) : 0;
+        return `<div class="fallback-bar-item">
+          <div class="fallback-bar-track"><div class="fallback-bar" style="height:${height}%;background:${metric.color};"></div></div>
+          <div class="fallback-label">${label}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  holder.appendChild(fallback);
+}
+
+function renderCharts(data){
+  const labels = data.trendMonths || data.trendLabels || [];
+  METRICS.forEach(metric => {
+    const values = (data.trendData?.[metric.key] || []).map(v => Number(v) || 0);
+    const total = values.reduce((sum, v) => sum + v, 0);
+    const totalEl = document.getElementById(metric.total);
+    if (totalEl) totalEl.textContent = labels.length ? total.toLocaleString() : '—';
+    buildLineChart(metric, labels, values);
+  });
+}
+
+function renderReport(data){
+  if (!data) return;
+  reportData = data;
+  updatePeriodHint(data.dateRange || '—');
+  if (data.executiveSummary) setElementHtml('#execSummaryText', data.executiveSummary);
+  renderCharts(data);
+  renderActivityLog(data.activityLog || []);
+}
+
+function renderActivityLog(rows){
+  const body = document.getElementById('activityLogBody');
+  if (!body) return;
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="7" class="activity-empty">No senior officer activity was recorded for this period.</td></tr>';
+    return;
+  }
+  body.innerHTML = rows.map(row => `<tr>
+    <td>${escapeHtml(row.reference || '—')}</td>
+    <td class="activity-action">${escapeHtml(row.action || '—')}</td>
+    <td>${escapeHtml(row.district || '—')}</td>
+    <td>${escapeHtml(row.officer || '—')}</td>
+    <td>${escapeHtml(row.date || '—')}</td>
+    <td><span class="activity-status">${escapeHtml(row.status || 'UNKNOWN')}</span></td>
+    <td>${row.blockchain ? '<i class="bi bi-check-circle-fill" style="color:#166534" title="Recorded on blockchain"></i>' : '—'}</td>
+  </tr>`).join('');
+}
+
+function exportCsv(){
+  if (!reportData) return;
+  const labels = reportData.trendMonths || reportData.trendLabels || [];
+  const rows = [['Date','Approved','Flagged','Rejected']];
+  labels.forEach((label, i) => rows.push([
+    label,
+    reportData.trendData?.approved?.[i] ?? 0,
+    reportData.trendData?.flagged?.[i] ?? 0,
+    reportData.trendData?.rejected?.[i] ?? 0
+  ]));
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `arms-monthly-report-${reportData.reportId || 'export'}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+window.confirmAndLogout = function(e) {
+  if (e && typeof e.preventDefault === 'function') e.preventDefault();
+  showLogoutConfirmation(logout);
+};
+window.doLogout = logout;
+
+function updateHeader(p){
+  if (!p) return;
+  const name = p.fullName || p.username || 'Senior Officer';
+  document.getElementById('headerName').textContent = name;
+  document.getElementById('headerRole').textContent = (p.role || 'Senior Officer').replace(/_/g, ' ');
+  document.getElementById('headerInitials').textContent = name.charAt(0).toUpperCase();
+}
+
+function ensureSeniorAccess(){
+  const role = localStorage.getItem('lv_role');
+  if (role !== 'SENIOR_OFFICER' && role !== 'SYSTEM_ADMIN') {
+    window.location.href = '/login.html?error=invalid_role';
+    return false;
+  }
+  return true;
+}
+
+async function loadReportData(period){
+  if (!ensureSeniorAccess()) return;
+  try{
+    const token = localStorage.getItem('lv_token');
+    const headers = { 'Accept': 'application/json' };
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    const profileRes = await fetch('/api/auth/profile/me', { headers });
+    if (profileRes.ok) {
+      const profilePayload = await profileRes.json();
+      updateHeader(profilePayload.data || {});
+    }
+
+    const selectedPeriod = period || getSelectedPeriod();
+    const effectivePeriod = selectedPeriod || `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+
+    const res = await fetch(`/api/senior-officer/monthly-report?period=${encodeURIComponent(effectivePeriod)}`, { headers });
+    const payload = await res.json();
+
+    if (!res.ok) {
+      const message = payload?.message || (res.status === 403 ? 'You need a senior officer session to view this report.' : `Unable to load report (${res.status})`);
+      const authError = new Error(message);
+      authError.status = res.status;
+      throw authError;
+    }
+    if (!payload?.success) throw new Error(payload?.message || 'Unable to load report');
+    if (!payload.data) throw new Error('The report returned no data.');
+    renderReport(payload.data);
+  }catch(err){
+    console.error('Monthly report load failed:', err);
+    const isAuthError = err.status === 401 || err.status === 403 || /senior officer session/i.test(err.message || '');
+    const detail = isAuthError
+      ? 'Please sign in with a senior officer account and refresh the page.'
+      : 'There was a problem loading this report. Please refresh the page or try again shortly.';
+    setElementHtml('#execSummaryText', `<strong>${err.message || 'Unable to load report'}</strong><br>${detail}`);
+    renderCharts({ trendMonths: [], trendData: {} });
+    renderActivityLog([]);
+  }
+}
+
+document.getElementById('btnExportCsv')?.addEventListener('click', exportCsv);
+initializePeriodControls();
+loadReportData(getSelectedPeriod());
+</script>
+</body>
+</html>

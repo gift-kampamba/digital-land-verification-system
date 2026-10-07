@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ARMS – Landowner Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* ═══════════════════════════════════════════════════
+       ARMS DESIGN SYSTEM — Navy + Gold, Zambian Palette
+       (Matches the token set used across the ARMS suite,
+       e.g. audit-log.html — same colors, radius scale,
+       sidebar width, and header height, so every screen
+       in the portal looks and feels the same.)
+    ═══════════════════════════════════════════════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+
+    :root {
+      --navy:          #0e2240;
+      --navy-mid:      #1a3560;
+      --navy-light:    #e8edf6;
+      --navy-xlight:   #f4f6fb;
+      --gold:          #c8a040;
+      --gold-mid:      #b8902e;
+      --gold-dark:     #9a7420;
+      --gold-light:    #fdf6e3;
+      --gold-xlight:   #fefbf3;
+      --green:         #22c55e;
+      --green-light:   #f0fdf4;
+      --green-dark:    #15803d;
+      --red:           #ef4444;
+      --text-primary:  #111827;
+      --text-secondary:#4b5568;
+      --text-muted:    #8a94a6;
+      --border:        #e8e3d8;
+      --border-mid:    #d6ceba;
+      --bg-page:       #faf7f2;
+      --bg-card:       #ffffff;
+      --radius:        6px;
+      --radius-lg:     10px;
+      --shadow-sm:     0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+      --shadow-card:   0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+      --sidebar-w:     200px;
+      --header-h:      66px;
+    }
+
+    body {
+      display: flex; flex-direction: column;
+      background: var(--bg-page);
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 13px; color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      background: var(--bg-card);
+      display: flex; justify-content: space-between; align-items: stretch;
+      border-bottom: 1px solid var(--border);
+      height: var(--header-h); flex-shrink: 0;
+      box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100;
+    }
+    .logo-block {
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 24px; min-width: 340px; height: 100%;
+      flex-shrink: 0; background: var(--navy);
+    }
+    .logo-emblem {
+      width: 40px; height: 40px; border-radius: 8px;
+      background: var(--gold); display: flex; align-items: center;
+      justify-content: center; font-size: 20px; font-weight: 800;
+      color: var(--navy); flex-shrink: 0; overflow: hidden;
+    }
+    .logo-emblem img { width: 100%; height: 100%; object-fit: contain; }
+    .logo-text h2 { font-size: 12.5px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+    .logo-text p  { font-size: 10.5px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+
+    .top-right { display: flex; align-items: center; gap: 14px; padding-right: 20px; }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--gold-light); border: 1.5px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--navy); flex-shrink: 0;
+      overflow: hidden; position: relative;
+    }
+    .user-avatar img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; border-radius: 50%; }
+    .top-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+    .top-user-role { font-size: 10.5px; color: var(--text-muted); line-height: 1; }
+    .btn-signout {
+      background: transparent; border: 1px solid var(--border-mid);
+      color: var(--text-secondary); padding: 5px 13px;
+      border-radius: var(--radius); font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .btn-signout:hover { background: var(--bg-page); color: var(--text-primary); }
+
+    /* ── LAYOUT ── */
+    .dashboard-container { display: flex; flex: 1; min-height: 0; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 14px 0 12px; flex-shrink: 0;
+      min-height: calc(100vh - var(--header-h));
+      overflow-y: auto; display: flex; flex-direction: column;
+      position: sticky; top: var(--header-h);
+      height: calc(100vh - var(--header-h));
+    }
+    .sidebar-section-title {
+      font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--text-muted); font-weight: 700; padding: 10px 16px 4px;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 16px; color: var(--text-secondary);
+      text-decoration: none; font-size: 12.5px;
+      transition: all 0.13s; border-left: 2px solid transparent; margin: 1px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .sidebar-link:hover  { background: var(--gold-xlight); color: var(--navy); }
+    .sidebar-link.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+    .sidebar-link i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+    .sidebar-link.active i { opacity: 1; }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+
+    /* ── MAIN ── */
+    .main-content { flex: 1; padding: 24px 28px; background: var(--bg-page); overflow-x: hidden; }
+
+    /* ── PAGE HEADER ── */
+    .page-header { margin-bottom: 22px; }
+    .page-header h1 { font-size: 20px; font-weight: 700; color: var(--navy); letter-spacing: -0.4px; margin-bottom: 3px; }
+    .page-header p { color: var(--text-secondary); font-size: 12.5px; }
+
+    /* ── STAT CARDS ── */
+    .kpi-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 0; margin-bottom: 20px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .stat-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 18px 20px; cursor: pointer;
+      border-right: 1px solid var(--border);
+      transition: background 0.15s;
+      text-decoration: none; color: inherit;
+    }
+    .stat-card:last-child { border-right: none; }
+    .stat-card:hover { background: var(--gold-xlight); }
+    .stat-icon {
+      width: 46px; height: 46px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .stat-info { flex: 1; min-width: 0; }
+    .stat-num { font-size: 1.85rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; margin-bottom: 3px; }
+    .stat-lbl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); line-height: 1.3; }
+    .stat-sub { font-size: 10px; color: #b0b8c8; margin-top: 1px; }
+
+    .stat-card:nth-child(1) .stat-icon { background: var(--navy-xlight); color: var(--navy-mid); }
+    .stat-card:nth-child(1) .stat-num  { color: var(--navy); }
+    .stat-card:nth-child(2) .stat-icon { background: var(--green-light); color: var(--green-dark); }
+    .stat-card:nth-child(2) .stat-num  { color: var(--green-dark); }
+    .stat-card:nth-child(3) .stat-icon { background: var(--gold-light); color: var(--gold-dark); }
+    .stat-card:nth-child(3) .stat-num  { color: var(--gold-dark); }
+    .stat-card:nth-child(4) .stat-icon { background: var(--navy-xlight); color: var(--navy); }
+    .stat-card:nth-child(4) .stat-num  { color: var(--navy); }
+
+    /* ── SECTION CARD ── */
+    .section-card {
+      background: var(--bg-card); border-radius: var(--radius-lg);
+      border: 1px solid var(--border); box-shadow: var(--shadow-card);
+      overflow: hidden; margin-bottom: 18px;
+    }
+    .section-card-header {
+      padding: 13px 20px; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .section-card-header h5 {
+      font-size: 13.5px; color: var(--navy); font-weight: 600; margin: 0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-card-header h5 .hdr-icon {
+      width: 28px; height: 28px; background: var(--gold-light); border-radius: 6px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 13px; color: var(--gold-dark); flex-shrink: 0;
+    }
+
+    /* ── TABLE ── */
+    .table-custom { width: 100%; border-collapse: collapse; }
+    .table-custom thead th {
+      background: var(--bg-page); color: var(--text-muted);
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; padding: 9px 16px;
+      border-bottom: 1px solid var(--border); white-space: nowrap; text-align: left;
+    }
+    .table-custom tbody td {
+      padding: 11px 16px; font-size: 12.5px;
+      border-bottom: 1px solid var(--border); vertical-align: middle;
+      color: var(--text-primary);
+    }
+    .table-custom tbody tr:last-child td { border-bottom: none; }
+    .table-custom tbody tr:hover td { background: var(--gold-xlight); }
+
+    /* ── PARCEL NUMBER PILL ── */
+    .parcel-pill {
+      font-family: 'JetBrains Mono', monospace; font-size: 11.5px; font-weight: 600;
+      background: var(--navy-xlight); border: 1px solid var(--navy-light);
+      color: var(--navy-mid); padding: 2px 8px; border-radius: var(--radius);
+      display: inline-block;
+    }
+
+    /* ── STATUS BADGES ── */
+    .badge-status {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px; border-radius: 99px;
+      font-size: 10.5px; font-weight: 700; white-space: nowrap;
+    }
+    .badge-status::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    }
+    .bs-active   { background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0; }
+    .bs-active::before   { background: #22c55e; }
+    .bs-pending  { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #e8d098; }
+    .bs-pending::before  { background: var(--gold); }
+    .bs-rejected { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .bs-rejected::before { background: #ef4444; }
+    .bs-archived { background: var(--bg-page); color: var(--text-muted); border: 1px solid var(--border); }
+    .bs-archived::before { background: #9ca3af; }
+
+    /* ── BUTTONS ── */
+    .btn-primary-custom {
+      background: var(--navy); color: #fff; border: none;
+      border-radius: var(--radius); padding: 6px 15px;
+      font-size: 12px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: background 0.15s;
+      display: inline-flex; align-items: center; gap: 6px; height: 34px;
+    }
+    .btn-primary-custom:hover { background: var(--navy-mid); color: #fff; }
+
+    .btn-gold {
+      background: var(--gold); color: var(--navy); border: none;
+      border-radius: var(--radius); padding: 6px 15px;
+      font-size: 12px; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: background 0.15s;
+      display: inline-flex; align-items: center; gap: 6px; height: 34px;
+      box-shadow: 0 2px 8px rgba(200,160,64,0.28);
+    }
+    .btn-gold:hover { background: var(--gold-mid); color: var(--navy); }
+
+    .btn-outline-custom {
+      background: transparent; color: var(--navy);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius); padding: 5px 12px;
+      font-size: 12px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 5px; height: 30px;
+    }
+    .btn-outline-custom:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    .btn-sm-arm {
+      height: 28px; padding: 0 10px; border-radius: var(--radius);
+      font-size: 11.5px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 4px;
+      border: 1px solid var(--border-mid); background: var(--bg-card); color: var(--text-secondary);
+    }
+    .btn-sm-arm:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .btn-sm-gold { background: var(--gold); color: var(--navy); border-color: var(--gold-mid); font-weight: 700; }
+    .btn-sm-gold:hover { background: var(--gold-mid); color: var(--navy); }
+
+    /* ── TOAST ── */
+    .toast-stack { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast-item {
+      background: var(--navy); color: #fff;
+      padding: 11px 16px; border-radius: var(--radius-lg);
+      display: flex; align-items: center; gap: 10px;
+      font-size: 12.5px; font-weight: 500;
+      box-shadow: 0 4px 20px rgba(14,34,64,0.25);
+      animation: slideUp 0.28s ease; max-width: 340px; min-width: 260px;
+    }
+    .toast-item i { font-size: 15px; flex-shrink: 0; }
+    .toast-item.success { border-left: 3px solid #22c55e; }
+    .toast-item.error   { border-left: 3px solid #ef4444; }
+    .toast-item.info    { border-left: 3px solid var(--gold); }
+    @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--bg-card); color: var(--text-muted);
+      padding: 10px 24px; display: flex;
+      justify-content: space-between; align-items: center;
+      font-size: 11px; border-top: 1px solid var(--border); flex-shrink: 0;
+    }
+    .footer-session { display: flex; align-items: center; gap: 6px; }
+    .session-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2,1fr); } .stat-card { border-right: 1px solid var(--border) !important; } .stat-card:nth-child(even) { border-right: none !important; } }
+    @media (max-width: 768px) { .sidebar { display: none; } .main-content { padding: 16px; } }
+  </style>
+</head>
+<body>
+
+<!-- ══ TOP BAR ══ -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../../images/coat-of-arms.png" alt="Coat of Arms"/>
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar" id="nav-avatar" aria-label="Current user"></div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="nav-name">Loading profile...</div>
+      <div class="top-user-role" id="nav-role">Land Owner</div>
+    </div>
+    <button class="btn-signout" onclick="showLogoutConfirm(event)">
+      <i class="bi bi-box-arrow-right"></i> Sign Out
+    </button>
+  </div>
+</div>
+
+<!-- ══ LAYOUT ══ -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section-title">Navigation</div>
+    <a href="my-parcels.html"    class="sidebar-link active"><i class="bi bi-grid-1x2"></i> My Parcels</a>
+    <a href="notifications.html" class="sidebar-link"><i class="bi bi-bell"></i> Notifications</a>
+    <a href="transfer.html"      class="sidebar-link"><i class="bi bi-arrow-left-right"></i> Initiate Transfer</a>
+    <a href="transfer-requests.html" class="sidebar-link"><i class="bi bi-clock-history"></i> My Transfer Requests</a>
+    <a href="title-deeds.html"   class="sidebar-link"><i class="bi bi-file-earmark-text"></i> Title Deeds</a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Account</div>
+    <a href="profile.html"       class="sidebar-link"><i class="bi bi-person-gear"></i> Manage Profile</a>
+    <a href="#"                  class="sidebar-link"><i class="bi bi-shield-lock"></i> Security</a>
+    <a href="../../index.html"   class="sidebar-link"><i class="bi bi-search"></i> Verify a Parcel</a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <div id="view-dashboard">
+
+      <!-- PAGE HEADER -->
+      <div class="page-header">
+        <h1>My Land Parcels</h1>
+        <p>All registered land parcels under your name — Zambia Land Registry</p>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="kpi-grid">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="bi bi-map"></i></div>
+          <div class="stat-info">
+            <div class="stat-num" id="stat-total">0</div>
+            <div class="stat-lbl">Total Parcels</div>
+            <div class="stat-sub">Registered in system</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
+          <div class="stat-info">
+            <div class="stat-num" id="stat-active">0</div>
+            <div class="stat-lbl">Active</div>
+            <div class="stat-sub">In good standing</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="bi bi-clock-history"></i></div>
+          <div class="stat-info">
+            <div class="stat-num" id="stat-pending">0</div>
+            <div class="stat-lbl">Pending Transfer</div>
+            <div class="stat-sub">Awaiting approval</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="bi bi-rulers"></i></div>
+          <div class="stat-info">
+            <div class="stat-num" id="stat-area">0</div>
+            <div class="stat-lbl">Total Area (sqm)</div>
+            <div class="stat-sub">Combined land area</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PARCELS TABLE -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <h5><span class="hdr-icon"><i class="bi bi-map"></i></span> Registered Parcels</h5>
+          <div class="d-flex gap-2">
+            <button class="btn-outline-custom" onclick="window.location.href='title-deeds.html'">
+              <i class="bi bi-file-earmark-text"></i> View Title Deeds
+            </button>
+            <button class="btn-gold" onclick="window.location.href='transfer.html'">
+              <i class="bi bi-plus-lg"></i> New Transfer
+            </button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="table-custom">
+            <thead>
+              <tr>
+                <th>Parcel No.</th><th>Province</th><th>District</th>
+                <th>Area (sqm)</th><th>Land Use</th><th>Status</th>
+                <th>Registered</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="parcels-tbody">
+              <tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted);">Loading parcels…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TRANSFER REQUESTS TABLE -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <h5><span class="hdr-icon"><i class="bi bi-arrow-left-right"></i></span> My Transfer Requests</h5>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="table-custom">
+            <thead>
+              <tr>
+                <th>Request ID</th><th>Parcel</th><th>Buyer</th>
+                <th>Price (ZMW)</th><th>Status</th><th>Submitted</th>
+              </tr>
+            </thead>
+            <tbody id="transfers-tbody">
+              <tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted);">Loading transfer requests…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /view-dashboard -->
+  </main>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<!-- TOAST STACK -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ══ GLOBAL SCRIPT (all original functionality preserved) ══ -->
+<script>
+let myParcels   = [];
+let myTransfers = [];
+let currentUser = null;
+let api         = null;
+let getSession  = null;
+let logout      = null;
+let updateSession = null;
+
+function getPhotoUrl(photoFileName) {
+  if (!photoFileName) return null;
+  if (photoFileName.startsWith('http://') || photoFileName.startsWith('https://')) return photoFileName;
+  return photoFileName.startsWith('/uploads/') ? photoFileName : `/uploads/${photoFileName}`;
+}
+
+function initNavbar() {
+  if (!currentUser) return;
+  const fullName = currentUser.fullName || currentUser.name || 'User';
+  const initials = fullName.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
+  const av = document.getElementById('nav-avatar');
+  if (av) av.textContent = initials;
+  const nn = document.getElementById('nav-name');
+  if (nn) nn.textContent = fullName;
+  if (document.getElementById('tf-consent-name'))
+    document.getElementById('tf-consent-name').textContent = fullName;
+}
+
+async function loadDashboard() {
+  try {
+    const dashboardRes = await api.landownerDashboard();
+    const dashboard = dashboardRes.data || {};
+    const sessionData = window.getSession ? window.getSession() : {};
+
+    myParcels   = dashboard.parcels || [];
+    myTransfers = (await api.myTransfers()).data || [];
+
+    if (dashboard.userId) {
+      currentUser = {
+        fullName:   dashboard.fullName   || sessionData.fullName  || currentUser?.fullName,
+        email:      dashboard.email      || sessionData.email     || currentUser?.email,
+        phone:      dashboard.phoneNumber|| sessionData.phoneNumber|| currentUser?.phone,
+        address:    dashboard.address    || sessionData.address   || currentUser?.address,
+        gender:     dashboard.gender     || sessionData.gender    || currentUser?.gender,
+        nationalId: dashboard.nationalId || sessionData.nationalId|| currentUser?.nationalId,
+        username:   dashboard.username   || sessionData.username  || currentUser?.username,
+        district:   dashboard.district   || sessionData.district  || currentUser?.district,
+        photoPath:  dashboard.photoPath  || sessionData.photoPath || currentUser?.photoPath || ''
+      };
+      if (window.updateSession) {
+        window.updateSession({
+          fullName: currentUser.fullName, phoneNumber: currentUser.phone,
+          address: currentUser.address,  gender: currentUser.gender,
+          username: currentUser.username, district: currentUser.district,
+          photoPath: currentUser.photoPath
+        });
+      }
+      initNavbar();
+    }
+    updateStats();
+    renderParcelsTable();
+    renderTransfersTable();
+  } catch(e) {
+    console.error('Failed to load dashboard:', e);
+    showToast('Failed to load dashboard data: ' + e.message, 'error');
+  }
+}
+
+function updateStats() {
+  const total   = myParcels.length;
+  const active  = myParcels.filter(p=>p.status==='ACTIVE').length;
+  const pending = myTransfers.filter(t=>['SUBMITTED','UNDER_REVIEW','APPROVED_L1','APPROVED_L2'].includes(t.status)).length;
+  const area    = myParcels.reduce((s,p)=>s+(p.areaSqm||0),0);
+
+  const s = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  s('stat-total',  total);
+  s('stat-active', active);
+  s('stat-pending',pending);
+  s('stat-area',   area.toLocaleString('en-ZM'));
+
+  // Clickable stat cards — original behaviour
+  const cards = document.querySelectorAll('.stat-card');
+  if (cards[0]) { cards[0].style.cursor='pointer'; cards[0].onclick=()=>renderParcelsTable(); }
+  if (cards[1]) { cards[1].style.cursor='pointer'; cards[1].onclick=()=>renderParcelsTable(myParcels.filter(p=>p.status==='ACTIVE')); }
+  if (cards[2]) { cards[2].style.cursor='pointer'; cards[2].onclick=()=>{ const pp=myTransfers.map(t=>t.parcelNumber); renderParcelsTable(myParcels.filter(p=>pp.includes(p.parcelNumber))); }; }
+  if (cards[3]) { cards[3].style.cursor='pointer'; cards[3].onclick=()=>renderParcelsTable(); }
+}
+
+function renderParcelsTable(filteredParcels) {
+  const list  = Array.isArray(filteredParcels) ? filteredParcels : myParcels;
+  const tbody = document.getElementById('parcels-tbody');
+  if (!tbody) return;
+
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted);">No parcels found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(p => {
+    const hasDeed = !!p.titleDeedUrl;
+    const deedBtn = hasDeed
+      ? `<button class="btn-sm-arm btn-sm-gold ms-1" onclick="openParcelTitleDeed('${p.parcelNumber}')"><i class="bi bi-file-earmark-text"></i> Title Deed</button>`
+      : `<span style="font-size:11px;color:var(--text-muted);">No deed</span>`;
+    return `
+      <tr>
+        <td><span class="parcel-pill">${p.parcelNumber}</span></td>
+        <td>${p.province||'—'}</td>
+        <td>${p.district||'—'}</td>
+        <td style="font-weight:600;">${p.areaSqm?p.areaSqm.toLocaleString():'—'}</td>
+        <td>${p.landUse||'—'}</td>
+        <td><span class="badge-status ${getParcelStatusClass(p.status)}">${p.status||'Active'}</span></td>
+        <td style="color:var(--text-secondary);">${p.registeredAt?new Date(p.registeredAt).toLocaleDateString():'—'}</td>
+        <td>
+          <button class="btn-sm-arm me-1" onclick="openParcelDetail('${p.parcelNumber}')"><i class="bi bi-eye"></i> View</button>
+          ${deedBtn}
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function getParcelStatusClass(status) {
+  return { ACTIVE:'bs-active', PENDING:'bs-pending', ARCHIVED:'bs-archived', TRANSFERRED:'bs-archived' }[status] || 'bs-archived';
+}
+
+function renderTransfersTable() {
+  const tbody = document.getElementById('transfers-tbody');
+  if (!tbody) return;
+  if (!myTransfers.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted);">No transfer requests</td></tr>';
+    return;
+  }
+  tbody.innerHTML = myTransfers.map(t => `
+    <tr>
+      <td style="font-weight:700;color:var(--navy);">#${t.requestId}</td>
+      <td><span class="parcel-pill">${t.parcelNumber}</span></td>
+      <td>${t.buyerName}</td>
+      <td style="font-weight:600;">${t.agreedPriceZmw?'K '+Number(t.agreedPriceZmw).toLocaleString():'—'}</td>
+      <td><span class="badge-status ${getStatusClass(t.status)}">${(t.status||'Unknown').replace(/_/g,' ')}</span></td>
+      <td style="color:var(--text-secondary);">${t.submittedAt?new Date(t.submittedAt).toLocaleDateString():'—'}</td>
+    </tr>`).join('');
+}
+
+function getStatusClass(status) {
+  return { SUBMITTED:'bs-pending', UNDER_REVIEW:'bs-pending', APPROVED_L1:'bs-pending', APPROVED_L2:'bs-pending', APPROVED:'bs-active', REJECTED:'bs-rejected', CANCELLED:'bs-rejected' }[status] || 'bs-archived';
+}
+
+async function updateProfile() {
+  const name       = document.getElementById('prf-name').value.trim();
+  const phone      = document.getElementById('prf-phone').value.trim();
+  const nationalId = document.getElementById('prf-national-id').value.trim();
+  const district   = document.getElementById('prf-district').value.trim();
+  const address    = document.getElementById('prf-address').value.trim();
+  const gender     = document.getElementById('prf-gender').value;
+  const currentPwd = document.getElementById('prf-current-pwd').value;
+  const newPwd     = document.getElementById('prf-new-pwd').value;
+  const photoFile  = document.getElementById('prf-photo')?.files?.[0];
+
+  if (!name) { showToast('Please enter your full name','error'); return; }
+  if (nationalId && nationalId.length < 6) { showToast('National ID must be at least 6 characters','error'); return; }
+  if (district && district.length < 2) { showToast('District must be at least 2 characters','error'); return; }
+  if (photoFile) {
+    if (!['image/jpeg','image/png','image/webp'].includes(photoFile.type)) { showToast('Profile photo must be JPG, PNG, or WEBP','error'); return; }
+    if (photoFile.size > 5*1024*1024) { showToast('Profile photo must be smaller than 5 MB','error'); return; }
+  }
+
+  try {
+    const payload = { fullName:name, phoneNumber:phone, nationalId:nationalId||null, district:district||null, address, gender:gender||null };
+    if (currentPwd) {
+      if (!newPwd) { showToast('Please enter a new password','error'); return; }
+      if (newPwd.length < 8) { showToast('New password must be at least 8 characters','error'); return; }
+      payload.currentPassword = currentPwd; payload.newPassword = newPwd;
+    }
+    let response = await api.updateLandownerProfileDirect(payload);
+    let updatedUser = response.data || {};
+    if (photoFile) {
+      const fd = new FormData(); fd.append('photo',photoFile);
+      const pr = await api.uploadLandownerProfilePhoto(fd); updatedUser = pr.data || updatedUser;
+    }
+    updateSession({ fullName:updatedUser.fullName||name, phoneNumber:updatedUser.phoneNumber||phone, address:updatedUser.address||address, gender:updatedUser.gender||gender, district:updatedUser.district||district, nationalId:updatedUser.nationalId||nationalId, photoPath:updatedUser.photoPath||currentUser.photoPath||'' });
+    currentUser = { ...currentUser, ...updatedUser, fullName:updatedUser.fullName||name, phone:updatedUser.phoneNumber||phone, address:updatedUser.address||address, gender:updatedUser.gender||gender, district:updatedUser.district||district, nationalId:updatedUser.nationalId||nationalId, photoPath:updatedUser.photoPath||currentUser.photoPath||'' };
+    initNavbar(); await loadProfileView();
+    showToast('Profile updated successfully!','success');
+  } catch(e) { showToast('Failed to update profile: '+e.message,'error'); }
+}
+
+async function loadProfileView() {
+  try {
+    const profileRes = await api.getMyProfile();
+    const profile = profileRes.data || {};
+    currentUser = currentUser || {};
+    Object.assign(currentUser, { fullName:profile.fullName||profile.name||currentUser.fullName||'', email:profile.email||currentUser.email||'', phone:profile.phoneNumber||profile.phone||currentUser.phone||'', address:profile.address||currentUser.address||'', gender:profile.gender||currentUser.gender||'', nationalId:profile.nationalId||currentUser.nationalId||'', district:profile.district||currentUser.district||'', photoPath:profile.photoPath||currentUser.photoPath||'', username:profile.username||currentUser.username||'' });
+    initNavbar();
+    const sv = (id,v) => { const el=document.getElementById(id); if(el) el.value=v||''; };
+    sv('prf-name',currentUser.fullName); sv('prf-email',currentUser.email); sv('prf-phone',currentUser.phone); sv('prf-address',currentUser.address); sv('prf-gender',currentUser.gender); sv('prf-national-id',currentUser.nationalId); sv('prf-district',currentUser.district); sv('prf-current-pwd',''); sv('prf-new-pwd','');
+    if (document.getElementById('prf-photo')) document.getElementById('prf-photo').value='';
+    const emailDisplay = document.getElementById('prf-email-display');
+    if (emailDisplay) emailDisplay.textContent = currentUser.email || 'Email not available';
+    const preview = document.getElementById('prf-photo-preview');
+    if (preview) preview.innerHTML = currentUser.photoPath ? `<img src="${getPhotoUrl(currentUser.photoPath)}" alt="Profile photo">` : '<span style="color:var(--text-muted);font-size:.8rem;">No photo</span>';
+  } catch(e) { console.error('Failed to load profile view:',e); showToast('Failed to load profile data: '+e.message,'error'); }
+}
+
+function openParcelDetail(parcelNumber) {
+  window.location.href = `parcel-detail.html?parcel=${encodeURIComponent(parcelNumber)}`;
+}
+
+function getParcelTitleDeedUrl(parcelNumber) {
+  const parcel = myParcels.find(p=>p.parcelNumber===parcelNumber);
+  return parcel?.parcelNumber ? `/api/landowner/title-deed/${encodeURIComponent(parcel.parcelNumber)}` : null;
+}
+
+async function openParcelTitleDeed(parcelNumber) {
+  const url = getParcelTitleDeedUrl(parcelNumber);
+  if (!url) { showToast('No title deed file available for this parcel','error'); return; }
+  const deedWindow = window.open('', '_blank');
+  try {
+    const response = await fetch(url, { headers: { Authorization: `Bearer ${localStorage.getItem('lv_token') || ''}` } });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const blobUrl = window.URL.createObjectURL(await response.blob());
+    if (deedWindow) deedWindow.location.href = blobUrl;
+  } catch (error) {
+    deedWindow?.close();
+    showToast('Failed to open title deed: ' + error.message, 'error');
+  }
+}
+
+function openProfileModal() { initNavbar(); new bootstrap.Modal(document.getElementById('profileModal')).show(); }
+
+window.showToast = function(msg,type='info') {
+  const icons = { success:'bi-check-circle-fill', error:'bi-x-circle-fill', info:'bi-info-circle-fill' };
+  const t = document.createElement('div');
+  t.className = `toast-item ${type}`;
+  t.innerHTML = `<i class="bi ${icons[type]||icons.info}"></i><span>${msg}</span>`;
+  const stack = document.getElementById('toastStack');
+  if (stack) {
+    stack.appendChild(t);
+    setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 3500);
+  }
+};
+
+window.showLogoutConfirm = function(e) {
+  e.preventDefault();
+  showLogoutConfirmation(logout);
+};
+</script>
+
+<script type="module">
+import { api as apiModule } from '/js/api.js';
+import { requireLogin, populateNavbar, getSession as getSessionFn, logout as logoutFn, updateSession as updateSessionFn, showLogoutConfirmation } from '/js/auth.js';
+
+api           = apiModule;
+getSession    = getSessionFn;
+logout        = logoutFn;
+updateSession = updateSessionFn;
+window.api           = apiModule;
+window.getSession    = getSessionFn;
+window.logout        = logoutFn;
+window.updateSession = updateSessionFn;
+
+try {
+  requireLogin();
+  const userRole = localStorage.getItem('lv_role');
+  if (userRole !== 'LAND_OWNER') {
+    console.error('[RBAC] Unauthorized: role is', userRole);
+    alert('Access Denied: This dashboard is only available to Landowners.');
+    window.location.href = '/login.html?error=invalid_role&role=' + encodeURIComponent(userRole);
+  } else {
+    populateNavbar();
+    window.initNavbar?.();
+    window.loadDashboard?.().catch(e => { console.error('Dashboard init error:',e); showToast('Failed to load dashboard: '+e.message,'error'); });
+  }
+} catch(e) { console.error('Module init error:',e); }
+</script>
+</body>
+</html>

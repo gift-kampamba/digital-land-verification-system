@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Parcel Details – ARMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    :root {
+      --navy:          #0e2240;
+      --navy-mid:      #1a3560;
+      --navy-light:    #e8edf6;
+      --navy-xlight:   #f4f6fb;
+      --gold:          #c8a040;
+      --gold-mid:      #b8902e;
+      --gold-dark:     #9a7420;
+      --gold-light:    #fdf6e3;
+      --gold-xlight:   #fefbf3;
+      --text-primary:  #111827;
+      --text-secondary:#4b5568;
+      --text-muted:    #8a94a6;
+      --border:        #e8e3d8;
+      --border-mid:    #d6ceba;
+      --bg-page:       #faf7f2;
+      --bg-card:       #ffffff;
+      --good:          #166534; --good-bg:#ecfdf5; --good-border:#bbf7d0;
+      --bad:           #991b1b; --bad-bg:#fef2f2; --bad-border:#fecaca;
+      --radius:        6px;
+      --radius-lg:     10px;
+      --shadow-sm:     0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+      --shadow-card:   0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+      --sidebar-w:     200px;
+      --header-h:      66px;
+    }
+    body {
+      display: flex; flex-direction: column;
+      background: var(--bg-page);
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 13px; color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      position: relative;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url('../images/coat-of-arms.png') center center no-repeat;
+      background-size: 500px;
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .top-bar, .dashboard-container, .toast-wrap { position: relative; z-index: 1; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* TOP BAR */
+    .top-bar {
+      background: var(--bg-card);
+      display: flex; justify-content: space-between; align-items: stretch;
+      border-bottom: 1px solid var(--border);
+      height: var(--header-h); flex-shrink: 0;
+      box-shadow: var(--shadow-sm); position: relative; z-index: 50;
+    }
+    .logo-block {
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 24px; min-width: 360px; height: 100%;
+      flex-shrink: 0; background: var(--navy);
+    }
+    .logo-emblem {
+      width: 40px; height: 40px; border-radius: 8px;
+     background: var(--gold); display: flex; align-items: center;
+     justify-content: center; flex-shrink: 0; overflow: hidden;
+   }
+    .logo-emblem img {
+     width: 100%; height: 100%; object-fit: cover;
+   }
+    .logo-text h2 { font-size: 12.5px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+    .logo-text p  { font-size: 10.5px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+    .top-right { display: flex; align-items: center; gap: 14px; padding-right: 20px; }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--gold-light); border: 1.5px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--navy);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .top-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+    .top-user-role { font-size: 10.5px; color: var(--text-muted); line-height: 1; }
+    .btn-signout {
+      background: transparent; border: 1px solid var(--border-mid);
+      color: var(--text-secondary); padding: 5px 13px;
+      border-radius: var(--radius); font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .btn-signout:hover { background: var(--bg-page); color: var(--text-primary); }
+
+    /* LAYOUT */
+    .dashboard-container { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 14px 0 12px; flex-shrink: 0; height: 100%;
+      overflow-y: auto; display: flex; flex-direction: column;
+    }
+    .sidebar-section-title {
+      font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--text-muted); font-weight: 700; padding: 10px 16px 4px;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 16px; color: var(--text-secondary);
+      text-decoration: none; font-size: 12.5px;
+      transition: all 0.13s; border-left: 2px solid transparent; margin: 1px 0;
+    }
+    .sidebar-item:hover { background: var(--gold-xlight); color: var(--navy); }
+    .sidebar-item.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+    .sidebar-item i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+    .sidebar-item.active i { opacity: 1; }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+    .sidebar-item.signout { color: #ef4444; }
+    .sidebar-item.signout:hover { background: #fef2f2; }
+    .sidebar-item.signout i { opacity: 1; }
+
+    /* MAIN */
+    .main-content { flex: 1; min-height: 0; padding: 24px 28px; overflow-y: auto; overflow-x: hidden; background: var(--bg-page); }
+
+    /* BREADCRUMB / BACK */
+    .back-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 12px; color: var(--text-muted); }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--text-secondary); text-decoration: none; font-weight: 600;
+      padding: 5px 10px; border-radius: var(--radius); border: 1px solid var(--border-mid);
+      background: var(--bg-card); transition: all 0.15s;
+    }
+    .back-link:hover { color: var(--navy); background: var(--bg-page); border-color: var(--navy-mid); }
+    .breadcrumb-sep { color: var(--border-mid); }
+
+    /* PAGE HEADER */
+    .page-header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; }
+    .page-title-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .page-title    { font-size: 20px; font-weight: 600; color: var(--navy); letter-spacing: -0.3px; }
+    .page-subtitle { font-size: 12.5px; color: var(--text-secondary); margin-top: 4px; }
+    .page-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .btn-outline-arm {
+      height: 34px; padding: 0 13px; border-radius: var(--radius);
+      border: 1px solid var(--border-mid); background: var(--bg-card);
+      font-size: 12.3px; font-family: inherit; color: var(--text-secondary);
+      cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-outline-arm:hover { background: var(--bg-page); color: var(--navy); border-color: var(--navy-mid); }
+    .btn-navy {
+      height: 34px; padding: 0 13px; border-radius: var(--radius);
+      border: none; background: var(--navy); color: #fff;
+      font-size: 12.3px; font-family: inherit; font-weight: 600;
+      cursor: pointer; transition: background 0.15s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-navy:hover { background: var(--navy-mid); }
+
+    /* STATUS BADGES */
+    .st-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 10.5px; font-weight: 700; white-space: nowrap; }
+    .st-l1   { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #e8d098; }
+    .st-ok   { background: var(--good-bg); color: var(--good); border: 1px solid var(--good-border); }
+    .st-rej  { background: var(--bad-bg); color: var(--bad); border: 1px solid var(--bad-border); }
+    .st-flag { background: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
+    .st-sub  { background: var(--navy-light); color: var(--navy-mid); border: 1px solid #c5d3e8; }
+    .st-can  { background: var(--bg-page); color: var(--text-muted); border: 1px solid var(--border); }
+
+    .parcel-pill {
+      display: inline-flex; padding: 3px 10px; border-radius: var(--radius);
+      background: var(--navy-xlight); border: 1px solid var(--navy-light);
+      font-size: 13px; font-weight: 700; color: var(--navy-mid); font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* GRID LAYOUT */
+    .detail-layout { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; align-items: start; }
+    .col-stack { display: flex; flex-direction: column; gap: 16px; }
+
+    /* CARDS */
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card); overflow: hidden;
+    }
+    .card-h { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+    .card-h h4 { font-size: 12.8px; font-weight: 600; color: var(--text-primary); flex: 1; }
+    .badge-ic { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+    .badge-ic.navy { background: var(--navy-xlight); color: var(--navy); }
+    .badge-ic.gold { background: var(--gold-light); color: var(--gold-dark); }
+    .badge-ic.good { background: var(--good-bg); color: var(--good); }
+    .badge-ic.teal { background: var(--navy-xlight); color: var(--navy-mid); }
+    .card-body { padding: 18px; }
+
+    /* DETAIL FIELDS */
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .detail-field { background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; }
+    .detail-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 700; margin-bottom: 3px; }
+    .detail-val   { font-size: 13.5px; font-weight: 600; color: var(--navy); }
+    .detail-val.mono { font-family: 'JetBrains Mono', monospace; font-weight: 400; font-size: 11.5px; word-break: break-all; color: var(--text-secondary); }
+    .detail-full { grid-column: 1/-1; }
+
+    /* MAP PLACEHOLDER */
+    .map-box {
+      height: 200px; border-radius: var(--radius); border: 1px solid var(--border);
+      background:
+        linear-gradient(rgba(14,34,64,0.04) 1px, transparent 1px) 0 0/24px 24px,
+        linear-gradient(90deg, rgba(14,34,64,0.04) 1px, transparent 1px) 0 0/24px 24px,
+        var(--navy-xlight);
+      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 6px; color: var(--text-muted);
+      position: relative;
+    }
+    .map-pin { font-size: 26px; color: var(--gold-dark); }
+    .map-coords { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-secondary); }
+
+    /* BLOCKCHAIN VERIFY */
+    .verify-row { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--good-bg); border: 1px solid var(--good-border); border-radius: var(--radius); margin-bottom: 12px; }
+    .verify-row i { font-size: 20px; color: var(--good); flex-shrink: 0; }
+    .verify-row .vt { font-size: 12.8px; font-weight: 700; color: var(--good); }
+    .verify-row .vs { font-size: 11.3px; color: var(--text-secondary); margin-top: 1px; }
+    .hash-box {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-secondary);
+      background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 10px 12px; word-break: break-all; line-height: 1.6;
+    }
+
+    /* TABLE (transfer history) */
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: var(--bg-page); color: var(--text-muted);
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 9px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: left;
+    }
+    tbody td { padding: 10px 16px; font-size: 12.3px; border-bottom: 1px solid var(--border); color: var(--text-primary); vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--gold-xlight); }
+    .tx-hash { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); }
+    .empty-state { text-align: center; padding: 30px 24px; color: var(--text-muted); font-size: 12.5px; }
+    .empty-state i { font-size: 24px; margin-bottom: 6px; display: block; opacity: 0.35; }
+
+    /* DOCUMENTS */
+    .doc-row {
+      display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+      border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-page);
+    }
+    .doc-ic { width: 34px; height: 34px; border-radius: 7px; background: var(--gold-light); color: var(--gold-dark); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .doc-name { font-size: 12.5px; font-weight: 600; color: var(--text-primary); }
+    .doc-meta { font-size: 10.5px; color: var(--text-muted); }
+    .btn-act {
+      height: 30px; padding: 0 12px; border: 1px solid var(--navy-light); border-radius: var(--radius);
+      font-size: 11.8px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 5px; font-family: inherit; white-space: nowrap;
+      background: var(--navy-xlight); color: var(--navy); margin-left: auto;
+    }
+    .btn-act:hover { background: var(--navy); color: #fff; }
+
+    /* SPINNER / ERROR */
+    .spinner { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--border); border-top-color: var(--gold); animation: spin 0.7s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .alert-arm { padding: 12px 16px; border-radius: var(--radius); font-size: 12.8px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .alert-danger-arm { background: var(--bad-bg); color: var(--bad); border: 1px solid var(--bad-border); }
+
+    @media (max-width: 1100px) { .detail-layout { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .detail-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../images/coat-of-arms.png" alt="Coat of Arms"/>
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar">
+      <img id="headerPhoto" alt=""/>
+      <span id="headerInitials" aria-label="Current user"></span>
+    </div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="nav-name"></div>
+      <div class="top-user-role" id="nav-role"></div>
+    </div>
+    <button class="btn-signout" onclick="confirmAndLogout(event)">Sign Out</button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Senior Officer Panel</div>
+    <a href="dashboard.html"          class="sidebar-item"><i class="bi bi-hammer"></i> Senior Approvals</a>
+    <a href="district-oversight.html" class="sidebar-item"><i class="bi bi-map"></i> District Oversight</a>
+    <a href="flagged.html"            class="sidebar-item"><i class="bi bi-flag"></i> Flagged</a>
+    <a href="audit-log.html"          class="sidebar-item"><i class="bi bi-shield-lock"></i> Blockchain Audit</a>
+    <a href="monthly-reports.html"    class="sidebar-item"><i class="bi bi-bar-chart"></i> Monthly Reports</a>
+    <a href="notifications.html"      class="sidebar-item"><i class="bi bi-bell"></i> Notifications</a>
+    <div class="sidebar-divider"></div>
+    <a href="manage-profile.html"     class="sidebar-item"><i class="bi bi-person-gear"></i> Manage Profile</a>
+    <a href="../../index.html"        class="sidebar-item"><i class="bi bi-search"></i> Verify Parcel</a>
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" onclick="confirmAndLogout(event);return false;"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <div class="back-row">
+      <a href="dashboard.html" class="back-link"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+      <span class="breadcrumb-sep">/</span>
+      <span>Parcel Details</span>
+    </div>
+
+    <div id="loadingState" style="display:flex;align-items:center;gap:10px;padding:40px 0;color:var(--text-muted);">
+      <div class="spinner"></div> Loading parcel details…
+    </div>
+
+    <div id="errorState" class="alert-arm alert-danger-arm" style="display:none;">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span id="errorText">Unable to load this parcel.</span>
+    </div>
+
+    <div id="parcelContent" style="display:none;">
+
+      <div class="page-header">
+        <div>
+          <div class="page-title-row">
+            <span class="parcel-pill" id="pParcelNumber">—</span>
+            <span class="st-badge" id="pStatusBadge">—</span>
+          </div>
+          <div class="page-subtitle" id="pSubtitle">—</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn-outline-arm" id="btnDownloadCert"><i class="bi bi-download"></i> Download Title Deed</button>
+          <button class="btn-navy" onclick="window.location.reload()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+        </div>
+      </div>
+
+      <div class="detail-layout">
+
+        <!-- LEFT COLUMN -->
+        <div class="col-stack">
+
+          <!-- PARCEL OVERVIEW -->
+          <div class="card">
+            <div class="card-h">
+              <div class="badge-ic navy"><i class="bi bi-geo-alt"></i></div>
+              <h4>Parcel Overview</h4>
+            </div>
+            <div class="card-body">
+              <div class="detail-grid">
+                <div class="detail-field"><div class="detail-label">Owner</div><div class="detail-val" id="fOwner">—</div></div>
+                <div class="detail-field"><div class="detail-label">District</div><div class="detail-val" id="fDistrict">—</div></div>
+                <div class="detail-field"><div class="detail-label">Land Use</div><div class="detail-val" id="fLandUse">—</div></div>
+                <div class="detail-field"><div class="detail-label">Area</div><div class="detail-val" id="fArea">—</div></div>
+                <div class="detail-field"><div class="detail-label">Registered</div><div class="detail-val" id="fRegistered">—</div></div>
+                <div class="detail-field"><div class="detail-label">Title Deed Ref</div><div class="detail-val" id="fTitleRef">—</div></div>
+                <div class="detail-field detail-full"><div class="detail-label">GPS Coordinates</div><div class="detail-val mono" id="fCoords">—</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LOCATION -->
+          <div class="card">
+            <div class="card-h">
+              <div class="badge-ic gold"><i class="bi bi-pin-map"></i></div>
+              <h4>Location</h4>
+            </div>
+            <div class="card-body">
+              <div class="map-box">
+                <i class="bi bi-geo-alt-fill map-pin"></i>
+                <div class="map-coords" id="mapCoords">—</div>
+                <div style="font-size:11px;">Map preview unavailable offline</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TRANSFER HISTORY -->
+          <div class="card">
+            <div class="card-h">
+              <div class="badge-ic teal"><i class="bi bi-arrow-left-right"></i></div>
+              <h4>Transfer History</h4>
+            </div>
+            <div style="overflow-x:auto;">
+              <table>
+                <thead>
+                  <tr><th>ID</th><th>Seller</th><th>Buyer</th><th>Price (ZMW)</th><th>Date</th><th>Status</th><th>Blockchain TX</th></tr>
+                </thead>
+                <tbody id="tblTransferHistory">
+                  <tr><td colspan="7"><div class="empty-state"><i class="bi bi-inbox"></i>No transfer history for this parcel.</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-stack">
+
+          <!-- BLOCKCHAIN VERIFICATION -->
+          <div class="card">
+            <div class="card-h">
+              <div class="badge-ic good"><i class="bi bi-shield-check"></i></div>
+              <h4>Blockchain Verification</h4>
+            </div>
+            <div class="card-body">
+              <div class="verify-row" id="verifyRow">
+                <i class="bi bi-patch-check-fill"></i>
+                <div>
+                  <div class="vt" id="verifyTitle">Integrity Verified</div>
+                  <div class="vs" id="verifySub">Record hash matches the blockchain ledger.</div>
+                </div>
+              </div>
+              <div class="detail-label" style="margin-bottom:5px;">Transaction Hash</div>
+              <div class="hash-box" id="fTxHash">—</div>
+            </div>
+          </div>
+
+          <!-- DOCUMENTS -->
+          <div class="card">
+            <div class="card-h">
+              <div class="badge-ic navy"><i class="bi bi-file-earmark-text"></i></div>
+              <h4>Documents</h4>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+              <div class="doc-row">
+                <div class="doc-ic"><i class="bi bi-award"></i></div>
+                <div>
+                  <div class="doc-name">Certificate of Title</div>
+                  <div class="doc-meta">PNG · Generated on registration</div>
+                </div>
+                <button class="btn-act" id="btnDownloadCert2"><i class="bi bi-download"></i> Download</button>
+              </div>
+              <div class="doc-row">
+                <div class="doc-ic"><i class="bi bi-qr-code"></i></div>
+                <div>
+                  <div class="doc-name">Verification QR</div>
+                  <div class="doc-meta">JWT-signed public verification link</div>
+                </div>
+                <button class="btn-act" id="btnCopyVerifyLink"><i class="bi bi-link-45deg"></i> Copy Link</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div><!-- /detail-layout -->
+    </div><!-- /parcelContent -->
+
+  </div><!-- /main-content -->
+</div><!-- /dashboard-container -->
+
+<!-- FOOTER -->
+<div style="background:var(--bg-card);color:var(--text-muted);padding:10px 24px;display:flex;justify-content:space-between;align-items:center;font-size:11px;border-top:1px solid var(--border);flex-shrink:0;">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div style="display:flex;align-items:center;gap:6px;">
+    <div style="width:6px;height:6px;border-radius:50%;background:var(--gold);"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+import { api } from '/js/api.js';
+import { requireLogin, populateNavbar, logout, getSession } from '/js/auth.js';
+
+requireLogin();
+populateNavbar();
+window.doLogout = logout;
+
+const BASE = '';
+const params = new URLSearchParams(window.location.search);
+
+// FIX: dashboard.html's goToParcel() builds links using the keys
+// "parcelId" and "parcelNumber" (see parcel-detail.html?parcelId=..&parcelNumber=..).
+// This page was previously reading "id" and "parcel" instead, which never matched,
+// so it always fell into the "No parcel was specified" error even when a valid
+// parcel number was passed in the URL. We now accept both spellings so this page
+// works regardless of which naming convention the caller used.
+const parcelId = params.get('parcelId') || params.get('id');
+const parcelNumber = params.get('parcelNumber') || params.get('parcel');
+
+function sBadge(s, flagged) {
+  if (flagged) return { cls:'st-flag', label:'Flagged' };
+  const m = { SUBMITTED:['st-sub','Submitted'], APPROVED_L1:['st-l1','Awaiting Final'], APPROVED:['st-ok','Approved'], REJECTED:['st-rej','Rejected'], FLAGGED:['st-flag','Flagged'], CANCELLED:['st-can','Cancelled'] };
+  const [cls,label] = m[s] || ['st-can', s || 'Unknown'];
+  return { cls, label };
+}
+
+async function loadHeader() {
+  const session = getSession();
+  const name = session.fullName || session.username || session.email || 'M';
+  document.getElementById('nav-name').textContent = name;
+  document.getElementById('nav-role').textContent = (session.role || '').replace(/_/g, ' ');
+  document.getElementById('headerInitials').textContent = name.charAt(0).toUpperCase();
+  if (session.photoPath) {
+    const img = document.getElementById('headerPhoto');
+    img.src = `${BASE}/uploads/${session.photoPath}`;
+    img.onload = () => {
+      img.classList.add('profile-photo-ready');
+      document.getElementById('headerInitials').style.display = 'none';
+    };
+    img.onerror = () => { img.style.display = 'none'; document.getElementById('headerInitials').style.display = 'block'; };
+  }
+}
+
+function renderParcel(p) {
+  const district = p.district || p.parcelDistrict || '—';
+  const landUse = p.landUse || p.land_use || p.landUseType || '—';
+  const ownerName = p.ownerFullName || p.ownerName || p.owner || '—';
+  const areaValue = p.areaSqm ?? p.area_sqm ?? p.area ?? p.plotSize ?? null;
+  const areaText = areaValue === null || areaValue === '' || Number.isNaN(Number(areaValue))
+    ? '—'
+    : `${Number(areaValue).toLocaleString()} sqm`;
+  const registeredDate = p.registeredAt || p.createdAt || p.registrationDate || null;
+  const titleRef = p.titleDeedNumber || p.titleDeedRef || p.title_deed_number || p.titleDeed || '—';
+  const gpsLat = p.gpsLat ?? p.gps_lat ?? p.latitude ?? p.lat ?? null;
+  const gpsLng = p.gpsLng ?? p.gps_lng ?? p.longitude ?? p.lng ?? null;
+  const gpsCoords = (gpsLat !== null && gpsLat !== '' && gpsLng !== null && gpsLng !== '')
+    ? `${gpsLat}, ${gpsLng}`
+    : (p.gpsCoordinates || p.coordinates || '—');
+
+  document.getElementById('pParcelNumber').textContent = p.parcelNumber || '—';
+  const badge = sBadge(p.status, p.flagged);
+  const b = document.getElementById('pStatusBadge');
+  b.className = 'st-badge ' + badge.cls;
+  b.textContent = badge.label;
+  document.getElementById('pSubtitle').textContent = `${district !== '—' ? district : 'Unknown district'} · ${landUse}`;
+
+  document.getElementById('fOwner').textContent = ownerName;
+  document.getElementById('fDistrict').textContent = district;
+  document.getElementById('fLandUse').textContent = landUse;
+  document.getElementById('fArea').textContent = areaText;
+  document.getElementById('fRegistered').textContent = registeredDate ? new Date(registeredDate).toLocaleDateString() : '—';
+  document.getElementById('fTitleRef').textContent = titleRef;
+  document.getElementById('fCoords').textContent = gpsCoords;
+  document.getElementById('mapCoords').textContent = gpsCoords;
+
+  const hash = p.blockchainHash || p.blockchainTxHash;
+  document.getElementById('fTxHash').textContent = hash || 'No blockchain record found for this parcel.';
+  const verifyRow = document.getElementById('verifyRow');
+  if (!hash) {
+    verifyRow.style.background = 'var(--bad-bg)';
+    verifyRow.style.borderColor = 'var(--bad-border)';
+    verifyRow.querySelector('i').className = 'bi bi-exclamation-triangle-fill';
+    verifyRow.querySelector('i').style.color = 'var(--bad)';
+    document.getElementById('verifyTitle').textContent = 'Not Verified';
+    document.getElementById('verifyTitle').style.color = 'var(--bad)';
+    document.getElementById('verifySub').textContent = 'No matching blockchain record was found.';
+  }
+
+  const history = p.transfers || [];
+  document.getElementById('tblTransferHistory').innerHTML = history.length
+    ? history.map(t => {
+        const tb = sBadge(t.status, t.flagged);
+        return `<tr>
+          <td style="font-weight:700;color:var(--navy);">#${t.requestId}</td>
+          <td>${t.sellerName || '—'}</td>
+          <td>${t.buyerName || '—'}</td>
+          <td style="font-weight:600;">K ${t.agreedPriceZmw ? Number(t.agreedPriceZmw).toLocaleString() : '—'}</td>
+          <td style="color:var(--text-secondary);">${t.submittedAt ? new Date(t.submittedAt).toLocaleDateString() : '—'}</td>
+          <td><span class="st-badge ${tb.cls}">${tb.label}</span></td>
+          <td><span class="tx-hash">${t.blockchainTxHash ? t.blockchainTxHash.substring(0,14)+'…' : '—'}</span></td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="7"><div class="empty-state"><i class="bi bi-inbox"></i>No transfer history for this parcel.</div></td></tr>`;
+
+  const certUrl = p.parcelId ? `${BASE}/api/senior/parcels/${p.parcelId}/title-deed/view` : (p.titleDeedUrl || null);
+  [document.getElementById('btnDownloadCert'), document.getElementById('btnDownloadCert2')].forEach(btn => {
+    btn.onclick = () => {
+      if (certUrl) window.open(certUrl, '_blank');
+      else alert('Title deed certificate is not yet available for this parcel.');
+    };
+  });
+
+  document.getElementById('btnCopyVerifyLink').onclick = async () => {
+    const link = p.verifyUrl || `${window.location.origin}/verify.html?ref=${encodeURIComponent(p.titleDeedRef || p.parcelNumber || '')}`;
+    try { await navigator.clipboard.writeText(link); }
+    catch(e) { /* clipboard may be unavailable */ }
+  };
+
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('parcelContent').style.display = 'block';
+}
+
+async function loadParcel() {
+  if (!parcelId && !parcelNumber) {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorText').textContent = 'No parcel was specified. Go back and select a parcel to view its details.';
+    document.getElementById('errorState').style.display = 'flex';
+    return;
+  }
+  try {
+    const path = parcelId
+      ? `${BASE}/api/public/parcel/${encodeURIComponent(parcelId)}`
+      : `${BASE}/api/officer/parcel/${encodeURIComponent(parcelNumber)}`;
+    const token = localStorage.getItem('lv_token');
+    const res = await fetch(path, { headers: { 'Authorization': 'Bearer ' + token } });
+    if (!res.ok) {
+      const response = await res.json().catch(() => ({}));
+      throw new Error(response.message || (res.status === 404 ? 'Parcel not found.' : `Unable to load parcel details (${res.status}).`));
+    }
+    const { data } = await res.json();
+    renderParcel(data);
+  } catch (e) {
+    console.error('loadParcel error', e);
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorText').textContent = e.message || 'Unable to load this parcel.';
+    document.getElementById('errorState').style.display = 'flex';
+  }
+}
+
+loadHeader();
+loadParcel();
+</script>
+  <style>
+  /* Restored ARMS inline styles */
+  :root{--primary:#0e2240;--gold:#c8a040;--text:#1c2a3a;--bg:#faf7f2;--border:#e8e3d8;--radius:10px}
+  .page-header{background:linear-gradient(135deg,var(--primary),#1a3560);padding:16px;border-radius:10px;color:#fff;border:1px solid rgba(255,255,255,0.1)}
+  .nav-seal{background:url('/images/coat-of-arms.png') center/contain no-repeat}
+  .alert-custom{display:none;padding:10px;border-radius:6px}
+  .alert-custom.alert-success{background:#e6f7ed;color:#1e8c4a;border:1px solid #dff2e3}
+  .alert-custom.alert-danger{background:#fdecea;color:#c0392b;border:1px solid #f7d3d1}
+  .toast-stack{position:fixed;right:18px;bottom:18px;z-index:1200;display:flex;flex-direction:column;gap:8px}
+  .btn-primary-custom{background:var(--gold);color:#fff;padding:8px 12px;border-radius:6px;border:none}
+  .btn-secondary-custom{background:#f3f6fb;color:var(--text);padding:8px 12px;border-radius:6px;border:1px solid var(--border)}
+  .coat-watermark{background:url('/images/coat-of-arms.png') center center no-repeat;opacity:.06}
+  </style>
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Application — LandVerify ZM</title>
+<link rel="stylesheet" href="css/main.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --navy:#0e2240;
+    --navy-mid:#122a4d;
+    --navy-dark:#0a1830;
+    --gold:#c8a040;
+    --gold-mid:#b8902e;
+    --gold-dark:#9a7420;
+    --cream:#f7f1e6;
+    --cream-tile:#f1e6d3;
+    --text-primary:#111827;
+    --text-secondary:#4b5568;
+    --text-muted:#8a94a6;
+    --border:#e8e3d8;
+    --border-mid:#d6ceba;
+    --radius:6px;
+    --radius-lg:12px;
+    --green:#166534; --green-bg:#ecfdf5; --green-border:#bbf7d0;
+    --amber:#92400e; --amber-bg:#fffbeb; --amber-border:#fde68a;
+    --red:#991b1b; --red-bg:#fef2f2; --red-border:#fecaca;
+  }
+  html,body{margin:0;background:#fff}
+  body{font-family:'Inter',Arial,sans-serif;color:var(--text-primary);font-size:14px;-webkit-font-smoothing:antialiased}
+  a{text-decoration:none;color:inherit}
+
+  /* NAVBAR */
+  .navbar{
+    background:var(--navy); color:#fff;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 32px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800}
+  .brand img{width:34px;height:34px}
+  .brand .gold{color:var(--gold)}
+  .navbar-right{display:flex;align-items:center;gap:12px}
+  .nav-pill{
+    display:flex; align-items:center; gap:7px;
+    padding:9px 16px; border-radius:7px; font-size:13.5px; font-weight:600;
+    border:1px solid rgba(255,255,255,0.28); color:#e9edf4;
+    transition:all .15s;
+  }
+  .nav-pill:hover{background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.45)}
+  .nav-pill.solid{background:var(--gold); border-color:var(--gold); color:var(--navy-dark)}
+  .nav-pill.solid:hover{background:var(--gold-mid)}
+
+  /* HERO */
+  .hero{
+    background:var(--navy);
+    position:relative; overflow:hidden;
+    padding:56px 20px 48px;
+    text-align:center;
+    border-bottom:3px solid var(--gold);
+  }
+  .hero-dots{
+    position:absolute; left:40px; top:170px; width:150px; height:150px;
+    background-image:radial-gradient(rgba(255,255,255,0.14) 1.6px, transparent 1.6px);
+    background-size:14px 14px;
+    opacity:.5;
+  }
+  .hero-pin{
+    position:absolute; right:60px; top:100px; opacity:.16; color:#3a5788;
+  }
+  .crest{width:78px;height:78px;margin:0 auto 18px;display:block;object-fit:contain}
+  .hero h1{font-size:32px;font-weight:800;color:#fff;margin:0 0 12px;letter-spacing:-.3px}
+  .hero p{color:#c7d0e0;font-size:15px;max-width:560px;margin:0 auto 30px;line-height:1.6}
+
+  .search-box{
+    display:flex; max-width:620px; margin:0 auto;
+    box-shadow:0 10px 30px rgba(0,0,0,.25); border-radius:8px; overflow:hidden;
+    position:relative; z-index:2;
+  }
+  .search-box .input-wrap{
+    flex:1; background:#fff; display:flex; align-items:center; gap:10px; padding:0 16px;
+  }
+  .search-box .input-wrap i{color:#9ca3af; font-size:15px}
+  .search-box input{
+    flex:1; border:none; outline:none; padding:15px 0; font-size:14.5px; font-family:'JetBrains Mono',monospace; color:var(--text-primary);
+  }
+  .search-box button{
+    background:var(--gold); color:var(--navy-dark); border:none; padding:0 26px;
+    font-weight:700; font-size:14.5px; display:flex; align-items:center; gap:8px; cursor:pointer;
+    transition:background .15s;
+  }
+  .search-box button:hover{background:var(--gold-mid)}
+  .search-box button:disabled{opacity:.7; cursor:default}
+  .hero-note{
+    margin-top:18px; font-size:12.5px; color:#a9b4c7;
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    position:relative; z-index:2;
+  }
+
+  /* RESULT (shown after lookup, inside hero area) */
+  .result-section{max-width:660px; margin:26px auto 0; padding:0 20px; text-align:left; position:relative; z-index:2}
+  .alert{
+    padding:11px 16px; border-radius:var(--radius); font-size:13px; margin-bottom:14px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .alert-info{background:rgba(255,255,255,0.92); color:var(--navy-mid)}
+  .alert-danger{background:var(--red-bg); color:var(--red); border:1px solid var(--red-border)}
+  .result-card{
+    background:#fff; border-radius:var(--radius-lg); padding:26px;
+    box-shadow:0 12px 30px rgba(0,0,0,.2);
+  }
+  .result-card-header{display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:6px; margin-bottom:16px}
+  .result-card h3{font-size:16px; font-weight:700; color:var(--navy); margin:0; font-family:'JetBrains Mono',monospace}
+  .result-card .updated{font-size:11.5px; color:var(--text-muted)}
+  .info-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px 26px; margin-bottom:6px}
+  .info-row label{font-size:10.5px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em}
+  .info-row span{font-size:14px; color:var(--text-primary); display:block; margin-top:3px}
+  .verify-badge{
+    display:inline-flex; align-items:center; gap:8px; padding:6px 16px; border-radius:99px;
+    font-weight:700; font-size:12.5px; margin-bottom:20px; border:1px solid transparent;
+  }
+  .verify-badge.ok{background:var(--green-bg); color:var(--green); border-color:var(--green-border)}
+  .verify-badge.pending{background:var(--amber-bg); color:var(--amber); border-color:var(--amber-border)}
+  .verify-badge.err{background:var(--red-bg); color:var(--red); border-color:var(--red-border)}
+  .progress-list{list-style:none; padding:0; margin:16px 0 0}
+  .progress-list li{
+    display:flex; align-items:flex-start; gap:12px; padding:12px 14px; border-radius:var(--radius);
+    margin-bottom:8px; border:1px solid var(--border); background:#fafafa;
+  }
+  .progress-list li .dot{
+    width:20px; height:20px; border-radius:50%; flex-shrink:0; margin-top:1px;
+    display:flex; align-items:center; justify-content:center;
+    background:#fff; border:2px solid var(--border-mid); font-size:11px; color:#fff;
+  }
+  .progress-list li .body strong{display:block; font-size:13px; color:var(--text-primary); font-family:'JetBrains Mono',monospace}
+  .progress-list li .body p{margin:4px 0 0; font-size:12px; color:var(--text-secondary); line-height:1.5}
+  .progress-list li.done{background:var(--green-bg); border-color:var(--green-border)}
+  .progress-list li.done .dot{background:var(--green); border-color:var(--green)}
+  .progress-list li.done .body strong{color:var(--green)}
+  .progress-list li.current{background:var(--amber-bg); border-color:var(--amber-border)}
+  .progress-list li.current .dot{background:var(--gold); border-color:var(--gold); color:var(--navy)}
+  .progress-list li.current .body strong{color:var(--gold-dark)}
+  .progress-list li.rejected{background:var(--red-bg); border-color:var(--red-border)}
+  .progress-list li.rejected .dot{background:var(--red); border-color:var(--red)}
+  .progress-list li.rejected .body strong{color:var(--red)}
+  .hidden{display:none}
+
+  /* HOW IT WORKS */
+  .how-section{background:var(--cream); padding:56px 24px 40px}
+  .how-title{
+    text-align:center; font-size:22px; font-weight:800; color:var(--navy-dark);
+    margin:0 0 40px; display:flex; align-items:center; justify-content:center; gap:16px;
+  }
+  .how-title .rule{width:56px; height:1px; background:var(--gold)}
+  .steps-row{
+    max-width:1080px; margin:0 auto; display:flex; align-items:flex-start; justify-content:center; gap:0;
+  }
+  .step-item{
+    display:flex; align-items:flex-start; gap:16px;
+    flex:0 1 320px; min-width:0;
+  }
+  .step-icon-wrap{position:relative; flex-shrink:0}
+  .step-icon{
+    width:64px; height:64px; border-radius:14px; background:var(--cream-tile);
+    display:flex; align-items:center; justify-content:center; color:var(--navy-dark);
+  }
+  .step-badge{
+    position:absolute; top:-8px; right:-8px; width:24px; height:24px; border-radius:50%;
+    background:var(--navy-dark); color:#fff; font-size:12px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step-item h4{margin:2px 0 6px; font-size:15px; color:var(--navy-dark); font-weight:700}
+  .step-item p{margin:0; font-size:13px; color:var(--text-secondary); line-height:1.55}
+  .step-arrow{
+    flex:0 0 44px; height:64px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--border-mid); font-size:20px;
+  }
+
+  .support-banner{
+    max-width:1160px; margin:40px auto 0; background:#fbf7ee; border:1px solid var(--border);
+    border-radius:var(--radius-lg); padding:26px 30px;
+    display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
+  }
+  .support-left{display:flex; align-items:center; gap:16px}
+  .support-icon{
+    width:52px; height:52px; border-radius:50%; background:var(--cream-tile); color:var(--navy-dark);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:20px;
+  }
+  .support-left h4{margin:0 0 4px; font-size:15px; color:var(--navy-dark); font-weight:700}
+  .support-left p{margin:0; font-size:13px; color:var(--text-secondary); line-height:1.5}
+  .contact-btn{
+    border:1.5px solid var(--navy-dark); background:#fff; color:var(--navy-dark);
+    padding:11px 20px; border-radius:8px; font-weight:700; font-size:13.5px;
+    display:flex; align-items:center; gap:9px; white-space:nowrap;
+  }
+  .contact-btn:hover{background:var(--navy-dark); color:#fff}
+
+  /* Support toast (embedded notification) */
+  .support-toast{position:fixed; right:20px; bottom:20px; z-index:1200; max-width:420px}
+  .support-toast-inner{display:flex; align-items:center; gap:12px; background:#fff; border-radius:10px; padding:12px 14px; box-shadow:0 10px 30px rgba(0,0,0,.18); border:1px solid var(--border)}
+  .support-toast .support-icon{width:44px; height:44px; border-radius:8px; background:var(--cream-tile); display:flex; align-items:center; justify-content:center; color:var(--navy-dark); flex-shrink:0}
+  .support-toast .support-content strong{display:block; font-size:14px; color:var(--navy-dark)}
+  .support-toast .support-text{font-size:13px; color:var(--text-secondary); margin-top:4px}
+  .support-toast .support-toast-close{background:transparent;border:none;color:var(--text-muted);font-size:16px;cursor:pointer;margin-right:6px}
+  .support-toast.hidden{display:none}
+
+  /* FOOTER */
+  footer.site-footer{background:var(--navy-dark); color:#cbd5e1; padding:34px 24px 0}
+  .footer-grid{
+    max-width:1160px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr 1fr;
+    padding-bottom:26px;
+  }
+  .footer-col{display:flex; gap:12px; align-items:flex-start; font-size:13.5px; padding:0 20px; position:relative}
+  .footer-col:not(:first-child)::before{
+    content:''; position:absolute; left:0; top:2px; bottom:2px; width:1px; background:#22345a;
+  }
+  .footer-col i{font-size:16px; color:#9fb0cc; margin-top:2px}
+  .footer-col strong{color:#fff; display:block; margin-bottom:4px; font-size:13.5px}
+  .footer-col div.sub{color:#a7b2c6}
+  .footer-bottom{
+    text-align:center; font-size:12px; color:#7f8ba3; padding:16px 0; border-top:1px solid #17284a;
+  }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="brand">
+    <img src="images/coat-of-arms.png" alt="Coat of Arms of Zambia" />
+    Land<span class="gold">Verify</span> ZM
+  </div>
+  <div class="navbar-right">
+    <a class="nav-pill" href="search-parcel.html"><i class="bi bi-search"></i> Search Parcel</a>
+    <a class="nav-pill solid" href="track-application.html"><i class="bi bi-file-earmark-check"></i> Track Application</a>
+    <a class="nav-pill" href="login.html"><i class="bi bi-person"></i> Officer / Owner Login</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-dots"></div>
+  <svg class="hero-pin" width="140" height="180" viewBox="0 0 140 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M70 0C36 0 10 26 10 60c0 46 60 120 60 120s60-74 60-120C130 26 104 0 70 0Z" fill="currentColor"/>
+    <circle cx="70" cy="58" r="24" fill="#0e2240"/>
+  </svg>
+
+  <img class="crest" src="images/coat-of-arms.png" alt="Coat of Arms of Zambia" />
+  <h1>Track Your Application</h1>
+  <p>Enter your application or reference number to check the current status and progress of your land application.</p>
+
+  <div class="search-box">
+    <div class="input-wrap">
+    <div class="footer-col">
+  
+  <!-- Support toast (shown when lookup returns no result) -->
+  <div id="supportToast" class="support-toast hidden" role="status" aria-live="polite">
+    <div class="support-toast-inner">
+      <button id="supportToastClose" class="support-toast-close" aria-label="Close">✕</button>
+      <div class="support-icon"><i class="bi bi-headset"></i></div>
+      <div class="support-content">
+        <strong>Can't find your application?</strong>
+        <div class="support-text">Ensure the reference number is entered correctly. For assistance, contact the Ministry of Lands support office.</div>
+      </div>
+      <a class="contact-btn" href="contact.html"><i class="bi bi-telephone"></i> Contact Support</a>
+    </div>
+  </div>
+      <input type="text" id="refInput" placeholder="e.g. APP12345678 or REF987654321" autocomplete="off" />
+    </div>
+    <button id="trackBtn" onclick="trackApplication()"><i class="bi bi-search"></i> Check Status</button>
+  </div>
+  <div class="hero-note"><i class="bi bi-shield-check"></i> Your information is secure and will not be shared.</div>
+
+  <div class="result-section">
+    <div id="msg"></div>
+    <div id="result" class="hidden"></div>
+  </div>
+</section>
+
+<section class="how-section">
+  <h2 class="how-title"><span class="rule"></span> How It Works <span class="rule"></span></h2>
+
+  <div class="steps-row">
+    <div class="step-item">
+      <div class="step-icon-wrap">
+        <div class="step-icon"><i class="bi bi-file-earmark-text" style="font-size:26px"></i></div>
+        <div class="step-badge">1</div>
+      </div>
+      <div>
+        <h4>Enter Reference</h4>
+        <p>Enter the application or reference number provided during submission.</p>
+      </div>
+    </div>
+    <div class="step-arrow"><i class="bi bi-arrow-right"></i></div>
+    <div class="step-item">
+      <div class="step-icon-wrap">
+        <div class="step-icon"><i class="bi bi-search" style="font-size:24px"></i></div>
+        <div class="step-badge">2</div>
+      </div>
+      <div>
+        <h4>Check Status</h4>
+        <p>The system retrieves the latest application information.</p>
+      </div>
+    </div>
+    <div class="step-arrow"><i class="bi bi-arrow-right"></i></div>
+    <div class="step-item">
+      <div class="step-icon-wrap">
+        <div class="step-icon"><i class="bi bi-calendar-check" style="font-size:24px"></i></div>
+        <div class="step-badge">3</div>
+      </div>
+      <div>
+        <h4>View Progress</h4>
+        <p>View the current stage, progress updates and any required action.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="support-banner">
+    <div class="support-left">
+      <div class="support-icon"><i class="bi bi-headset"></i></div>
+      <div>
+        <h4>Can't find your application?</h4>
+        <p>Ensure that the reference number is entered correctly.<br>For assistance, contact the Ministry of Lands support office.</p>
+      </div>
+    </div>
+    <a class="contact-btn" href="contact.html"><i class="bi bi-telephone"></i> Contact Support</a>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col">
+      <i class="bi bi-geo-alt"></i>
+      <div><strong>Ministry of Lands &amp; Natural Resources</strong><div class="sub">Lusaka, Zambia</div></div>
+    </div>
+    <div class="footer-col">
+      <i class="bi bi-telephone"></i>
+      <div><strong>+260 211 254 493</strong><div class="sub">info@mlnr.gov.zm</div></div>
+    </div>
+    <div class="footer-col">
+      <i class="bi bi-clock"></i>
+      <div><strong>Working Hours</strong><div class="sub">Monday – Friday: 08:00 – 17:00</div></div>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2025 Ministry of Lands &amp; Natural Resources - All Rights Reserved.</div>
+</footer>
+
+<script type="module">
+  import { api } from '/js/api.js';
+
+  const STEP_ORDER = ['Submitted', 'Under Review', 'Approved', 'Completed'];
+
+  window.trackApplication = async function() {
+    const id = document.getElementById('refInput').value.trim();
+    const btn = document.getElementById('trackBtn');
+    if (!id) { showMsg('Please enter an application or reference number.', 'danger'); return; }
+
+    clearPreviousResult();
+    showMsg('Checking application status...', 'info');
+    btn.disabled = true;
+
+    try {
+      const res = await api.transferStatus(id);
+      const d = res.data;
+
+      if (!d) {
+        showMsg('Application not found. Please check the reference number and try again.', 'danger');
+        showSupportToast();
+        return;
+      }
+
+      document.getElementById('msg').innerHTML = '';
+
+      const status = (d.status || '').toLowerCase();
+      const isRejected = status === 'rejected';
+      const badgeClass = isRejected ? 'err' : (status === 'completed' || status === 'approved') ? 'ok' : 'pending';
+      const badgeText = isRejected ? '✘ Rejected' : (status === 'completed' ? '✔ Completed' : status === 'approved' ? '✔ Approved' : '⏳ ' + (d.status || 'In Progress'));
+
+      const steps = isRejected ? [...STEP_ORDER.slice(0, 2), 'Rejected'] : STEP_ORDER;
+      const currentIdx = steps.findIndex(s => s.toLowerCase() === status);
+
+      const stepsHtml = steps.map((s, i) => {
+        let cls = '';
+        if (s.toLowerCase() === 'rejected') { cls = 'rejected'; }
+        else if (currentIdx === -1) { cls = ''; }
+        else if (i < currentIdx) { cls = 'done'; }
+        else if (i === currentIdx) { cls = 'current'; }
+        const note = d.statusMessage && d.statusMessage[s]
+          ? `<p>${d.statusMessage[s]}</p>` : '';
+        const mark = cls === 'done' ? '✓' : '';
+        return `
+          <li class="${cls}">
+            <div class="dot">${mark}</div>
+            <div class="body"><strong>${s}</strong>${note}</div>
+          </li>`;
+      }).join('');
+
+      document.getElementById('result').innerHTML = `
+        <div class="result-card">
+          <div class="result-card-header">
+            <h3>Application ${d.requestId || id}</h3>
+            <span class="updated">Last updated: ${d.updatedAt ? new Date(d.updatedAt).toLocaleString() : '—'}</span>
+          </div>
+          <div class="verify-badge ${badgeClass}">${badgeText}</div>
+          <div class="info-grid">
+            <div class="info-row"><label>Applicant</label><span>${d.applicantName || '—'}</span></div>
+            <div class="info-row"><label>Application Type</label><span>${d.applicationType || '—'}</span></div>
+            <div class="info-row"><label>Parcel Number</label><span>${d.parcelNumber || '—'}</span></div>
+            <div class="info-row"><label>Submitted</label><span>${d.submittedAt ? new Date(d.submittedAt).toLocaleDateString() : '—'}</span></div>
+          </div>
+          <ul class="progress-list">${stepsHtml}</ul>
+        </div>`;
+      document.getElementById('result').classList.remove('hidden');
+    } catch (err) {
+      showMsg('Application not found. Please check the reference number and try again.', 'danger');
+    } finally {
+      btn.disabled = false;
+    }
+  };
+
+  function clearPreviousResult() {
+    const result = document.getElementById('result');
+    const message = document.getElementById('msg');
+    const supportToast = document.getElementById('supportToast');
+    result.innerHTML = '';
+    result.classList.add('hidden');
+    message.innerHTML = '';
+    if (supportToast) supportToast.classList.add('hidden');
+  }
+
+  document.getElementById('refInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.trackApplication();
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const presetRef = params.get('requestId') || params.get('q');
+  if (presetRef) {
+    document.getElementById('refInput').value = presetRef;
+    window.trackApplication();
+  }
+
+  // Support toast functions
+  function showSupportToast() {
+    const t = document.getElementById('supportToast');
+    if (!t) return;
+    t.classList.remove('hidden');
+    // auto-hide after 12 seconds
+    setTimeout(() => t.classList.add('hidden'), 12000);
+  }
+
+  const supportClose = document.getElementById('supportToastClose');
+  if (supportClose) supportClose.addEventListener('click', () => document.getElementById('supportToast').classList.add('hidden'));
+
+  function showMsg(text, type) {
+    document.getElementById('msg').innerHTML = `<div class="alert alert-${type}">${text}</div>`;
+  }
+</script>
+</body>
+</html>

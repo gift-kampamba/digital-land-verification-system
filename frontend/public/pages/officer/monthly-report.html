@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ARMS – Monthly Report</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%}
+    body{display:flex;flex-direction:column;background:var(--bg-page);font-family:var(--font-family);font-size:13px;color:var(--text-primary);-webkit-font-smoothing:antialiased}
+    :root {
+      /* Republic of Zambia / ARMS institutional palette */
+      --navy:          #0e2240;
+      --navy-mid:      #1a3560;
+      --navy-light:    #e8edf6;
+      --navy-xlight:   #f4f6fb;
+      --gold:          #c8a040;
+      --gold-mid:      #b8902e;
+      --gold-dark:     #9a7420;
+      --gold-light:    #fdf6e3;
+      --gold-xlight:   #fefbf3;
+      --text-primary:  #111827;
+      --text-secondary:#4b5568;
+      --text-muted:    #8a94a6;
+      --border:        #e8e3d8;
+      --border-mid:    #d6ceba;
+      --bg-page:       #faf7f2;
+      --bg-card:       #ffffff;
+      --bg-input:      #fbfaf7;
+      --font-family:   'Inter',Arial,sans-serif;
+      --radius:        6px;
+      --radius-lg:     10px;
+      --radius-xl:     14px;
+      --shadow-sm:     0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+      --shadow-card:   0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+      --focus-ring:    0 0 0 3px rgba(200,160,64,0.15);
+      --sidebar-w:     220px;
+      --header-h:      66px;
+      /* status/data-viz accent families */
+      --green:       #16a34a;
+      --green-light: #dcfce7;
+      --amber:       #d97706;
+      --amber-light: #fef3c7;
+      --red:         #dc2626;
+      --red-light:   #fee2e2;
+      --blue:        #2563eb;
+      --blue-light:  #dbeafe;
+      --teal:        #0d9488;
+      --teal-light:  #ccfbf1;
+    }
+
+    /* TOP BAR */
+    .top-bar{background:var(--navy);color:#fff;display:flex;justify-content:space-between;align-items:stretch;border-bottom:1px solid rgba(255,255,255,0.12);height:var(--header-h);flex-shrink:0;box-shadow:0 1px 3px rgba(14,34,64,0.08);position:sticky;top:0;z-index:60}
+    .logo-block{display:flex;align-items:center;gap:14px;padding:0 24px;min-width:340px;background:var(--navy)}
+    .logo-emblem{width:38px;height:38px;border-radius:8px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;color:var(--navy)}
+    .logo-text h2{font-size:12px;font-weight:700;margin:0;line-height:1.35;color:#fff;text-transform:uppercase;letter-spacing:.4px}
+    .logo-text p{font-size:10px;margin:2px 0 0;color:rgba(255,255,255,.5)}
+    .top-right{display:flex;align-items:center;gap:14px;padding-right:20px}
+    .user-avatar{width:32px;height:32px;border-radius:50%;background:var(--gold-light);border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;color:var(--navy);overflow:hidden;position:relative}
+    .user-avatar img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
+    .top-user-name{font-size:13px;font-weight:600;color:#fff;line-height:1.2}
+    .top-user-role{font-size:10.5px;color:rgba(255,255,255,0.7)}
+    .btn-signout{background:transparent;border:1px solid rgba(255,255,255,0.25);color:#fff;padding:5px 12px;border-radius:var(--radius);font-size:12px;cursor:pointer;font-family:inherit}
+    .btn-signout:hover{background:rgba(255,255,255,0.1)}
+
+    /* LAYOUT */
+    .dashboard-wrap{flex:1;display:flex;overflow:hidden}
+    .sidebar{width:var(--sidebar-w);background:#fff;border-right:1px solid var(--border);padding:12px 0;flex-shrink:0;overflow-y:auto;display:flex;flex-direction:column}
+    .sidebar-section-title{font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--text-muted);font-weight:700;padding:10px 16px 4px}
+    .sidebar-item{display:flex;align-items:center;gap:9px;padding:8px 16px;color:var(--text-secondary);text-decoration:none;font-size:12.5px;transition:all .13s;border-left:2px solid transparent;margin:1px 0}
+    .sidebar-item:hover{background:var(--gold-xlight);color:var(--navy);border-left-color:var(--border-mid)}
+    .sidebar-item.active{background:var(--gold-xlight);color:var(--navy);font-weight:600;border-left-color:var(--gold)}
+    .sidebar-item i{font-size:14px;width:16px;opacity:.7}
+    .sidebar-item.active i{opacity:1}
+    .sidebar-divider{height:1px;background:var(--border);margin:8px 14px}
+    .sidebar-item.signout{color:#ef4444}
+    .sidebar-item.signout:hover{background:#fef2f2}
+
+    /* MAIN SCROLL */
+    .main-scroll{flex:1;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column}
+
+    /* REPORT BANNER */
+    .report-banner{background:var(--navy);padding:24px 28px 0;flex-shrink:0}
+    .banner-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+    .report-eyebrow{font-size:9.5px;text-transform:uppercase;letter-spacing:.15em;color:var(--gold);font-weight:700;margin-bottom:5px}
+    .report-title{font-size:21px;font-weight:700;color:#fff;letter-spacing:-.3px;line-height:1.2;margin-bottom:4px}
+    .period-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(200,160,64,.18);border:1px solid rgba(200,160,64,.35);color:var(--gold);padding:4px 12px;border-radius:999px;font-size:11px;font-weight:600;margin-top:8px}
+    .banner-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+    .meta-row{display:flex;align-items:center;gap:6px;font-size:11.5px;color:rgba(255,255,255,.6)}
+    .meta-row strong{color:rgba(255,255,255,.9);font-weight:600}
+    .meta-row i{font-size:12px;color:var(--gold);opacity:.8}
+
+    /* TAB BAR */
+    .tab-bar{background:var(--navy);padding:0 28px;display:flex;flex-shrink:0;position:sticky;top:var(--header-h);z-index:50;border-bottom:1px solid rgba(255,255,255,.1)}
+    .tab-btn{padding:11px 18px;font-size:12px;font-weight:500;color:rgba(255,255,255,.5);border:none;background:transparent;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit;display:flex;align-items:center;gap:7px}
+    .tab-btn i{font-size:13px}
+    .tab-btn.active{color:#fff;border-bottom-color:var(--gold)}
+    .tab-btn:hover:not(.active){color:rgba(255,255,255,.8)}
+
+    /* STICKY TOOLBAR */
+    .sticky-toolbar{background:#fff;border-bottom:1px solid var(--border);padding:10px 28px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;flex-shrink:0;position:sticky;top:calc(var(--header-h) + 44px);z-index:49;box-shadow:var(--shadow-sm)}
+    .filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .filter-row label{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+    .filter-row input[type=date]{border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-input);color:var(--text-primary);padding:6px 9px;font-family:inherit;font-size:12px}
+    .filter-row input:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
+    .btn-refresh{background:var(--navy);color:#fff;border:none;border-radius:var(--radius);padding:7px 13px;font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px}
+    .btn-refresh:hover{background:var(--navy-mid)}
+    .export-group{display:flex;align-items:center;gap:7px}
+    .btn-exp{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:var(--radius);font-size:11.5px;font-weight:500;cursor:pointer;font-family:inherit;border:1px solid;transition:all .15s}
+    .btn-exp-pdf{background:var(--red-light);color:var(--red);border-color:#fecaca}
+    .btn-exp-pdf:hover{background:#fee2e2}
+    .btn-exp-xlsx{background:var(--green-light);color:var(--green);border-color:#bbf7d0}
+    .btn-exp-xlsx:hover{background:#dcfce7}
+    .btn-exp-print{background:var(--navy-xlight);color:var(--navy);border-color:var(--navy-light)}
+    .btn-exp-print:hover{background:var(--navy-light)}
+
+    /* TAB PANELS */
+    .tab-panels{flex:1;padding:22px 28px 32px}
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+
+    /* GRID */
+    .grid12{display:grid;gap:16px;grid-template-columns:repeat(12,minmax(0,1fr))}
+    .span12{grid-column:span 12}
+    .span8{grid-column:span 8}
+    .span6{grid-column:span 6}
+    .span4{grid-column:span 4}
+
+    /* PANELS */
+    .panel{background:#fff;border-radius:6px;border:1px solid var(--border);box-shadow:0 1px 2px rgba(14,34,64,.04);overflow:hidden}
+    .panel-head{padding:13px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+    .panel-title{font-size:13px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:9px}
+    .panel-icon{width:27px;height:27px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;background:var(--gold-light);color:var(--gold-dark);font-size:13px;flex-shrink:0}
+    .panel-hint{font-size:11px;color:var(--text-muted)}
+    .panel-body{padding:18px}
+    .panel-body-flush{padding:0}
+    .gap-top{margin-top:16px}
+
+    /* ══════════════════════════════════
+       CIRCULAR STAT CARDS
+    ══════════════════════════════════ */
+    .circle-cards{display:grid;gap:16px;grid-template-columns:repeat(4,minmax(0,1fr))}
+    .circ-card{display:flex;flex-direction:column;align-items:center;gap:10px;padding:22px 12px 18px;background:var(--bg-page);border:1px solid var(--border);border-radius:var(--radius-xl);text-align:center;transition:box-shadow .15s}
+    .circ-card:hover{box-shadow:0 1px 2px rgba(14,34,64,.04)}
+    .circ-ring{position:relative;width:96px;height:96px;flex-shrink:0}
+    .circ-ring svg{width:96px;height:96px;transform:rotate(-90deg)}
+    .circ-ring circle{fill:none;stroke-width:6;stroke-linecap:round}
+    .ring-track{stroke:#e8e3d8}
+    .ring-gold {stroke:var(--gold)}
+    .ring-green{stroke:var(--green)}
+    .ring-amber{stroke:var(--amber)}
+    .ring-red  {stroke:var(--red)}
+    .ring-blue {stroke:var(--blue)}
+    .ring-teal {stroke:var(--teal)}
+    .circ-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+    .circ-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+    .circ-num{font-size:22px;font-weight:700;color:var(--navy);line-height:1;letter-spacing:-.5px}
+    .circ-label{font-size:10.5px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.08em;line-height:1.3}
+    .circ-sub{font-size:11px;color:var(--text-muted);line-height:1.3}
+    .circ-delta{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px}
+    .d-up  {background:var(--green-light);color:var(--green)}
+    .d-flat{background:var(--amber-light);color:var(--amber)}
+    .d-down{background:var(--red-light);  color:var(--red)}
+
+    /* VERIFICATION CIRCLE CARDS (4-col) */
+    .verif-circles{display:grid;gap:16px;grid-template-columns:repeat(4,minmax(0,1fr))}
+
+    /* METRIC CIRCLE CARDS (4-col) */
+    .metric-circles{display:grid;gap:16px;grid-template-columns:repeat(4,minmax(0,1fr))}
+
+    /* PARCEL BREAKDOWN */
+    .breakdown-grid{display:grid;gap:10px;grid-template-columns:repeat(3,minmax(0,1fr))}
+    .breakdown-item{background:var(--bg-page);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;display:flex;align-items:center;gap:12px}
+    .bk-icon{width:34px;height:34px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px}
+    .bk-icon.res{background:var(--blue-light);color:var(--blue)}
+    .bk-icon.com{background:var(--amber-light);color:var(--amber)}
+    .bk-icon.agr{background:var(--green-light);color:var(--green)}
+    .bk-count{font-size:22px;font-weight:700;color:var(--navy);line-height:1}
+    .bk-label{font-size:11px;color:var(--text-secondary);margin-top:2px}
+    .bk-bar-bg{background:var(--border);border-radius:999px;height:5px;overflow:hidden;margin-top:6px}
+    .bk-bar-fill{height:5px;border-radius:999px}
+
+    /* OFFICER STATS */
+    .officer-grid{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+    .officer-stat{background:var(--bg-page);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;display:flex;justify-content:space-between;align-items:center}
+    .officer-stat-lbl{font-size:12px;color:var(--text-secondary)}
+    .officer-stat-val{font-size:22px;font-weight:700;color:var(--navy)}
+
+    /* WORKFLOW */
+    .wf-list{display:grid;gap:8px}
+    .wf-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-page);border-radius:var(--radius);border:1px solid var(--border)}
+    .wf-name{color:var(--text-secondary);font-size:12.5px;display:flex;align-items:center;gap:8px}
+    .wf-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .wf-count{color:var(--navy);font-size:16px;font-weight:700}
+
+    /* TABLES */
+    .tbl-wrap{overflow-x:auto}
+    .data-table{width:100%;border-collapse:collapse;font-size:12.5px}
+    .data-table thead th{background:var(--navy);color:rgba(255,255,255,.85);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;padding:10px 14px;text-align:left;white-space:nowrap}
+    .data-table tbody tr{border-bottom:1px solid var(--border);transition:background .12s}
+    .data-table tbody tr:last-child{border-bottom:none}
+    .data-table tbody tr:hover{background:var(--gold-xlight)}
+    .data-table.chain tbody tr:hover{background:var(--navy-xlight)}
+    .data-table tbody td{padding:10px 14px;color:var(--text-secondary);vertical-align:middle}
+    .parcel-ref{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:var(--navy-xlight);color:var(--navy);padding:2px 7px;border-radius:4px;font-weight:500}
+    .hash-pill{font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--navy-xlight);color:var(--navy-mid);padding:3px 9px;border-radius:4px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+    .hash-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+    /* BADGES */
+    .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.05em}
+    .badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.7}
+    .badge-approved {background:var(--green-light);color:var(--green)}
+    .badge-pending  {background:var(--amber-light);color:var(--amber)}
+    .badge-rejected {background:var(--red-light);  color:var(--red)}
+    .badge-completed{background:var(--navy-xlight); color:var(--navy-mid)}
+    .badge-flagged  {background:#fff1f2;color:#be123c}
+    .badge-verified {background:var(--teal-light);  color:var(--teal)}
+
+    /* CHART */
+    .chart-wrap{position:relative;width:100%}
+
+    /* FOOTER */
+    .footer{background:#fff;color:var(--text-muted);padding:9px 24px;display:flex;justify-content:space-between;align-items:center;font-size:11px;border-top:1px solid var(--border);flex-shrink:0}
+    .session-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block;margin-right:5px}
+
+    /* TOAST */
+    .toast-container{position:fixed;bottom:18px;right:18px;z-index:9999}
+    .toast-msg{background:var(--navy);color:#fff;padding:10px 15px;border-radius:var(--radius);margin-top:8px;font-size:12.5px;animation:slideIn .25s ease;display:flex;align-items:center;gap:8px;box-shadow:0 4px 14px rgba(14,34,64,.25)}
+    .toast-msg.success{border-left:3px solid #22c55e}
+    .toast-msg.error  {border-left:3px solid #ef4444}
+    .toast-msg.info   {border-left:3px solid var(--gold)}
+    @keyframes slideIn{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+    /* PRINT */
+    @media print{
+      .sidebar,.top-bar,.tab-bar,.sticky-toolbar,.footer,.toast-container{display:none!important}
+      .dashboard-wrap{display:block}
+      .main-scroll{overflow:visible}
+      .tab-panel{display:block!important;margin-bottom:2rem}
+      .tab-panel::before{content:attr(data-title);display:block;font-size:16px;font-weight:700;color:#0e2240;margin-bottom:12px;border-bottom:2px solid #c8a040;padding-bottom:6px}
+      body{background:#fff}
+    }
+
+    /* RESPONSIVE */
+    @media(max-width:1200px){
+      .circle-cards,.verif-circles,.metric-circles{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .breakdown-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .span8,.span6,.span4{grid-column:span 12}
+    }
+    @media(max-width:900px){
+      .sidebar{display:none}
+      .tab-panels{padding:16px 16px 28px}
+      .sticky-toolbar{padding:10px 16px}
+      .logo-block{min-width:unset}
+      .banner-meta{display:none}
+      .report-banner,.tab-bar{padding-left:16px;padding-right:16px}
+      .export-group{flex-wrap:wrap}
+    }
+    @media(max-width:600px){
+      .circle-cards,.verif-circles,.metric-circles{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .breakdown-grid,.officer-grid{grid-template-columns:1fr}
+      .tab-btn span{display:none}
+      .circ-ring{width:82px;height:82px}
+      .circ-ring svg{width:82px;height:82px}
+      .circ-num{font-size:20px}
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../../images/coat-of-arms.png" alt="Zambian Coat of Arms" class="nav-seal" width="42" height="42" />
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia · Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS)</p>
+    </div>
+  </div>
+    <div class="top-right">
+    <div class="user-avatar" id="navAvatar" aria-label="Current user"></div>
+    <div>
+      <div class="top-user-name" id="nav-name">Loading profile...</div>
+      <div class="top-user-role" id="nav-role">Role</div>
+    </div>
+    <button class="btn-signout" onclick="confirmAndLogout(event)">Sign Out</button>
+  </div>
+</div>
+
+<div class="dashboard-wrap">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Main Menu</div>
+    <a href="dashboard.html" class="sidebar-item"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="parcel-registry.html" class="sidebar-item"><i class="bi bi-collection"></i> Parcel Registry</a>
+    <a href="register-parcel.html" class="sidebar-item"><i class="bi bi-plus-circle"></i> Register Parcel</a>
+    <a href="transfer-requests.html" class="sidebar-item"><i class="bi bi-arrow-left-right"></i> Transfer Requests</a>
+    <a href="parcel-status.html" class="sidebar-item"><i class="bi bi-x-circle"></i> Rejected Parcels</a>
+    <a href="notifications.html" class="sidebar-item"><i class="bi bi-bell"></i> Notifications</a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Reports</div>
+    <a href="monthly-report.html" class="sidebar-item active"><i class="bi bi-file-earmark-bar-graph"></i> Monthly Report</a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Account</div>
+    <a href="manage-profile.html" class="sidebar-item"><i class="bi bi-person-circle"></i> My Profile</a>
+    <div class="sidebar-divider"></div>
+    <a href="signout.html" class="sidebar-item signout"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- MAIN SCROLL -->
+  <div class="main-scroll">
+
+    <!-- BANNER -->
+    <div class="report-banner">
+      <div class="banner-inner">
+        <div>
+          <div class="report-eyebrow">Official Document · Confidential</div>
+          <div class="report-title">Monthly Land Operations Report</div>
+          <div class="period-badge"><i class="bi bi-calendar3"></i> Reporting Period: <span id="reportPeriod">June 2026</span></div>
+        </div>
+        <div class="banner-meta">
+          <div class="meta-row"><i class="bi bi-person-fill"></i> Generated by: <strong id="reportBy">—</strong></div>
+          <div class="meta-row"><i class="bi bi-briefcase-fill"></i> Role: <strong id="reportRole">—</strong></div>
+          <div class="meta-row"><i class="bi bi-geo-alt-fill"></i> District: <strong id="reportDist">—</strong></div>
+          <div class="meta-row"><i class="bi bi-clock-fill"></i> Generated: <strong id="reportDate">—</strong></div>
+          <div class="meta-row"><i class="bi bi-shield-fill-check"></i> Ref: <strong id="reportRef">—</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB BAR -->
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="overview"><i class="bi bi-activity"></i> <span>Overview</span></button>
+      <button class="tab-btn" data-tab="transactions"><i class="bi bi-bar-chart-line"></i> <span>Transactions</span></button>
+      <button class="tab-btn" data-tab="verification"><i class="bi bi-shield-check"></i> <span>Verification</span></button>
+      <button class="tab-btn" data-tab="audit"><i class="bi bi-link-45deg"></i> <span>Blockchain Audit</span></button>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="sticky-toolbar">
+      <div class="filter-row">
+        <label>From <input type="date" id="reportFrom"/></label>
+        <label>To <input type="date" id="reportTo"/></label>
+        <button class="btn-refresh" id="btnRefresh"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+      </div>
+      <div class="export-group">
+        <button class="btn-exp btn-exp-pdf"   id="btnPdf"><i class="bi bi-filetype-pdf"></i> Export PDF</button>
+        <button class="btn-exp btn-exp-xlsx"  id="btnXlsx"><i class="bi bi-file-earmark-spreadsheet"></i> Export Excel</button>
+        <button class="btn-exp btn-exp-print" id="btnPrint"><i class="bi bi-printer"></i> Print</button>
+      </div>
+    </div>
+
+    <div class="tab-panels">
+
+      <!-- ══ TAB 1: OVERVIEW ══ -->
+      <div class="tab-panel active" id="tab-overview" data-title="Overview — Key Activity Indicators">
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-icon"><i class="bi bi-activity"></i></span> Key Activity Indicators</div>
+            <span class="panel-hint">June 2026 vs May 2026</span>
+          </div>
+            <div class="panel-body">
+              <div style="padding:12px;color:var(--text-muted)">Summary metrics are available on the Dashboard; this report focuses on period charts and logs below.</div>
+            </div>
+        </div>
+
+        <div class="grid12 gap-top">
+          <div class="span6 panel">
+            <div class="panel-head">
+              <div class="panel-title"><span class="panel-icon"><i class="bi bi-pie-chart"></i></span> Parcel Breakdown by Type</div>
+            </div>
+            <div class="panel-body">
+              <div class="chart-wrap" style="height:220px;margin-bottom:12px"><canvas id="parcelPieChart"></canvas></div>
+              <div class="breakdown-grid" id="breakdownGrid"></div>
+            </div>
+          </div>
+          <div class="span6 panel">
+            <div class="panel-head">
+              <div class="panel-title"><span class="panel-icon"><i class="bi bi-person-badge"></i></span> Officer Activity — <span id="activityOfficerName">Officer</span></div>
+            </div>
+            <div class="panel-body">
+              <div class="officer-grid">
+                <div class="officer-stat"><div><div class="officer-stat-lbl">Parcels Registered</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">This period</div></div><div class="officer-stat-val" id="oaParcels">0</div></div>
+                <div class="officer-stat"><div><div class="officer-stat-lbl">Transfers Initiated</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">This period</div></div><div class="officer-stat-val" id="oaTransfers">0</div></div>
+                <div class="officer-stat"><div><div class="officer-stat-lbl">Verifications Sent</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">Compliance checks</div></div><div class="officer-stat-val" id="oaVerif">0</div></div>
+                <div class="officer-stat"><div><div class="officer-stat-lbl">Approvals Submitted</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">Forwarded for review</div></div><div class="officer-stat-val" id="oaApprovals">0</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel gap-top">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-icon"><i class="bi bi-people"></i></span> Approval Workflow Status</div>
+            <span class="panel-hint">Current queue distribution</span>
+          </div>
+          <div class="panel-body">
+            <div class="wf-list">
+              <div class="wf-item"><div class="wf-name"><span class="wf-dot" style="background:var(--amber)"></span>Level 1 Review Queue</div><div class="wf-count" id="queueLevel1">0</div></div>
+              <div class="wf-item"><div class="wf-name"><span class="wf-dot" style="background:var(--blue)"></span>Level 2 Review Queue</div><div class="wf-count" id="queueLevel2">0</div></div>
+              <div class="wf-item"><div class="wf-name"><span class="wf-dot" style="background:var(--green)"></span>Final Approvals</div><div class="wf-count" id="queueFinal">0</div></div>
+              <div class="wf-item"><div class="wf-name"><span class="wf-dot" style="background:#be123c"></span>Flagged for Review</div><div class="wf-count" id="queueFlagged">0</div></div>
+              <div class="wf-item"><div class="wf-name"><span class="wf-dot" style="background:var(--red)"></span>Rejected Items</div><div class="wf-count" id="queueRejected">0</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ TAB 2: TRANSACTIONS ══ -->
+      <div class="tab-panel" id="tab-transactions" data-title="Transaction Statistics">
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-icon"><i class="bi bi-bar-chart-line"></i></span> Transaction Statistics</div>
+            <span class="panel-hint">Derived from the selected reporting period</span>
+          </div>
+          <div class="panel-body">
+            <div class="metric-circles">
+
+              <div class="circ-card">
+                <div class="circ-ring">
+                  <svg viewBox="0 0 96 96"><circle class="ring-track" cx="48" cy="48" r="40" stroke-dasharray="251"/><circle class="ring-blue" cx="48" cy="48" r="40" stroke-dasharray="251" stroke-dashoffset="0"/></svg>
+                  <div class="circ-center">
+                    <div class="circ-icon" style="background:var(--blue-light);color:var(--blue)"><i class="bi bi-lightning-charge"></i></div>
+                    <div class="circ-num" id="metricTotal">0</div>
+                  </div>
+                </div>
+                <div class="circ-label">Total Transactions</div>
+                <div class="circ-sub">Transfers + updates</div>
+              </div>
+
+              <div class="circ-card">
+                <div class="circ-ring">
+                  <svg viewBox="0 0 96 96"><circle class="ring-track" cx="48" cy="48" r="40" stroke-dasharray="251"/><circle class="ring-green" cx="48" cy="48" r="40" stroke-dasharray="251" stroke-dashoffset="50"/></svg>
+                  <div class="circ-center">
+                    <div class="circ-icon" style="background:var(--green-light);color:var(--green)"><i class="bi bi-percent"></i></div>
+                    <div class="circ-num" id="metricRate">80%</div>
+                  </div>
+                </div>
+                <div class="circ-label">Approval Rate</div>
+                <div class="circ-sub">Share approved</div>
+              </div>
+
+              <div class="circ-card">
+                <div class="circ-ring">
+                  <svg viewBox="0 0 96 96"><circle class="ring-track" cx="48" cy="48" r="40" stroke-dasharray="251"/><circle class="ring-amber" cx="48" cy="48" r="40" stroke-dasharray="251" stroke-dashoffset="126"/></svg>
+                  <div class="circ-center">
+                    <div class="circ-icon" style="background:var(--amber-light);color:var(--amber)"><i class="bi bi-hourglass-split"></i></div>
+                    <div class="circ-num" id="metricPending">0</div>
+                  </div>
+                </div>
+                <div class="circ-label">Pending Actions</div>
+                <div class="circ-sub">Awaiting review</div>
+              </div>
+
+              <div class="circ-card">
+                <div class="circ-ring">
+                  <svg viewBox="0 0 96 96"><circle class="ring-track" cx="48" cy="48" r="40" stroke-dasharray="251"/><circle class="ring-gold" cx="48" cy="48" r="40" stroke-dasharray="251" stroke-dashoffset="63"/></svg>
+                  <div class="circ-center">
+                    <div class="circ-icon" style="background:var(--gold-light);color:var(--gold-dark)"><i class="bi bi-layers"></i></div>
+                    <div class="circ-num" id="metricBase">0</div>
+                  </div>
+                </div>
+                <div class="circ-label">Parcel Base</div>
+                <div class="circ-sub">Total in registry</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="grid12 gap-top">
+          <div class="span8 panel">
+            <div class="panel-head">
+              <div class="panel-title"><span class="panel-icon"><i class="bi bi-bar-chart"></i></span> Daily Transaction Volume</div>
+              <span class="panel-hint">Stacked by outcome</span>
+            </div>
+            <div class="panel-body">
+              <div class="chart-wrap" style="height:260px"><canvas id="barChart"></canvas></div>
+            </div>
+          </div>
+          <div class="span4 panel">
+            <div class="panel-head">
+              <div class="panel-title"><span class="panel-icon"><i class="bi bi-people"></i></span> Approval Workflows</div>
+            </div>
+            <div class="panel-body">
+              <div class="wf-list">
+                <div class="wf-item"><div class="wf-name"><span class="wf-dot" style="background:var(--amber)"></span>Level 1 Queue</div><div class="wf-count" id="queueLevel1Compact">0</div></div>
+                <div class="wf-item"><div class="wf-name"><span class="wf-dot" style="background:var(--blue)"></span>Level 2 Queue</div><div class="wf-count" id="queueLevel2Compact">0</div></div>
+                <div class="wf-item"><div class="wf-name"><span class="wf-dot" style="background:var(--green)"></span>Final Approvals</div><div class="wf-count" id="queueFinalCompact">0</div></div>
+                <div class="wf-item"><div class="wf-name"><span class="wf-dot" style="background:#be123c"></span>Flagged</div><div class="wf-count" id="queueFlaggedCompact">0</div></div>
+                <div class="wf-item"><div class="wf-name"><span class="wf-dot" style="background:var(--red)"></span>Rejected</div><div class="wf-count" id="queueRejectedCompact">0</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel gap-top">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-icon"><i class="bi bi-graph-up"></i></span> Approval vs. Rejection Trend</div>
+            <span class="panel-hint">Daily breakdown across the reporting window</span>
+          </div>
+          <div class="panel-body">
+            <div class="chart-wrap" style="height:220px"><canvas id="lineChart"></canvas></div>
+          </div>
+        </div>
+
+        <div class="panel gap-top">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-icon"><i class="bi bi-table"></i></span> Monthly Activities Log</div>
+            <span class="panel-hint">Auditable record of all transactions in the period</span>
+          </div>
+          <div class="panel-body-flush">
+            <div class="tbl-wrap">
+              <table class="data-table">
+                <thead><tr><th>Date</th><th>Activity</th><th>Parcel No.</th><th>Owner / Party</th><th>Officer</th><th>Status</th></tr></thead>
+                <tbody id="activitiesTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ TAB 3: VERIFICATION ══ -->
+      <div class="tab-panel" id="tab-verification" data-title="Verification Statistics (FR-07)">
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-icon" style="background:var(--teal-light);color:var(--teal)"><i class="bi bi-shield-check"></i></span> Land Integrity Verification</div>
+            <span class="panel-hint">Blockchain-backed results for the period</span>
+          </div>
+          <div class="panel-body">
+            <div class="verif-circles">
+
+              <div class="circ-card">
+                <div class="circ-ring">
+                  <svg viewBox="0 0 96 96"><circle class="ring-track" cx="48" cy="48" r="40" stroke-dasharray="251"/><circle class="ring-blue" cx="48" cy="48" r="40" stroke-dasharray="251" stroke-dashoffset="0"/></svg>
+                  <div class="circ-center">
+                    <div class="circ-icon" style="background:var(--blue-light);color:var(--blue)"><i class="bi bi-send"></i></div>
+                    <div class="circ-num" id="vReq">0</div>
+                  </div>
+                </div>
+                <div class="circ-label">Verification Requests</div>
+                <div class="circ-sub">Total submitted</div>
+              </div>
+
+              <div class="circ-card">
+                <div class="circ-ring">
+                  <svg viewBox="0 0 96 96"><circle class="ring-track" cx="48" cy="48" r="40" stroke-dasharray="251"/><circle class="ring-green" cx="48" cy="48" r="40" stroke-dasharray="251" stroke-dashoffset="45"/></svg>
+                  <div class="circ-center">
+                    <div class="circ-icon" style="background:var(--green-light);color:var(--green)"><i class="bi bi-check2-circle"></i></div>
+                    <div class="circ-num" id="vSuccess">0</div>
+                  </div>
+                </div>
+                <div class="circ-label">Successful</div>
+                <div class="circ-sub">Integrity confirmed</div>
+                <span class="circ-delta d-up">83%</span>
+              </div>
+
+              <div class="circ-card">
+                <div class="circ-ring">
+                  <svg viewBox="0 0 96 96"><circle class="ring-track" cx="48" cy="48" r="40" stroke-dasharray="251"/><circle class="ring-red" cx="48" cy="48" r="40" stroke-dasharray="251" stroke-dashoffset="218"/></svg>
+                  <div class="circ-center">
+                    <div class="circ-icon" style="background:var(--red-light);color:var(--red)"><i class="bi bi-x-circle"></i></div>
+                    <div class="circ-num" id="vFailed">0</div>
+                  </div>
+                </div>
+                <div class="circ-label">Failed</div>
+                <div class="circ-sub">Could not confirm</div>
+                <span class="circ-delta d-down">13%</span>
+              </div>
+
+              <div class="circ-card">
+                <div class="circ-ring">
+                  <svg viewBox="0 0 96 96"><circle class="ring-track" cx="48" cy="48" r="40" stroke-dasharray="251"/><circle style="stroke:#be123c;fill:none;stroke-width:6;stroke-linecap:round" cx="48" cy="48" r="40" stroke-dasharray="251" stroke-dashoffset="241"/></svg>
+                  <div class="circ-center">
+                    <div class="circ-icon" style="background:#fff1f2;color:#be123c"><i class="bi bi-exclamation-triangle"></i></div>
+                    <div class="circ-num" style="color:#be123c" id="vTamper">0</div>
+                  </div>
+                </div>
+                <div class="circ-label">Tampering Alerts</div>
+                <div class="circ-sub">Hash mismatch</div>
+                <span class="circ-delta d-down">4%</span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="panel gap-top">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-icon" style="background:var(--teal-light);color:var(--teal)"><i class="bi bi-graph-up-arrow"></i></span> Verification Outcome Distribution</div>
+            <span class="panel-hint">Visual breakdown of all verification results</span>
+          </div>
+          <div class="panel-body">
+            <div class="chart-wrap" style="height:240px"><canvas id="verifChart"></canvas></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ TAB 4: BLOCKCHAIN AUDIT ══ -->
+      <div class="tab-panel" id="tab-audit" data-title="Blockchain Audit Trail">
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-icon"><i class="bi bi-link-45deg"></i></span> Immutable Transaction Ledger</div>
+            <span class="panel-hint">Cryptographic proof of all recorded activities</span>
+          </div>
+          <div class="panel-body-flush">
+            <div class="tbl-wrap">
+              <table class="data-table chain">
+                <thead><tr><th>Block Hash</th><th>Activity</th><th>Parcel No.</th><th>Parties Involved</th><th>Date</th><th>Status</th></tr></thead>
+                <tbody id="chainTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="footer">
+      <span>© <span id="footerYear"></span> Republic of Zambia · Ministry of Lands &amp; Natural Resources · ARMS v2.4.1 · Ref: <span id="footerRef">—</span></span>
+      <span><span class="session-dot"></span>Session active · <span id="footerSession">Officer</span> · <span id="footerDistrict">District</span></span>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script type="module">
+  import { api } from '/js/api.js';
+  import { requireLogin, getSession, logout, showLogoutConfirmation, populateNavbar } from '/js/auth.js';
+
+  // ══════════════════════════════════════════════════════════════════
+  // INITIALIZATION & SESSION MANAGEMENT
+  // ══════════════════════════════════════════════════════════════════
+
+  requireLogin();
+  populateNavbar();
+
+  // Set up global logout handler
+  window.confirmAndLogout = function(e) {
+    if (e) e.preventDefault();
+    showLogoutConfirmation(logout);
+  };
+
+  // ══════════════════════════════════════════════════════════════════
+  // STATE & UTILITIES
+  // ══════════════════════════════════════════════════════════════════
+
+  let currentStats = {
+    totalParcels: 0,
+    approvedThisMonth: 0,
+    rejectedThisMonth: 0,
+    pendingReviews: 0,
+    totalTransfers: 0,
+    successfulVerifications: 0,
+    failedVerifications: 0,
+    flaggedVerifications: 0,
+    parcelTypes: { residential: 0, commercial: 0, agricultural: 0, other: 0 },
+    queue: { level1: 0, level2: 0, final: 0, flagged: 0, rejected: 0 },
+  };
+
+  
+
+  const fmtDate = (d) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  const fmtShort = (d) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+  const fmtMonthYear = (d) => d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+
+  const toast = (msg, type = 'success') => {
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast-msg ${type}`;
+    const icons = { success: 'check-circle-fill', error: 'exclamation-triangle-fill', info: 'info-circle-fill' };
+    t.innerHTML = `<i class="bi bi-${icons[type]}"></i> ${msg}`;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  };
+
+  // ══════════════════════════════════════════════════════════════════
+  // API DATA FETCHING
+  // ══════════════════════════════════════════════════════════════════
+
+  async function loadReportData(fromDate, toDate) {
+    try {
+      // Fetch officer profile and parcels in parallel (use actual api methods)
+      const transferStatuses = ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED_L1', 'APPROVED_L2', 'APPROVED', 'REJECTED', 'FLAGGED', 'CANCELLED'];
+      const [profileRes, parcelsRes, ...transferResults] = await Promise.allSettled([
+        api.getMyProfile(),
+        api.searchOfficerParcels('', fromDate, toDate),
+        ...transferStatuses.map(status => api.officerTransfers(status)),
+      ]);
+
+      const session = getSession();
+      const navAvatar = document.getElementById('navAvatar');
+      const savedPhoto = session.photoPath || localStorage.getItem('lv_photo') || '';
+      if (navAvatar && savedPhoto) {
+        const photoUrl = savedPhoto.startsWith('http') || savedPhoto.startsWith('/') ? savedPhoto : `/uploads/${savedPhoto}`;
+        navAvatar.innerHTML = `<img src="${photoUrl}" alt="Profile photo" />`;
+      }
+      const profilePayload = profileRes.status === 'fulfilled' ? profileRes.value : null;
+      const officer = profilePayload?.data || profilePayload || session || {};
+      const parcelsPayload = parcelsRes.status === 'fulfilled' ? parcelsRes.value : null;
+      const parcels = Array.isArray(parcelsPayload?.data) ? parcelsPayload.data
+        : Array.isArray(parcelsPayload) ? parcelsPayload : [];
+      const transfers = transferResults.flatMap(result => {
+        if (result.status !== 'fulfilled') return [];
+        const payload = result.value;
+        return Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : [];
+      }).filter(transfer => {
+        if (!transfer.submittedAt) return false;
+        const submitted = new Date(transfer.submittedAt);
+        const from = new Date(`${fromDate}T00:00:00`);
+        const to = new Date(`${toDate}T23:59:59.999`);
+        return submitted >= from && submitted <= to;
+      });
+
+      // Update banner metadata
+      document.getElementById('reportBy').textContent = officer.fullName || officer.name || 'Officer';
+      document.getElementById('reportRole').textContent = 'Land Officer';
+      document.getElementById('reportDist').textContent = officer.district || 'District';
+      document.getElementById('activityOfficerName').textContent = officer.fullName || officer.name || 'Officer';
+      document.getElementById('reportDate').textContent = fmtDate(new Date());
+
+      const now = new Date();
+      const refCode = `ARMS/${(officer.district || 'DIST').substring(0, 3).toUpperCase()}/${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}`;
+      document.getElementById('reportRef').textContent = refCode;
+      document.getElementById('reportPeriod').textContent = `${fmtDate(new Date(`${fromDate}T00:00:00`))} – ${fmtDate(new Date(`${toDate}T00:00:00`))}`;
+      document.getElementById('footerYear').textContent = now.getFullYear();
+      document.getElementById('footerRef').textContent = refCode;
+      document.getElementById('footerSession').textContent = officer.fullName || officer.name || 'Officer';
+      document.getElementById('footerDistrict').textContent = officer.district || 'District';
+
+      // Calculate stats from real data
+      const approvedCount = parcels.filter(p => p.status?.toUpperCase() === 'APPROVED').length;
+      const rejectedCount = parcels.filter(p => p.status?.toUpperCase() === 'REJECTED').length;
+      const pendingCount = transfers.filter(t => ['SUBMITTED', 'UNDER_REVIEW'].includes(t.status?.toUpperCase())).length;
+      const queue = {
+        level1: transfers.filter(t => ['SUBMITTED', 'UNDER_REVIEW'].includes(t.status?.toUpperCase())).length,
+        level2: transfers.filter(t => t.status?.toUpperCase() === 'APPROVED_L1').length,
+        final: transfers.filter(t => t.status?.toUpperCase() === 'APPROVED').length,
+        flagged: transfers.filter(t => t.flagged === true || t.status?.toUpperCase() === 'FLAGGED').length,
+        rejected: transfers.filter(t => t.status?.toUpperCase() === 'REJECTED').length,
+      };
+      const parcelTypes = parcels.reduce((result, parcel) => {
+        const landUse = String(parcel.landUse || parcel.propertyType || parcel.type || '').toLowerCase();
+        if (landUse.includes('res')) result.residential++;
+        else if (landUse.includes('com')) result.commercial++;
+        else if (landUse.includes('agr')) result.agricultural++;
+        else result.other++;
+        return result;
+      }, { residential: 0, commercial: 0, agricultural: 0, other: 0 });
+
+      currentStats = {
+        totalParcels: parcels.length,
+        approvedThisMonth: approvedCount,
+        rejectedThisMonth: rejectedCount,
+        pendingReviews: pendingCount,
+        totalTransfers: transfers.length,
+        successfulVerifications: Math.max(0, parcels.length - rejectedCount),
+        failedVerifications: rejectedCount,
+        flaggedVerifications: Math.max(0, transfers.filter(t => t.flagged || t.status?.toUpperCase() === 'FLAGGED').length),
+        parcelTypes,
+        queue,
+      };
+
+      updateDashboardMetrics();
+      renderBreakdown(parcels);
+      renderActivities(parcels, transfers);
+      renderChain(transfers);
+
+      toast('Report data loaded successfully', 'success');
+    } catch (error) {
+      console.error('Error loading report data:', error);
+      toast('Unable to load report data', 'error');
+      updateDashboardMetrics();
+      renderBreakdown([]);
+      renderActivities([], []);
+      renderChain([]);
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // DASHBOARD METRICS UPDATE
+  // ══════════════════════════════════════════════════════════════════
+
+  function updateDashboardMetrics() {
+    const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+
+    // Overview metrics (may be removed from this page; update only if present)
+    setText('cardParcels', currentStats.totalParcels);
+    setText('cardTransfers', currentStats.totalTransfers);
+    setText('cardApprovals', currentStats.approvedThisMonth);
+    setText('cardRejections', currentStats.rejectedThisMonth);
+
+    // Officer activity stats
+    setText('oaParcels', currentStats.totalParcels);
+    setText('oaTransfers', currentStats.totalTransfers);
+    setText('oaVerif', currentStats.successfulVerifications);
+    setText('oaApprovals', currentStats.approvedThisMonth);
+
+    // Transaction metrics
+    setText('metricTotal', currentStats.totalTransfers);
+    setText('metricRate', currentStats.totalParcels > 0 ? Math.round((currentStats.approvedThisMonth / currentStats.totalParcels) * 100) + '%' : '0%');
+    setText('metricPending', currentStats.pendingReviews);
+    setText('metricBase', currentStats.totalParcels);
+
+    // Verification metrics
+    setText('vReq', currentStats.totalParcels + currentStats.totalTransfers);
+    setText('vSuccess', currentStats.successfulVerifications);
+    setText('vFailed', currentStats.failedVerifications);
+    setText('vTamper', currentStats.flaggedVerifications);
+
+    const queue = currentStats.queue || {};
+    setText('queueLevel1', queue.level1 || 0);
+    setText('queueLevel2', queue.level2 || 0);
+    setText('queueFinal', queue.final || 0);
+    setText('queueFlagged', queue.flagged || 0);
+    setText('queueRejected', queue.rejected || 0);
+    setText('queueLevel1Compact', queue.level1 || 0);
+    setText('queueLevel2Compact', queue.level2 || 0);
+    setText('queueFinalCompact', queue.final || 0);
+    setText('queueFlaggedCompact', queue.flagged || 0);
+    setText('queueRejectedCompact', queue.rejected || 0);
+
+    // Update charts after metrics change
+    try { updateCharts(); } catch (e) { /* ignore if charts not ready */ }
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // BREAKDOWN RENDERING
+  // ══════════════════════════════════════════════════════════════════
+
+  function renderBreakdown(parcels) {
+    const counts = parcels.reduce((result, parcel) => {
+      const landUse = String(parcel.landUse || parcel.propertyType || parcel.type || 'Other').trim().toLowerCase();
+      const category = landUse.includes('res') ? 'Residential' : landUse.includes('com') ? 'Commercial' : landUse.includes('agr') ? 'Agricultural' : 'Other';
+      result[category] = (result[category] || 0) + 1;
+      return result;
+    }, {});
+
+    const types = [
+      { label: 'Residential', cls: 'res', icon: 'bi-house', count: counts.Residential || 0, color: '#2563eb' },
+      { label: 'Commercial', cls: 'com', icon: 'bi-building', count: counts.Commercial || 0, color: '#d97706' },
+      { label: 'Agricultural', cls: 'agr', icon: 'bi-tree', count: counts.Agricultural || 0, color: '#16a34a' },
+      { label: 'Other', cls: 'agr', icon: 'bi-three-dots', count: counts.Other || 0, color: '#8a94a6' },
+    ];
+
+    const maxCount = Math.max(...types.map(t => t.count), 1);
+    document.getElementById('breakdownGrid').innerHTML = types
+      .map(
+        (t) => `
+        <div class="breakdown-item">
+          <div class="bk-icon ${t.cls}"><i class="bi ${t.icon}"></i></div>
+          <div style="flex:1;min-width:0">
+            <div class="bk-count">${t.count}</div>
+            <div class="bk-label">${t.label} Parcels</div>
+            <div class="bk-bar-bg"><div class="bk-bar-fill" style="width:${Math.round((t.count / maxCount) * 100)}%;background:${t.color}"></div></div>
+          </div>
+        </div>`
+      )
+      .join('');
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // ACTIVITIES TABLE RENDERING
+  // ══════════════════════════════════════════════════════════════════
+
+  function renderActivities(parcels, transfers) {
+    const tbody = document.getElementById('activitiesTbody');
+    const session = getSession();
+    const officerName = session?.fullName || session?.name || 'Officer';
+    const rows = [];
+
+    // Add parcel registrations
+    parcels.slice(0, 5).forEach((p, i) => {
+      rows.push({
+        date: new Date(p.createdAt || new Date()),
+        activity: 'Parcel Registration',
+        parcelNo: p.parcelNumber || 'N/A',
+        party: p.landOwner || p.ownerFullName || p.ownerName || 'N/A',
+        officer: officerName,
+        status: p.status?.toLowerCase() || 'completed',
+      });
+    });
+
+    // Add transfers
+    transfers.slice(0, 4).forEach((t, i) => {
+      rows.push({
+        date: new Date(t.createdAt || new Date()),
+        activity: 'Transfer Request',
+        parcelNo: t.parcelNumber || t.parcel?.parcelNumber || 'N/A',
+        party: t.buyerName || t.sellerName || t.requestedBy?.fullName || 'N/A',
+        officer: officerName,
+        status: t.status?.toLowerCase() || 'pending',
+      });
+    });
+
+    rows.sort((a, b) => b.date - a.date);
+
+    tbody.innerHTML =
+      rows.length > 0
+        ? rows
+            .map(
+              (r) => `
+            <tr>
+              <td style="color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:11.5px">${fmtDate(r.date)}</td>
+              <td style="color:var(--text-primary);font-weight:500">${r.activity}</td>
+              <td><span class="parcel-ref">${r.parcelNo}</span></td>
+              <td>${r.party}</td>
+              <td>${r.officer}</td>
+              <td><span class="badge badge-${r.status}">${r.status.charAt(0).toUpperCase() + r.status.slice(1)}</span></td>
+            </tr>`
+            )
+            .join('')
+        : `<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted)">No activities found for this period.</td></tr>`;
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // BLOCKCHAIN AUDIT TRAIL RENDERING
+  // ══════════════════════════════════════════════════════════════════
+
+  function renderChain(transfers) {
+    const tbody = document.getElementById('chainTbody');
+    if (!transfers || transfers.length === 0) {
+      tbody.innerHTML =
+        '<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted)">No blockchain records found.</td></tr>';
+      return;
+    }
+
+    const statusColors = {
+      pending: '#d97706',
+      approved: '#16a34a',
+      rejected: '#dc2626',
+      completed: '#0e2240',
+      flagged: '#be123c',
+    };
+
+    tbody.innerHTML = transfers
+      .slice(0, 10)
+      .map((t, i) => {
+        const status = t.status?.toLowerCase() || 'pending';
+        const hash = t.blockchainTxHash || t.transactionHash || '';
+        const hashShort = hash ? `${hash.slice(0, 10)}…${hash.slice(-8)}` : 'Not recorded';
+        return `
+          <tr>
+            <td><span class="hash-pill"><span class="hash-dot" style="background:${statusColors[status] || '#8a94a6'}"></span>${hashShort}</span></td>
+            <td style="color:var(--text-primary);font-weight:500">
+              ${status === 'pending' ? 'Transfer Initiated' : status === 'approved' ? 'Transfer Approved' : 'Transfer ' + status.charAt(0).toUpperCase() + status.slice(1)}
+            </td>
+            <td><span class="parcel-ref">${t.parcel?.parcelNumber || 'N/A'}</span></td>
+            <td style="color:var(--text-secondary)">${t.sellerName || t.from?.fullName || 'N/A'} → ${t.buyerName || t.to?.fullName || 'N/A'}</td>
+            <td style="color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:11.5px">${fmtDate(new Date(t.createdAt || new Date()))}</td>
+            <td><span class="badge badge-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+          </tr>`;
+      })
+      .join('');
+  }
+
+  // Charts: initialize Chart.js charts (pie, bar, line, verification)
+  let chartInstances = {};
+  async function createCharts() {
+    try {
+      // Prefer global Chart (UMD). If not present, log and skip initializing charts.
+      if (typeof window.Chart === 'undefined') {
+        console.warn('Chart.js global not found. Attempting to load UMD from CDN.');
+        // Try to inject UMD script tag as a fallback
+        await new Promise((res, rej) => {
+          const s = document.createElement('script');
+          s.src = 'https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js';
+          s.onload = () => res();
+          s.onerror = () => rej(new Error('Chart.js UMD load failed'));
+          document.head.appendChild(s);
+        }).catch((e) => { console.error('Chart.js not loaded', e); });
+      }
+
+      if (typeof window.Chart !== 'undefined') {
+        try { if (Array.isArray(Chart.registerables)) Chart.register(...Chart.registerables); } catch (e) { /* ignore */ }
+      } else {
+        console.error('Chart.js not available after fallback. Charts will be skipped.');
+        return;
+      }
+
+      const pieCtx = document.getElementById('parcelPieChart')?.getContext('2d');
+      if (pieCtx) {
+        chartInstances.parcelPieChart = new Chart(pieCtx, {
+          type: 'pie',
+          data: {
+            labels: ['Residential', 'Commercial', 'Agricultural'],
+            datasets: [{ data: [0, 0, 0], backgroundColor: ['#2563eb', '#d97706', '#16a34a'] }]
+          },
+          options: { plugins: { legend: { position: 'bottom' } } }
+        });
+      }
+
+      const barCtx = document.getElementById('barChart')?.getContext('2d');
+      if (barCtx) {
+        chartInstances.barChart = new Chart(barCtx, {
+          type: 'bar',
+          data: { labels: Array.from({ length: 7 }, (_, i) => `D-${6 - i}`), datasets: [
+            { label: 'Approved', data: Array(7).fill(0), backgroundColor: '#16a34a' },
+            { label: 'Rejected', data: Array(7).fill(0), backgroundColor: '#dc2626' }
+          ] },
+          options: { responsive: true, scales: { x: { stacked: true }, y: { stacked: true } } }
+        });
+      }
+
+      const lineCtx = document.getElementById('lineChart')?.getContext('2d');
+      if (lineCtx) {
+        chartInstances.lineChart = new Chart(lineCtx, {
+          type: 'line',
+          data: { labels: Array.from({ length: 7 }, (_, i) => `D-${6 - i}`), datasets: [
+            { label: 'Approvals', data: Array(7).fill(0), borderColor: '#16a34a', fill: false },
+            { label: 'Rejections', data: Array(7).fill(0), borderColor: '#dc2626', fill: false }
+          ] },
+          options: { responsive: true }
+        });
+      }
+
+      const verifCtx = document.getElementById('verifChart')?.getContext('2d');
+      if (verifCtx) {
+        chartInstances.verifChart = new Chart(verifCtx, {
+          type: 'doughnut',
+          data: { labels: ['Successful', 'Failed', 'Flagged'], datasets: [{ data: [0, 0, 0], backgroundColor: ['#16a34a', '#dc2626', '#be123c'] }] },
+          options: { plugins: { legend: { position: 'bottom' } } }
+        });
+      }
+
+    } catch (e) {
+      console.error('Chart initialization failed', e);
+    }
+  }
+
+  function updateCharts() {
+    const parcelTypes = currentStats.parcelTypes || {};
+    const res = parcelTypes.residential || 0;
+    const com = parcelTypes.commercial || 0;
+    const agr = (parcelTypes.agricultural || 0) + (parcelTypes.other || 0);
+
+    if (chartInstances.parcelPieChart) {
+      chartInstances.parcelPieChart.data.datasets[0].data = [res, com, agr];
+      chartInstances.parcelPieChart.update();
+    }
+
+    if (chartInstances.verifChart) {
+      chartInstances.verifChart.data.datasets[0].data = [currentStats.successfulVerifications || 0, currentStats.failedVerifications || 0, currentStats.flaggedVerifications || 0];
+      chartInstances.verifChart.update();
+    }
+
+    const days = 7;
+    const approvals = Array(days).fill(0);
+    approvals[days - 1] = currentStats.approvedThisMonth || 0;
+    const rejections = Array(days).fill(0);
+    rejections[days - 1] = currentStats.rejectedThisMonth || 0;
+
+    if (chartInstances.lineChart) {
+      chartInstances.lineChart.data.datasets[0].data = approvals;
+      chartInstances.lineChart.data.datasets[1].data = rejections;
+      chartInstances.lineChart.update();
+    }
+
+    if (chartInstances.barChart) {
+      chartInstances.barChart.data.datasets[0].data = approvals;
+      chartInstances.barChart.data.datasets[1].data = rejections;
+      chartInstances.barChart.update();
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // EXPORT & EVENT HANDLING
+  // ══════════════════════════════════════════════════════════════════
+
+  function exportCSV() {
+    const session = getSession();
+    const officer = session?.fullName || 'Officer';
+    const district = session?.district || 'District';
+    const now = new Date();
+
+    const rows = [
+      ['ARMS Monthly Land Operations Report'],
+      ['Reporting Period', fmtMonthYear(now)],
+      ['Generated By', officer],
+      ['Role', 'Land Officer'],
+      ['District', district],
+      ['Generated On', fmtDate(now)],
+      [],
+      ['ACTIVITIES LOG'],
+      ['Date', 'Activity', 'Parcel No.', 'Owner / Party', 'Officer', 'Status'],
+    ];
+
+    document.querySelectorAll('#activitiesTbody tr').forEach((tr) => {
+      const cells = Array.from(tr.querySelectorAll('td')).map((td) => td.textContent.trim());
+      if (cells.length > 1) rows.push(cells);
+    });
+
+    const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ARMS_Monthly_Report_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast('Report exported as CSV', 'success');
+  }
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    const now = new Date();
+    const from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+    const to = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
+
+    document.getElementById('reportFrom').value = from;
+    document.getElementById('reportTo').value = to;
+
+    // create charts first, then load data
+    createCharts().finally(() => loadReportData(from, to));
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach((p) => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Ensure sticky offsets keep elements visually attached (avoid cutting by top bar)
+    function adjustStickyOffsets() {
+      const topBar = document.querySelector('.top-bar');
+      const tabBar = document.querySelector('.tab-bar');
+      const sticky = document.querySelector('.sticky-toolbar');
+      if (!topBar || !tabBar || !sticky) return;
+
+      const headerH = topBar.offsetHeight || parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 66;
+      const tabH = tabBar.offsetHeight || 44;
+
+      // Apply computed 'top' values so sticky elements don't overlap or get cut off
+      tabBar.style.top = headerH + 'px';
+      sticky.style.top = (headerH + tabH) + 'px';
+
+      // Ensure stacking order keeps top bar above the rest
+      topBar.style.zIndex = 60;
+      tabBar.style.zIndex = 55;
+      sticky.style.zIndex = 54;
+    }
+
+    // Run once and on resize to keep offsets correct
+    adjustStickyOffsets();
+    window.addEventListener('resize', adjustStickyOffsets);
+
+    // Refresh button
+    document.getElementById('btnRefresh').addEventListener('click', (e) => {
+      e.preventDefault();
+      const f = document.getElementById('reportFrom').value;
+      const t = document.getElementById('reportTo').value;
+
+      if (!f || !t || new Date(f) > new Date(t)) {
+        toast('Please choose a valid date range.', 'error');
+        return;
+      }
+
+      toast(`Refreshed for ${fmtDate(new Date(f))} – ${fmtDate(new Date(t))}`, 'info');
+      loadReportData(f, t);
+    });
+
+    // Export buttons
+    document.getElementById('btnPdf').addEventListener('click', () => {
+      toast('Opening print dialog for PDF…', 'info');
+      setTimeout(() => window.print(), 500);
+    });
+
+    document.getElementById('btnXlsx').addEventListener('click', exportCSV);
+    document.getElementById('btnPrint').addEventListener('click', () => window.print());
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ARMS – Senior Officer Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* ═══════════════════════════════════════════════════
+       ARMS DESIGN SYSTEM — Navy + Gold, Zambian Palette
+       (Matches the token set used across the ARMS suite,
+       e.g. audit-log.html — same colors, radius scale,
+       sidebar width, and header height, so every screen
+       in the officer portal looks and feels the same.)
+    ═══════════════════════════════════════════════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+
+    :root {
+      --navy:          #0e2240;
+      --navy-mid:      #1a3560;
+      --navy-light:    #e8edf6;
+      --navy-xlight:   #f4f6fb;
+      --gold:          #c8a040;
+      --gold-mid:      #b8902e;
+      --gold-dark:     #9a7420;
+      --gold-light:    #fdf6e3;
+      --gold-xlight:   #fefbf3;
+      --green:         #22c55e;
+      --green-light:   #f0fdf4;
+      --green-dark:    #15803d;
+      --red:           #ef4444;
+      --text-primary:  #111827;
+      --text-secondary:#4b5568;
+      --text-muted:    #8a94a6;
+      --border:        #e8e3d8;
+      --border-mid:    #d6ceba;
+      --bg-page:       #faf7f2;
+      --bg-card:       #ffffff;
+      --radius:        6px;
+      --radius-lg:     10px;
+      --shadow-sm:     0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+      --shadow-card:   0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+      --sidebar-w:     200px;
+      --header-h:      66px;
+    }
+
+    body {
+      display: flex; flex-direction: column;
+      background: var(--bg-page);
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 13px; color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+      background: var(--bg-card);
+      display: flex; justify-content: space-between; align-items: stretch;
+      border-bottom: 1px solid var(--border);
+      height: var(--header-h); flex-shrink: 0;
+      box-shadow: var(--shadow-sm); position: relative; z-index: 50;
+    }
+    .logo-block {
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 24px; min-width: 360px; height: 100%;
+      flex-shrink: 0; background: var(--navy);
+    }
+    .logo-emblem {
+     width: 40px; height: 40px; border-radius: 8px;
+     background: var(--gold); display: flex; align-items: center;
+     justify-content: center; flex-shrink: 0; overflow: hidden;
+   }
+    .logo-emblem img {
+     width: 100%; height: 100%; object-fit: cover;
+  }
+    .logo-text h2 { font-size: 12.5px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+    .logo-text p  { font-size: 10.5px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+    .top-right { display: flex; align-items: center; gap: 14px; padding-right: 20px; }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--gold-light); border: 1.5px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--navy);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .top-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+    .top-user-role { font-size: 10.5px; color: var(--text-muted); line-height: 1; }
+    .btn-signout {
+      background: transparent; border: 1px solid var(--border-mid);
+      color: var(--text-secondary); padding: 5px 13px;
+      border-radius: var(--radius); font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .btn-signout:hover { background: var(--bg-page); color: var(--text-primary); }
+
+    /* LAYOUT */
+    .dashboard-container { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 14px 0 12px; flex-shrink: 0; height: 100%;
+      overflow-y: auto; display: flex; flex-direction: column;
+    }
+    .sidebar-section-title {
+      font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--text-muted); font-weight: 700; padding: 10px 16px 4px;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 16px; color: var(--text-secondary);
+      text-decoration: none; font-size: 12.5px;
+      transition: all 0.13s; border-left: 2px solid transparent; margin: 1px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .sidebar-item:hover { background: var(--gold-xlight); color: var(--navy); }
+    .sidebar-item.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+    .sidebar-item i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+    .sidebar-item.active i { opacity: 1; }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+    .sidebar-item.signout { color: #ef4444; }
+    .sidebar-item.signout:hover { background: #fef2f2; }
+    .sidebar-item.signout i { opacity: 1; }
+    .flag-count {
+      margin-left: auto; background: #ef4444; color: #fff;
+      font-size: 10px; font-weight: 700; min-width: 18px; height: 18px;
+      border-radius: 99px; display: inline-flex; align-items: center;
+      justify-content: center; padding: 0 5px;
+    }
+    .flag-count.hidden { display: none; }
+
+    /* MAIN */
+    .main-content {
+      flex: 1; min-height: 0; padding: 24px 28px;
+      overflow-y: auto; overflow-x: hidden; background: var(--bg-page);
+    }
+    .page-header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; }
+    .page-title   { font-size: 20px; font-weight: 600; color: var(--navy); margin-bottom: 4px; letter-spacing: -0.3px; }
+    .page-subtitle{ font-size: 12.5px; color: var(--text-secondary); }
+
+    /* KPI CARDS */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
+    .kpi-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 18px 18px 14px;
+      box-shadow: var(--shadow-card); position: relative; overflow: hidden;
+      cursor: pointer; transition: box-shadow 0.15s, transform 0.15s;
+    }
+    .kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+    .kpi-card:hover { box-shadow: 0 4px 16px rgba(14,34,64,0.12); transform: translateY(-1px); }
+    .kpi-card:nth-child(1)::before { background: var(--gold); }
+    .kpi-card:nth-child(2)::before { background: var(--green); }
+    .kpi-card:nth-child(3)::before { background: var(--red); }
+    .kpi-card:nth-child(4)::before { background: #db2777; }
+    .kpi-icon { width: 34px; height: 34px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 15px; margin-bottom: 10px; }
+    .kpi-card:nth-child(1) .kpi-icon { background: var(--gold-light); color: var(--gold-dark); }
+    .kpi-card:nth-child(2) .kpi-icon { background: var(--green-light); color: var(--green-dark); }
+    .kpi-card:nth-child(3) .kpi-icon { background: #fef2f2; color: #991b1b; }
+    .kpi-card:nth-child(4) .kpi-icon { background: #fce7f3; color: #9d174d; }
+    .kpi-label { font-size: 10.5px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.07em; margin-bottom: 5px; }
+    .kpi-value { font-size: 1.9rem; font-weight: 700; color: var(--navy); line-height: 1; font-variant-numeric: tabular-nums; }
+    .kpi-card:nth-child(2) .kpi-value { color: var(--green-dark); }
+    .kpi-card:nth-child(3) .kpi-value { color: #991b1b; }
+    .kpi-card:nth-child(4) .kpi-value { color: #9d174d; }
+
+    /* TABLE CARD */
+    .table-card {
+      background: var(--bg-card); border-radius: var(--radius-lg);
+      border: 1px solid var(--border); overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .panel-header {
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: stretch; justify-content: space-between;
+      flex-wrap: wrap; gap: 0;
+    }
+    .tab-nav { display: flex; flex: 1; }
+    .tab-btn {
+      padding: 13px 18px; border: none; background: transparent;
+      font-size: 12.5px; font-weight: 500; color: var(--text-secondary);
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--navy); background: var(--gold-xlight); }
+    .tab-btn.active { color: var(--navy); font-weight: 600; border-bottom-color: var(--gold); background: var(--gold-xlight); }
+    .tab-btn i { font-size: 13px; }
+
+    .panel-actions { display: flex; align-items: center; gap: 8px; padding: 0 16px; }
+    .btn-outline-arm {
+      height: 32px; padding: 0 13px; border-radius: var(--radius);
+      border: 1px solid var(--border-mid); background: var(--bg-card);
+      font-size: 12px; font-family: inherit; color: var(--text-secondary);
+      cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-outline-arm:hover { background: var(--bg-page); color: var(--navy); border-color: var(--navy-mid); }
+    .btn-navy {
+      height: 32px; padding: 0 13px; border-radius: var(--radius);
+      border: none; background: var(--navy); color: #fff;
+      font-size: 12px; font-family: inherit; font-weight: 600;
+      cursor: pointer; transition: background 0.15s; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-navy:hover { background: var(--navy-mid); }
+
+    /* FILTER BAR */
+    .filter-bar {
+      padding: 12px 18px; border-bottom: 1px solid var(--border);
+      background: var(--bg-page); display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    }
+    .filter-search {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-card); border: 1px solid var(--border-mid);
+      border-radius: var(--radius); padding: 0 12px; height: 34px; flex: 1; min-width: 200px;
+    }
+    .filter-search i { color: var(--text-muted); font-size: 13px; flex-shrink: 0; }
+    .filter-search input {
+      border: none; outline: none; background: transparent;
+      font-size: 12.5px; font-family: inherit; color: var(--text-primary); width: 100%;
+    }
+    .filter-search input::placeholder { color: var(--text-muted); }
+    .filter-select {
+      height: 34px; border: 1px solid var(--border-mid); border-radius: var(--radius);
+      padding: 0 10px; font-size: 12px; font-family: inherit;
+      color: var(--text-secondary); background: var(--bg-card); cursor: pointer; outline: none;
+    }
+    .filter-select:focus { border-color: var(--gold); }
+    .btn-clear {
+      height: 34px; padding: 0 14px; border-radius: var(--radius);
+      border: 1px solid var(--border-mid); background: var(--bg-card);
+      font-size: 12px; font-family: inherit; color: var(--text-secondary);
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .btn-clear:hover { background: var(--bg-page); color: var(--navy); }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: var(--bg-page); color: var(--text-muted);
+      font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; padding: 9px 14px;
+      border-bottom: 1px solid var(--border); white-space: nowrap; text-align: left;
+    }
+    tbody td {
+      padding: 11px 14px; font-size: 12.5px;
+      border-bottom: 1px solid var(--border); color: var(--text-primary); vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--gold-xlight); }
+
+    /* STATUS BADGES */
+    .st-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 9px; border-radius: 99px;
+      font-size: 10.5px; font-weight: 700; white-space: nowrap;
+    }
+    .st-l1   { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #e8d098; }
+    .st-ok   { background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0; }
+    .st-rej  { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .st-flag { background: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
+    .st-sub  { background: var(--navy-light); color: var(--navy-mid); border: 1px solid #c5d3e8; }
+    .st-can  { background: var(--bg-page); color: var(--text-muted); border: 1px solid var(--border); }
+
+    .parcel-pill {
+      display: inline-flex; padding: 2px 8px; border-radius: var(--radius);
+      background: var(--navy-xlight); border: 1px solid var(--navy-light);
+      font-size: 11px; font-weight: 600; color: var(--navy-mid);
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .parcel-pill:hover { background: var(--navy); color: #fff; border-color: var(--navy); text-decoration: none; }
+
+    .action-wrap { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+    .btn-act {
+      height: 28px; padding: 0 10px; border: none; border-radius: var(--radius);
+      font-size: 11.5px; font-weight: 600; cursor: pointer;
+      transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px;
+      font-family: inherit; white-space: nowrap;
+    }
+    .btn-approve { background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0; }
+    .btn-approve:hover { background: #059669; color: #fff; border-color: #059669; }
+    .btn-reject  { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .btn-reject:hover  { background: #dc2626; color: #fff; border-color: #dc2626; }
+    .btn-flag    { background: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
+    .btn-flag:hover    { background: #db2777; color: #fff; border-color: #db2777; }
+    .btn-view    { background: var(--navy-xlight); color: var(--navy); border: 1px solid var(--navy-light); }
+    .btn-view:hover    { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    .tx-hash { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); }
+
+    /* SPINNER / EMPTY */
+    .spinner {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2.5px solid var(--border); border-top-color: var(--gold);
+      animation: spin 0.7s linear infinite; display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty-state { text-align: center; padding: 40px 24px; color: var(--text-muted); font-size: 13px; }
+    .empty-state i { font-size: 28px; margin-bottom: 8px; display: block; opacity: 0.35; }
+
+    /* OVERLAY & MODAL (used by the approve/reject/flag action confirm only) */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(14,34,64,0.45);
+      z-index: 2000; display: none; align-items: center; justify-content: center;
+    }
+    .modal-box {
+      background: var(--bg-card); border-radius: var(--radius-lg);
+      width: 520px; max-width: 95vw;
+      box-shadow: 0 24px 64px rgba(14,34,64,0.22);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-hdr {
+      padding: 16px 20px; display: flex; align-items: center;
+      justify-content: space-between; border-bottom: 1px solid var(--border);
+    }
+    .modal-title { font-size: 14px; font-weight: 600; color: var(--navy); margin: 0; }
+    .modal-close {
+      width: 28px; height: 28px; border-radius: var(--radius);
+      border: 1px solid var(--border-mid); background: transparent;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); font-size: 16px; transition: all 0.15s;
+    }
+    .modal-close:hover { background: var(--bg-page); color: var(--navy); }
+    .modal-body { padding: 20px; }
+    .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+    .form-label-arm { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; display: block; }
+    .form-control-arm {
+      width: 100%; border: 1px solid var(--border-mid); border-radius: var(--radius);
+      padding: 8px 12px; font-size: 13px; font-family: inherit;
+      color: var(--text-primary); background: var(--bg-card); outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-control-arm:focus { border-color: var(--gold); }
+    .form-hint { font-size: 11px; color: var(--text-muted); margin-top: 5px; }
+    .form-group { margin-bottom: 16px; }
+
+    .inline-alert { padding: 10px 14px; border-radius: var(--radius); font-size: 12px; margin-bottom: 14px; display: flex; align-items: flex-start; gap: 8px; }
+    .inline-alert i { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+    .ia-warning { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #e8d098; }
+    .ia-danger  { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    .toast-wrap { position: fixed; top: 80px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+    .toast-item {
+      padding: 11px 16px; border-radius: var(--radius-lg);
+      font-size: 12.5px; font-weight: 500;
+      display: flex; align-items: center; gap: 9px;
+      box-shadow: 0 4px 20px rgba(14,34,64,0.15);
+      min-width: 280px; pointer-events: auto;
+      animation: slideIn 0.25s ease;
+    }
+    .toast-item i { font-size: 15px; flex-shrink: 0; }
+    .t-ok  { background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0; }
+    .t-err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .t-wrn { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #e8d098; }
+    @keyframes slideIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    .msg-area { padding: 0 18px; }
+    .alert-arm { padding: 10px 14px; border-radius: var(--radius); font-size: 12.5px; }
+    .alert-danger-arm { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    .action-strip { border-top: 3px solid transparent; transition: border-color 0.15s; }
+
+    .btn-gold {
+      height: 36px; padding: 0 20px; border-radius: var(--radius);
+      border: none; background: var(--gold); color: var(--navy);
+      font-size: 13px; font-family: inherit; font-weight: 600;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .btn-gold:hover { background: var(--gold-mid); }
+    .btn-cancel {
+      height: 36px; padding: 0 16px; border-radius: var(--radius);
+      border: 1px solid var(--border-mid); background: var(--bg-card);
+      font-size: 13px; font-family: inherit; color: var(--text-secondary);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-cancel:hover { background: var(--bg-page); color: var(--navy); }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .kpi-grid { grid-template-columns: repeat(2,1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../images/coat-of-arms.png" alt="Coat of Arms"/>
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar">
+      <img id="headerPhoto" alt=""/>
+      <span id="headerInitials" aria-label="Current user"></span>
+    </div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="nav-name"></div>
+      <div class="top-user-role" id="nav-role"></div>
+    </div>
+    <button class="btn-signout" onclick="confirmAndLogout(event)">Sign Out</button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Senior Officer Panel</div>
+    <a href="dashboard.html"          class="sidebar-item active"><i class="bi bi-hammer"></i> Senior Approvals</a>
+    <a href="district-oversight.html" class="sidebar-item"><i class="bi bi-map"></i> District Oversight</a>
+    <a href="flagged.html"            class="sidebar-item">
+      <i class="bi bi-flag"></i> Flagged
+      <span class="flag-count hidden" id="sidebarFlagCount">0</span>
+    </a>
+    <a href="audit-log.html"          class="sidebar-item"><i class="bi bi-shield-lock"></i> Blockchain Audit</a>
+    <a href="monthly-reports.html"          class="sidebar-item"><i class="bi bi-bar-chart"></i> Monthly Reports</a>
+    <a href="notifications.html"    class="sidebar-item"><i class="bi bi-bell"></i> Notifications</a>
+    <div class="sidebar-divider"></div>
+    <a href="manage-profile.html"     class="sidebar-item"><i class="bi bi-person-gear"></i> Manage Profile</a>
+    <a href="../../index.html"        class="sidebar-item"><i class="bi bi-search"></i> Verify Parcel</a>
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" onclick="confirmAndLogout(event);return false;"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">Senior Officer Dashboard</div>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+      <div class="kpi-card" onclick="filterByStatus('APPROVED_L1')">
+        <div class="kpi-icon"><i class="bi bi-hourglass-split"></i></div>
+        <div class="kpi-label">Awaiting Final</div>
+        <div class="kpi-value" id="statAwaiting">—</div>
+      </div>
+      <div class="kpi-card" onclick="filterByStatus('APPROVED')">
+        <div class="kpi-icon"><i class="bi bi-check-circle"></i></div>
+        <div class="kpi-label">Total Approved</div>
+        <div class="kpi-value" id="statApproved">—</div>
+      </div>
+      <div class="kpi-card" onclick="filterByStatus('REJECTED')">
+        <div class="kpi-icon"><i class="bi bi-x-circle"></i></div>
+        <div class="kpi-label">Rejected</div>
+        <div class="kpi-value" id="statRejected">—</div>
+      </div>
+      <div class="kpi-card" onclick="window.location.href='flagged.html'">
+        <div class="kpi-icon"><i class="bi bi-flag"></i></div>
+        <div class="kpi-label">Flagged</div>
+        <div class="kpi-value" id="statFlagged">—</div>
+      </div>
+    </div>
+
+    <!-- MAIN PANEL -->
+    <div class="table-card">
+
+      <div class="panel-header">
+        <div class="tab-nav" id="mainTabs">
+          <button class="tab-btn active" onclick="showTab('pending')"><i class="bi bi-clock"></i> Awaiting Final Approval</button>
+          <button class="tab-btn"        onclick="showTab('all')"><i class="bi bi-list-ul"></i> All Requests</button>
+        </div>
+        <div class="panel-actions">
+          <button class="btn-outline-arm" onclick="exportCSV()"><i class="bi bi-download"></i> Export</button>
+          <button class="btn-navy" onclick="loadAll()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+        </div>
+      </div>
+
+      <!-- FILTER BAR -->
+      <div class="filter-bar">
+        <div class="filter-search">
+          <i class="bi bi-search"></i>
+          <input type="text" id="searchInput" placeholder="Search parcel, seller, buyer…" oninput="applyFilters()"/>
+        </div>
+        <select class="filter-select" id="districtFilter" onchange="applyFilters()">
+          <option value="">All Districts</option>
+        </select>
+        <select class="filter-select" id="statusFilter" onchange="applyFilters()">
+          <option value="">All Statuses</option>
+          <option value="APPROVED_L1">Awaiting Final</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+        <button class="btn-clear" onclick="clearFilters()"><i class="bi bi-x-circle" style="margin-right:4px;"></i>Clear</button>
+      </div>
+
+      <div class="msg-area" id="msg"></div>
+
+      <!-- PENDING TAB -->
+      <div id="tab-pending">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th><th>Parcel</th><th>District</th><th>Seller</th><th>Buyer</th>
+                <th>Price (ZMW)</th><th>Submitted</th><th>Blockchain TX</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tblPending">
+              <tr><td colspan="9" style="text-align:center;padding:40px;"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ALL TAB -->
+      <div id="tab-all" style="display:none;">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th><th>Parcel</th><th>District</th><th>Seller</th><th>Buyer</th>
+                <th>Price (ZMW)</th><th>Status</th><th>Date</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tblAll">
+              <tr><td colspan="9" style="text-align:center;padding:40px;"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /table-card -->
+  </div><!-- /main-content -->
+</div><!-- /dashboard-container -->
+
+<!-- FOOTER -->
+<div style="background:var(--bg-card);color:var(--text-muted);padding:10px 24px;display:flex;justify-content:space-between;align-items:center;font-size:11px;border-top:1px solid var(--border);flex-shrink:0;">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div style="display:flex;align-items:center;gap:6px;">
+    <div style="width:6px;height:6px;border-radius:50%;background:var(--gold);"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<!-- ACTION MODAL (approve / reject / flag confirmation — unrelated to transfer detail viewing) -->
+<div class="overlay" id="actionModal">
+  <div class="modal-box action-strip" id="actionStrip">
+    <div class="modal-hdr" id="actionHdr">
+      <h5 class="modal-title" id="actionTitle">Confirm Action</h5>
+      <button class="modal-close" onclick="closeActionModal()"><i class="bi bi-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="actionReqId"/>
+      <input type="hidden" id="actionType"/>
+      <div id="actionAlertBox"></div>
+      <div class="form-group" id="flagReasonGroup" style="display:none;">
+        <label class="form-label-arm"><i class="bi bi-flag" style="margin-right:4px;color:#db2777;"></i>Flag Reason <span style="color:#ef4444;">*</span></label>
+        <select class="form-control-arm" id="flagReasonSelect" onchange="updateFlagReason()">
+          <option value="">Select a reason…</option>
+          <option value="Suspicious price — significantly below market value">Suspicious price — below market value</option>
+          <option value="Duplicate parcel number detected">Duplicate parcel number detected</option>
+          <option value="Seller identity mismatch">Seller identity mismatch</option>
+          <option value="Buyer linked to fraud investigation">Buyer linked to fraud investigation</option>
+          <option value="Missing supporting documents">Missing supporting documents</option>
+          <option value="Other — see comments below">Other (specify in comments)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label-arm" id="commentsLabel">Comments <span style="color:#ef4444;">*</span></label>
+        <textarea class="form-control-arm" id="actionComments" rows="4" placeholder="Enter comments…" style="resize:vertical;"></textarea>
+        <div class="form-hint" id="commentsHint"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeActionModal()">Cancel</button>
+      <button class="btn-gold" id="actionConfirmBtn" onclick="submitAction()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+import { api } from '/js/api.js';
+import { requireLogin, populateNavbar, getSession, logout, updateSession } from '/js/auth.js';
+
+requireLogin();
+// enforce role + login via shared helpers
+if (!localStorage.getItem('lv_role') || localStorage.getItem('lv_role') !== 'SENIOR_OFFICER') {
+  // redirect to login with message
+  window.location.href = '/login.html?error=invalid_role&role=' + encodeURIComponent(localStorage.getItem('lv_role'));
+}
+populateNavbar();
+window.doLogout = logout;
+
+const BASE = '';
+let allRequests = [];
+let activeStatus = '';
+
+function setDashboardText(id, value) {
+  const element = document.getElementById(id);
+  if (element) element.textContent = value;
+}
+
+function toast(msg, type = 'success') {
+  const icons = { success: 'bi-check-circle-fill', error: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill' };
+  const cls   = { success: 't-ok', error: 't-err', warning: 't-wrn' };
+  const el = document.createElement('div');
+  el.className = `toast-item ${cls[type]}`;
+  el.innerHTML = `<i class="bi ${icons[type]}"></i><span>${msg}</span>`;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(() => el.remove(), 5000);
+}
+
+async function loadHeader() {
+  try {
+    const token = localStorage.getItem('lv_token');
+    const res = await fetch(`${BASE}/api/auth/profile/me`, { headers: { 'Authorization': 'Bearer ' + token } });
+    if (!res.ok) return;
+    const { data: p } = await res.json();
+    updateSession(p);
+    if (p.email) localStorage.setItem('lv_email', p.email);
+    const name = p.fullName || p.username || 'M';
+    setDashboardText('nav-name', name);
+    setDashboardText('nav-role', (p.role||'').replace(/_/g,' '));
+    setDashboardText('headerInitials', name.charAt(0).toUpperCase());
+    if (p.photoPath) {
+      const img = document.getElementById('headerPhoto');
+      img.src = `${BASE}/uploads/${p.photoPath}`;
+      img.onload = () => {
+        img.classList.add('profile-photo-ready');
+        document.getElementById('headerInitials').style.display = 'none';
+      };
+      img.onerror = () => { img.style.display='none'; document.getElementById('headerInitials').style.display='block'; };
+    }
+  } catch(e) { console.error(e); }
+}
+
+async function loadAll() {
+  try {
+    // Use senior-scoped endpoint so results respect this officer's jurisdiction
+    const res = await api.seniorTransfers();
+    allRequests = (res.data || [])
+      .map(r => ({ ...r, status: String(r.status || '').toUpperCase() }))
+      .filter(r =>
+        ['APPROVED_L1', 'APPROVED_L2', 'APPROVED'].includes(r.status)
+        || (r.approvalHistory || []).some(a => Number(a.approvalLevel) === 1
+          && String(a.action || '').toUpperCase() === 'APPROVED')
+      );
+    allRequests.forEach(r => {
+      if (!r.district) r.district = 'Unknown';
+      r.flagged    = r.flagged    || false;
+      r.flagReason = r.flagReason || '';
+      r.flaggedAt  = r.flaggedAt  || '';
+    });
+    updateStats();
+    populateDistrictFilter();
+    renderTables();
+  } catch(e) {
+    console.error('loadAll error', e);
+    if (e.status === 403) {
+      // If server rejects with 403, likely insufficient permissions or missing token
+      document.getElementById('msg').innerHTML = `<div class="alert-arm alert-danger-arm" style="margin-top:14px;">Access denied: you are not authorized to view these transfers. Please sign in with a Senior Officer account.</div>`;
+      // Optionally clear session and redirect to login after a short delay
+      setTimeout(() => { localStorage.removeItem('lv_token'); window.location.href = '/login.html'; }, 3000);
+      return;
+    }
+    document.getElementById('msg').innerHTML = `<div class="alert-arm alert-danger-arm" style="margin-top:14px;">${e.message}</div>`;
+  }
+}
+window.loadAll = loadAll;
+
+function updateStats() {
+  setDashboardText('statAwaiting', allRequests.filter(r=>r.status==='APPROVED_L1').length);
+  setDashboardText('statApproved', allRequests.filter(r=>r.status==='APPROVED').length);
+  setDashboardText('statRejected', allRequests.filter(r=>r.status==='REJECTED').length);
+  const fc = allRequests.filter(r=>r.flagged||r.status==='FLAGGED').length;
+  setDashboardText('statFlagged', fc);
+  const sc = document.getElementById('sidebarFlagCount');
+  if (sc) {
+    sc.textContent = fc;
+    sc.classList.toggle('hidden', fc === 0);
+  }
+}
+
+function populateDistrictFilter() {
+  const districts = [...new Set(allRequests.map(r=>r.district).filter(Boolean))].sort();
+  document.getElementById('districtFilter').innerHTML = '<option value="">All Districts</option>' +
+    districts.map(d=>`<option value="${d}">${d}</option>`).join('');
+}
+
+// Navigates to the standalone parcel detail page — same pattern as goToDetail() in audit-log.html
+// (plain same-tab navigation, no popup/new-tab).
+window.goToParcel = function(parcelNumber, parcelId) {
+  const params = new URLSearchParams();
+  if (parcelId) params.set('parcelId', parcelId);
+  if (parcelNumber) params.set('parcelNumber', parcelNumber);
+  window.location.href = `parcel-detail.html?${params.toString()}`;
+};
+
+function esc(v) {
+  return String(v==null?'':v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderTables() {
+  const search   = (document.getElementById('searchInput').value||'').toLowerCase();
+  const district = document.getElementById('districtFilter').value;
+  const status   = activeStatus || document.getElementById('statusFilter').value;
+
+  const filtered = allRequests.filter(r => {
+    const ms  = !search   || [r.parcelNumber,r.sellerName,r.buyerName,r.district].some(v=>v&&v.toLowerCase().includes(search));
+    const md  = !district || r.district===district;
+    const mst = !status   || r.status===status;
+    return ms && md && mst;
+  });
+
+  const pending = filtered.filter(r=>r.status==='APPROVED_L1');
+
+  document.getElementById('tblPending').innerHTML = pending.length
+    ? pending.map(r=>`
+        <tr>
+          <td style="font-weight:700;color:var(--navy);">#${r.requestId}</td>
+          <td><span class="parcel-pill" data-action="open-parcel" data-parcel="${esc(r.parcelNumber)}" data-id="${r.parcelId||''}" title="Open parcel details">${esc(r.parcelNumber)}</span></td>
+          <td>${esc(r.district)||'—'}</td>
+          <td>${esc(r.sellerName)}</td>
+          <td>${esc(r.buyerName)}</td>
+          <td style="font-weight:600;">K ${r.agreedPriceZmw?Number(r.agreedPriceZmw).toLocaleString():'—'}</td>
+          <td style="color:var(--text-secondary);">${r.submittedAt?new Date(r.submittedAt).toLocaleDateString():'—'}</td>
+          <td><span class="tx-hash">${r.blockchainTxHash?r.blockchainTxHash.substring(0,14)+'…':'—'}</span></td>
+          <td>
+            <div class="action-wrap">
+              <button class="btn-act btn-approve" data-action="req-action" data-type="approve" data-req="${r.requestId}"><i class="bi bi-check"></i> Approve</button>
+              <button class="btn-act btn-reject"  data-action="req-action" data-type="reject"  data-req="${r.requestId}"><i class="bi bi-x"></i> Reject</button>
+              <button class="btn-act btn-flag"    data-action="req-action" data-type="flag"    data-req="${r.requestId}"><i class="bi bi-flag"></i> Flag</button>
+            </div>
+          </td>
+        </tr>`).join('')
+    : `<tr><td colspan="9"><div class="empty-state"><i class="bi bi-check2-circle"></i>No requests awaiting final approval.</div></td></tr>`;
+
+  document.getElementById('tblAll').innerHTML = filtered.length
+    ? filtered.map(r=>`
+        <tr class="data-row" data-action="open-parcel" data-parcel="${esc(r.parcelNumber)}" data-id="${r.parcelId||''}" style="cursor:pointer;">
+          <td style="font-weight:700;color:var(--navy);">#${r.requestId}</td>
+          <td><span class="parcel-pill" title="Open parcel details">${esc(r.parcelNumber)}</span></td>
+          <td>${esc(r.district)||'—'}</td>
+          <td>${esc(r.sellerName)}</td>
+          <td>${esc(r.buyerName)}</td>
+          <td style="font-weight:600;">K ${r.agreedPriceZmw?Number(r.agreedPriceZmw).toLocaleString():'—'}</td>
+          <td>${sBadge(r.status,r.flagged)}</td>
+          <td style="color:var(--text-secondary);">${r.submittedAt?new Date(r.submittedAt).toLocaleDateString():'—'}</td>
+          <td>
+            <div class="action-wrap">
+              ${r.status==='APPROVED_L1'?`
+                <button class="btn-act btn-approve" data-action="req-action" data-type="approve" data-req="${r.requestId}"><i class="bi bi-check"></i></button>
+                <button class="btn-act btn-reject"  data-action="req-action" data-type="reject"  data-req="${r.requestId}"><i class="bi bi-x"></i></button>
+                <button class="btn-act btn-flag"    data-action="req-action" data-type="flag"    data-req="${r.requestId}"><i class="bi bi-flag"></i></button>`:''}
+            </div>
+          </td>
+        </tr>`).join('')
+    : `<tr><td colspan="9"><div class="empty-state"><i class="bi bi-inbox"></i>No requests found.</div></td></tr>`;
+}
+
+// Delegated click handling — avoids relying on inline onclick attributes injected via innerHTML,
+// which can silently fail to fire under some CSP configurations or with unescaped data.
+function handleTableClick(e) {
+  const actionEl = e.target.closest('[data-action="req-action"]');
+  if (actionEl) {
+    openAction(parseInt(actionEl.dataset.req, 10), actionEl.dataset.type);
+    return;
+  }
+  const rowEl = e.target.closest('[data-action="open-parcel"]');
+  if (rowEl) {
+    goToParcel(rowEl.dataset.parcel, rowEl.dataset.id || null);
+  }
+}
+document.getElementById('tblPending').addEventListener('click', handleTableClick);
+document.getElementById('tblAll').addEventListener('click', handleTableClick);
+
+function sBadge(s, flagged) {
+  if (flagged) return `<span class="st-badge st-flag"><i class="bi bi-flag-fill"></i> Flagged</span>`;
+  const m = { SUBMITTED:'st-sub', APPROVED_L1:'st-l1', APPROVED:'st-ok', REJECTED:'st-rej', FLAGGED:'st-flag', CANCELLED:'st-can' };
+  return `<span class="st-badge ${m[s]||'st-can'}">${s.replace(/_/g,' ')}</span>`;
+}
+
+window.showTab = function(tab) {
+  ['pending','all'].forEach(t => {
+    document.getElementById(`tab-${t}`).style.display = t===tab?'block':'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['pending','all'][i]===tab);
+  });
+};
+
+window.filterByStatus = function(s) { activeStatus=s; showTab('all'); document.getElementById('statusFilter').value=s; renderTables(); };
+window.applyFilters   = renderTables;
+window.clearFilters   = function() {
+  document.getElementById('searchInput').value='';
+  document.getElementById('districtFilter').value='';
+  document.getElementById('statusFilter').value='';
+  activeStatus=''; renderTables();
+};
+
+window.openAction = function(id, type) {
+  document.getElementById('actionReqId').value = id;
+  document.getElementById('actionType').value  = type;
+  document.getElementById('actionComments').value = '';
+  document.getElementById('flagReasonSelect').value = '';
+  document.getElementById('actionAlertBox').innerHTML = '';
+
+  const strip = document.getElementById('actionStrip');
+  const title = document.getElementById('actionTitle');
+  const btn   = document.getElementById('actionConfirmBtn');
+  const fg    = document.getElementById('flagReasonGroup');
+
+  if (type === 'approve') {
+    strip.style.borderTopColor = '#22c55e';
+    title.innerHTML = '<i class="bi bi-check-circle-fill" style="color:#166634;margin-right:8px;"></i>Final Approval';
+    btn.style.cssText = 'background:#059669;color:#fff;border:none;height:36px;padding:0 20px;border-radius:6px;font-size:13px;font-family:inherit;font-weight:600;cursor:pointer;';
+    btn.textContent = 'Confirm Approval';
+    fg.style.display = 'none';
+    document.getElementById('commentsLabel').innerHTML = 'Approval Comments <span style="color:#ef4444;">*</span>';
+    setDashboardText('commentsHint', 'This will permanently transfer land ownership on the blockchain. This action cannot be undone.');
+    document.getElementById('actionAlertBox').innerHTML = '<div class="inline-alert ia-warning"><i class="bi bi-exclamation-triangle-fill"></i><span><strong>Final action:</strong> Upon confirmation, ownership transfers to the buyer on the blockchain.</span></div>';
+  } else if (type === 'reject') {
+    strip.style.borderTopColor = '#ef4444';
+    title.innerHTML = '<i class="bi bi-x-circle-fill" style="color:#991b1b;margin-right:8px;"></i>Reject Transfer';
+    btn.style.cssText = 'background:#dc2626;color:#fff;border:none;height:36px;padding:0 20px;border-radius:6px;font-size:13px;font-family:inherit;font-weight:600;cursor:pointer;';
+    btn.textContent = 'Confirm Rejection';
+    fg.style.display = 'none';
+    document.getElementById('commentsLabel').innerHTML = 'Rejection Reason <span style="color:#ef4444;">*</span>';
+    setDashboardText('commentsHint', 'Clearly explain why this transfer is being rejected.');
+  } else {
+    strip.style.borderTopColor = '#db2777';
+    title.innerHTML = '<i class="bi bi-flag-fill" style="color:#9d174d;margin-right:8px;"></i>Flag for Investigation';
+    btn.style.cssText = 'background:#db2777;color:#fff;border:none;height:36px;padding:0 20px;border-radius:6px;font-size:13px;font-family:inherit;font-weight:600;cursor:pointer;';
+    btn.textContent = 'Submit Flag';
+    fg.style.display = 'block';
+    document.getElementById('commentsLabel').innerHTML = 'Additional Details <span style="color:#ef4444;">*</span>';
+    setDashboardText('commentsHint', 'Request will be moved to the Flagged page for investigation.');
+  }
+  document.getElementById('actionModal').style.display='flex';
+};
+window.closeActionModal = () => document.getElementById('actionModal').style.display='none';
+
+window.updateFlagReason = function() {
+  const v = document.getElementById('flagReasonSelect').value;
+  if (v) document.getElementById('actionComments').value = v;
+};
+
+window.submitAction = async function() {
+  const id      = parseInt(document.getElementById('actionReqId').value);
+  const type    = document.getElementById('actionType').value;
+  const comments= document.getElementById('actionComments').value.trim();
+  if (!comments) { toast('Comments are required.','error'); return; }
+
+  const btn  = document.getElementById('actionConfirmBtn');
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-arrow-repeat" style="animation:spin 0.7s linear infinite;display:inline-block;margin-right:6px;"></i>Processing…';
+
+  try {
+    if (type==='approve') {
+      await api.seniorApprove({ requestId:id, comments });
+      const approvedRequest = allRequests.find(request => Number(request.requestId) === id);
+      if (approvedRequest) {
+        approvedRequest.status = 'APPROVED';
+      }
+      toast('Final approval complete — ownership transferred on blockchain.','success');
+    } else if (type==='reject') {
+      await api.seniorReject({ requestId:id, reason:comments });
+      toast('Transfer request rejected.','warning');
+    } else {
+      await api.seniorFlag({ requestId:id, reason:comments });
+      toast('Request flagged for investigation.','warning');
+    }
+    closeActionModal();
+    updateStats();
+    renderTables();
+    await loadAll();
+  } catch(e) {
+    toast(e.message||'Action failed.','error');
+  } finally {
+    btn.disabled=false; btn.textContent=orig;
+  }
+};
+
+window.exportCSV = function() {
+  const h = ['ID','Parcel','District','Seller','Buyer','Price (ZMW)','Status','Submitted'];
+  const r = allRequests.map(r=>[r.requestId,r.parcelNumber,r.district||'',r.sellerName,r.buyerName,r.agreedPriceZmw||'',r.status,r.submittedAt?new Date(r.submittedAt).toLocaleDateString():'']);
+  const a = document.createElement('a');
+  a.href = 'data:text/csv,'+encodeURIComponent([h,...r].map(x=>x.join(',')).join('\n'));
+  a.download = `transfers-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('CSV exported.','success');
+};
+
+loadHeader();
+loadAll();
+showTab('pending');
+</script>
+</body>
+</html>

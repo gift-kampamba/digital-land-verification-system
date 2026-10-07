@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARMS – Register Parcel</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --navy:        #0e2240;
+      --navy-mid:    #1a3560;
+      --navy-light:  #e8edf6;
+      --navy-xlight: #f4f6fb;
+      --gold:        #c8a040;
+      --gold-mid:    #b8902e;
+      --gold-dark:   #9a7420;
+      --gold-light:  #fdf6e3;
+      --gold-xlight: #fefbf3;
+      --text-primary:  #111827;
+      --text-secondary:#4b5568;
+      --text-muted:    #8a94a6;
+      --border:        #e8e3d8;
+      --border-mid:    #d6ceba;
+      --bg-page:       #faf7f2;
+      --bg-card:       #ffffff;
+      --bg-input:      #fdfbf8;
+      --radius:      6px;
+      --radius-lg:   10px;
+      --shadow-sm:   0 1px 3px rgba(14,34,64,0.06);
+      --shadow-card: 0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+      --sidebar-w:   200px;
+      --header-h:    66px;
+      --focus-ring:  0 0 0 3px rgba(200,160,64,0.28);
+    }
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    body {
+      display: flex; flex-direction: column;
+      background: var(--bg-page);
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 13px; color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+    .owner-photo-preview, .owner-photo-video { width: 220px; height: 165px; border: 1px solid var(--border-mid); border-radius: 6px; object-fit: cover; background: var(--navy-xlight); }
+    .owner-photo-preview { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--text-muted); font-size:12px; }
+    .owner-photo-preview i { font-size:30px; color:var(--gold); }
+    .owner-photo-preview img { width:100%; height:100%; object-fit:cover; border-radius:6px; }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      background: var(--navy); padding: 0;
+      display: flex; justify-content: space-between; align-items: stretch;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      height: var(--header-h); flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(14,34,64,0.08); z-index: 50;
+    }
+    .top-bar {
+      background: var(--navy);
+      color: #fff;
+      padding: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      height: var(--header-h);
+      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(14,34,64,0.08);
+      position: relative;
+      z-index: 50;
+    }
+ .logo-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 24px;
+      min-width: 0;
+      border-right: 1px solid rgba(255,255,255,0.12);
+      height: 100%;
+      flex-shrink: 0;
+      background: var(--navy);
+    }
+
+    .logo-emblem {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--navy);
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .logo-text h2 { font-size: 12.5px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+    .logo-text p  { font-size: 10.5px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+    .top-right { display: flex; align-items: center; gap: 16px; padding-right: 20px; }
+    .top-user-name { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.2; }
+    .top-user-role { font-size: 10.5px; color: rgba(255,255,255,0.7); line-height: 1; }
+    .user-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--gold-light); border: 1.5px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: var(--navy); flex-shrink: 0;
+      overflow: hidden; position: relative;
+    }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+    .btn-signout {
+      background: transparent; border: 1px solid rgba(255,255,255,0.25);
+      color: #fff; padding: 5px 13px;
+      border-radius: var(--radius); font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .btn-signout:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    /* ── LAYOUT ── */
+    .dashboard-container { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 14px 0 12px; flex-shrink: 0; height: 100%;
+      overflow-y: auto; display: flex; flex-direction: column;
+    }
+    .sidebar-section-title {
+      font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--text-muted); font-weight: 700; padding: 10px 16px 4px;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 16px; color: var(--text-secondary);
+      text-decoration: none; font-size: 12.5px;
+      transition: all 0.13s; border-left: 2px solid transparent; margin: 1px 0;
+    }
+    .sidebar-item:hover { background: var(--gold-xlight); color: var(--navy); }
+    .sidebar-item.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+    .sidebar-item i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.75; }
+    .sidebar-item.active i { opacity: 1; }
+    .sidebar-item .badge-notif {
+      background: #ef4444; color: white; font-size: 9.5px; font-weight: 700;
+      padding: 1px 6px; border-radius: 99px; margin-left: auto; line-height: 14px;
+    }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+    .sidebar-item.signout { color: #ef4444; }
+    .sidebar-item.signout:hover { background: #fef2f2; }
+
+    /* ── MAIN CONTENT ── */
+    .main-content {
+      flex: 1; min-height: 0; padding: 22px 28px;
+      overflow-y: auto; overflow-x: hidden; background: var(--bg-page);
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      margin-bottom: 18px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .page-title {
+      font-size: 19px; font-weight: 600; color: var(--navy);
+      margin-bottom: 3px; letter-spacing: -0.3px;
+      display: flex; align-items: center; gap: 9px;
+    }
+    .page-title i { font-size: 17px; color: var(--gold); }
+    .page-subtitle { font-size: 12px; color: var(--text-secondary); }
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--bg-card); border: 1px solid var(--border-mid);
+      color: var(--text-secondary); padding: 6px 14px;
+      border-radius: var(--radius); font-size: 12px; font-weight: 500;
+      text-decoration: none; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-back:hover { background: var(--bg-page); color: var(--text-primary); }
+
+    /* ── CARDS ── */
+    .form-card {
+      background: var(--bg-card); border-radius: var(--radius-lg);
+      border: 1px solid var(--border); overflow: hidden;
+      margin-bottom: 16px; box-shadow: 0 1px 2px rgba(14,34,64,0.04);
+    }
+    .card-header-custom {
+      background: var(--bg-card); border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .card-header-custom h6 {
+      margin: 0; font-size: 13px; font-weight: 600; color: var(--navy);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-header-custom h6 .hdr-icon {
+      width: 26px; height: 26px; background: var(--gold-light);
+      border-radius: 6px; display: inline-flex; align-items: center;
+      justify-content: center; font-size: 12px; color: var(--gold-dark); flex-shrink: 0;
+    }
+    .card-body-custom { padding: 20px 22px; position: relative; padding-bottom: 100px; }
+
+    /* ── FORM ELEMENTS ── */
+    .form-label {
+      font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 5px; display: block;
+    }
+    .form-control, .form-select {
+      border-radius: var(--radius); border: 1px solid var(--border-mid);
+      padding: 7px 11px; font-size: 13px; background: var(--bg-input);
+      color: var(--text-primary); font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      height: 36px; width: 100%;
+    }
+    .form-control::placeholder { color: var(--text-muted); font-size: 12px; }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--gold); box-shadow: var(--focus-ring); background: white; outline: none;
+    }
+    .form-control[readonly] {
+      background: var(--navy-xlight); color: var(--navy);
+      font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500;
+    }
+    .form-text { font-size: 10.5px; color: var(--text-muted); margin-top: 4px; }
+    .text-danger { font-size: 10.5px; margin-top: 3px; color: #ef4444; }
+    .is-invalid { border-color: #ef4444 !important; }
+
+    /* ── FIELD GROUP SEPARATOR ── */
+    .field-section {
+      margin-bottom: 20px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .field-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .field-section-label {
+      font-size: 9.5px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--text-muted);
+      margin-bottom: 14px; display: flex; align-items: center; gap: 7px;
+    }
+    .field-section-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ── BUTTONS ── */
+    .btn-primary-custom {
+      background: var(--gold); color: var(--navy); border: none;
+      padding: 0 16px; border-radius: var(--radius);
+      font-size: 12.5px; cursor: pointer; height: 36px;
+      display: inline-flex; align-items: center; gap: 6px;
+      font-weight: 600; font-family: inherit; transition: background 0.15s;
+    }
+    .btn-primary-custom:hover { background: var(--gold-mid); }
+    .btn-outline-custom {
+      background: var(--bg-card); border: 1px solid var(--border-mid);
+      padding: 0 14px; border-radius: var(--radius);
+      font-size: 12.5px; cursor: pointer; height: 36px;
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--text-secondary); font-family: inherit; transition: all 0.15s;
+    }
+    .btn-outline-custom:hover { background: var(--bg-page); color: var(--text-primary); }
+    .input-group .btn-outline-primary {
+      border-color: var(--border-mid); color: var(--navy);
+      background: var(--gold-xlight); font-size: 12px; font-weight: 600;
+      font-family: inherit; padding: 0 13px; height: 36px;
+      display: flex; align-items: center; gap: 5px; transition: all 0.15s;
+    }
+    .input-group .btn-outline-primary:hover { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+
+    /* ── WIZARD STEPPER ── */
+    .wizard-header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 22px; }
+    .wizard-steps {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      background: var(--bg-page); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .wizard-step-card {
+      background: transparent; border: none;
+      border-right: 1px solid var(--border);
+      padding: 13px 16px; text-align: left; cursor: default;
+      transition: all 0.2s; display: flex; align-items: center; gap: 12px;
+    }
+    .wizard-step-card:last-child { border-right: none; }
+    .wizard-step-card.active   { background: var(--navy); color: white; }
+    .wizard-step-card.completed { background: var(--gold-xlight); color: var(--navy); cursor: pointer; }
+    .wizard-step-card.completed:hover { background: var(--gold-light); }
+    .wizard-step-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: grid; place-items: center; font-size: 12px; font-weight: 700;
+      flex-shrink: 0; border: 1.5px solid var(--border-mid);
+      color: var(--text-muted); background: var(--bg-card); transition: all 0.2s;
+    }
+    .wizard-step-card.active    .wizard-step-circle { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+    .wizard-step-card.completed .wizard-step-circle { background: var(--gold-dark); border-color: var(--gold-dark); color: #fff; }
+    .step-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); line-height: 1.2; }
+    .step-sublabel { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+    .wizard-step-card.active    .step-label,
+    .wizard-step-card.active    .step-sublabel { color: rgba(255,255,255,0.92); }
+    .wizard-step-card.completed .step-label    { color: var(--navy); }
+    .wizard-step-card.completed .step-sublabel { color: var(--gold-dark); }
+
+    /* Progress bar */
+    .wizard-progress { position: relative; height: 3px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .wizard-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--navy), var(--gold)); transition: width 0.35s ease; border-radius: 99px; }
+
+    /* ── WIZARD STEP CONTENT ── */
+    .wizard-step { display: none; }
+    .wizard-step.active { display: block; }
+
+    /* ── NAVIGATION ── */
+    .wizard-navigation {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px; margin-top: 22px; padding: 14px 0 6px;
+      border-top: 1px solid var(--border);
+      background: rgba(255,255,255,0.96);
+      position: sticky; bottom: 0; z-index: 10;
+      backdrop-filter: blur(8px);
+    }
+    .wizard-navigation .btn-secondary {
+      background: var(--bg-card); color: var(--text-secondary);
+      border: 1px solid var(--border-mid); font-size: 12.5px;
+      font-family: inherit; font-weight: 500; height: 36px; padding: 0 16px;
+      border-radius: var(--radius); display: inline-flex; align-items: center;
+      gap: 6px; cursor: pointer; transition: all 0.15s;
+    }
+    .wizard-navigation .btn-secondary:hover { background: var(--bg-page); color: var(--text-primary); }
+
+    /* ── ALERTS ── */
+    .alert {
+      border-radius: var(--radius); font-size: 12.5px; border: none;
+      padding: 10px 14px; margin-bottom: 14px;
+    }
+    .alert-info    { background: var(--gold-xlight); color: var(--navy); border: 1px solid var(--border); }
+    .alert-light   { background: var(--gold-xlight); color: var(--navy); border: 1px solid var(--border); }
+    .alert-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .alert-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+    .alert-danger  { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    #msg { position: fixed; top: calc(var(--header-h) + 14px); left: 50%; transform: translateX(-50%); width: min(680px, calc(100vw - 32px)); z-index: 1500; pointer-events: none; }
+    #msg .alert { pointer-events: auto; margin: 0; box-shadow: 0 8px 24px rgba(14,34,64,.18); display: flex; align-items: flex-start; gap: 10px; }
+    #msg .alert .message-content { flex: 1; }
+    #msg .alert .btn-close { flex-shrink: 0; }
+    #msg .alert strong.message-type { display: block; margin-bottom: 2px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+
+    /* ── REVIEW SUMMARY GRID (Step 3) ── */
+    .review-block {
+      background: var(--bg-page); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 18px;
+    }
+    .review-block-header {
+      padding: 10px 16px; background: var(--navy);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .review-block-header span {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: rgba(255,255,255,0.85);
+    }
+    .review-block-header i { color: var(--gold); font-size: 13px; }
+    .review-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+    }
+    .review-row {
+      padding: 9px 16px; border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .review-row:nth-child(even) { border-right: none; }
+    .review-row:nth-last-child(-n+2) { border-bottom: none; }
+    .review-row.full-width { grid-column: 1/-1; border-right: none; }
+    .review-label {
+      font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: var(--text-muted);
+    }
+    .review-value {
+      font-size: 12.5px; font-weight: 600; color: var(--navy);
+      word-break: break-word;
+    }
+    .review-value.mono {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      font-weight: 400; color: var(--text-secondary);
+    }
+    .review-value.empty { color: var(--text-muted); font-weight: 400; font-style: italic; font-size: 11.5px; }
+
+    /* ── DOCUMENT SECTION ── */
+    .doc-upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* ── OPTIONAL SECTION TOGGLE ── */
+    .optional-section-toggle {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 0; cursor: pointer; user-select: none;
+      color: var(--text-secondary); font-size: 12.5px; font-weight: 500;
+    }
+    .optional-section-toggle i { color: var(--gold); font-size: 13px; }
+    .optional-section-toggle .toggle-arrow { margin-left: auto; font-size: 11px; color: var(--text-muted); transition: transform 0.2s; }
+    .optional-section-toggle.open .toggle-arrow { transform: rotate(180deg); }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--bg-card); color: var(--text-muted);
+      padding: 9px 24px; display: flex; justify-content: space-between;
+      align-items: center; font-size: 11px;
+      border-top: 1px solid var(--border); flex-shrink: 0;
+    }
+    .footer-session { display: flex; align-items: center; gap: 6px; }
+    .session-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+    /* ── TOAST ── */
+    .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+    .toast-msg {
+      background: var(--navy); color: white; padding: 10px 16px;
+      border-radius: var(--radius); margin-top: 8px; font-size: 12.5px;
+      animation: slideIn 0.25s ease; display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 4px 14px rgba(14,34,64,0.25);
+    }
+    .toast-msg.success { border-left: 3px solid #22c55e; }
+    .toast-msg.error   { border-left: 3px solid #ef4444; }
+    .toast-msg.info    { border-left: 3px solid var(--gold); }
+    @keyframes slideIn { from { transform: translateX(60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* ── MODAL ── */
+    .modal-content { border-radius: var(--radius-lg); border: none; box-shadow: 0 20px 60px rgba(14,34,64,0.2); }
+    .modal-header { border-bottom: 1px solid var(--border); padding: 15px 20px; }
+    .modal-title  { font-size: 14px; font-weight: 600; color: var(--navy); }
+    .modal-body   { padding: 18px 20px; font-size: 13px; color: var(--text-secondary); }
+    .modal-footer { border-top: 1px solid var(--border); padding: 13px 20px; display: flex; gap: 8px; justify-content: flex-end; }
+    .blockchain-success .modal-header { background: #f0fdf4; border-bottom-color: #bbf7d0; }
+    .blockchain-success .modal-title { color: #166534; }
+    .signature-modal { position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(14,34,64,.55); }
+    .signature-modal-content { width: min(720px, 100%); background: #fff; border-radius: 10px; box-shadow: 0 18px 50px rgba(14,34,64,.25); padding: 22px; }
+    .signature-modal-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    .signature-modal-header h5 { margin: 0; color: var(--navy); font-size: 16px; }
+    #registrationSignatureCanvas { width: 100%; height: 220px; border: 1px solid var(--border-mid); border-radius: 6px; background: #fff; touch-action: none; display: block; }
+    .signature-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+    .chain-record-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+    .chain-record-item { padding: 11px 12px; background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; }
+    .chain-record-label { color: var(--text-muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+    .chain-record-value { color: var(--navy); font-size: 13px; font-weight: 600; margin-top: 4px; overflow-wrap: anywhere; }
+    .chain-record-value.hash { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+    @media (max-width: 576px) { .chain-record-grid { grid-template-columns: 1fr; } }
+
+    /* ── MISC ── */
+    .spinner-border-sm { width: 14px; height: 14px; border-width: 2px; }
+    hr { margin: 16px 0; border: none; border-top: 1px solid var(--border); }
+    #postRegisterActions .alert { margin-bottom: 0; }
+    @media (max-width: 768px) { .sidebar { display: none; } .main-content { padding: 16px; } .review-grid { grid-template-columns: 1fr; } .doc-upload-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../../images/coat-of-arms.png" alt="Coat of Arms" width="40" height="40" style="object-fit:contain;"/>
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar" id="userAvatarInitials" aria-label="Current user"></div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="topUserName">Loading profile...</div>
+      <div class="top-user-role" id="topUserDetails">Land Officer</div>
+    </div>
+    <button class="btn-signout" id="signOutBtn">Sign Out</button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="dashboard-container">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Main Menu</div>
+    <a href="/pages/officer/dashboard.html"         class="sidebar-item"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="/pages/officer/parcel-registry.html"   class="sidebar-item"><i class="bi bi-collection"></i> Parcel Registry</a>
+    <a href="/pages/officer/register-parcel.html"   class="sidebar-item active"><i class="bi bi-plus-circle"></i> Register Parcel</a>
+    <a href="/pages/officer/transfer-requests.html" class="sidebar-item"><i class="bi bi-arrow-left-right"></i> Transfer Requests</a>
+    <a href="/pages/officer/parcel-status.html"  class="sidebar-item"><i class="bi bi-x-circle"></i> Rejected Parcels</a>
+    <a href="/pages/officer/notifications.html"     class="sidebar-item">
+      <i class="bi bi-bell"></i> Notifications
+      <span class="badge-notif" id="sidebarNotifCount" style="display:none">0</span>
+    </a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Reports</div>
+    <a href="/pages/officer/monthly-report.html" class="sidebar-item" id="monthlyReportBtn"><i class="bi bi-file-earmark-bar-graph"></i> Monthly Report</a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Account</div>
+    <a href="/pages/officer/manage-profile.html" class="sidebar-item"><i class="bi bi-person-circle"></i> My Profile</a>
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" id="signOutSidebarBtn"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div>
+        <div class="page-title"><i class="bi bi-plus-circle"></i> Register New Land Parcel</div>
+      </div>
+      <a href="/pages/officer/dashboard.html" class="btn-back"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+    </div>
+
+    <!-- Alert Messages -->
+    <div id="msg" aria-live="assertive" aria-atomic="true"></div>
+
+    <!-- ══ SEARCH CARD ══ -->
+    <div class="form-card">
+      <div class="card-header-custom">
+        <h6><span class="hdr-icon"><i class="bi bi-search"></i></span> Search Existing Landowner / Parcel</h6>
+      </div>
+      <div style="padding:16px 22px;">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-8">
+            <label class="form-label">Search by parcel number, owner name, NRC, or email</label>
+            <input type="text" class="form-control" id="ownerSearchQuery" placeholder="e.g. ZM-LUS-2026-001 / John Doe / 12345678">
+          </div>
+          <div class="col-md-4">
+            <button type="button" class="btn-primary-custom w-100" id="searchOwnerBtn" style="height:36px;">
+              <i class="bi bi-search"></i> Find Landowner
+            </button>
+          </div>
+        </div>
+        <div class="mt-3" id="ownerSearchResults"></div>
+      </div>
+    </div>
+
+    <!-- ══ REGISTRATION FORM CARD ══ -->
+    <div class="form-card">
+      <div class="card-header-custom">
+        <h6><span class="hdr-icon"><i class="bi bi-file-text"></i></span> Parcel Registration Form</h6>
+        <span style="font-size:11px;color:var(--text-muted);font-weight:500;" id="wizardProgressText">Step 1 of 3</span>
+      </div>
+      <div class="card-body-custom">
+        <div id="formMsg"></div>
+
+        <!-- Wizard Nav -->
+        <div class="wizard-header">
+          <div class="wizard-steps">
+            <div class="wizard-step-card active" data-step="0">
+              <div class="wizard-step-circle">1</div>
+              <div><div class="step-label">Parcel Info</div><div class="step-sublabel">Location &amp; classification</div></div>
+            </div>
+            <div class="wizard-step-card" data-step="1">
+              <div class="wizard-step-circle">2</div>
+              <div><div class="step-label">Owner Details</div><div class="step-sublabel">Ownership &amp; identity</div></div>
+            </div>
+            <div class="wizard-step-card" data-step="2">
+              <div class="wizard-step-circle">3</div>
+              <div><div class="step-label">Review &amp; Submit</div><div class="step-sublabel">Documents &amp; confirm</div></div>
+            </div>
+          </div>
+          <div class="wizard-progress">
+            <div class="wizard-progress-fill" id="wizardProgressFill"></div>
+          </div>
+        </div>
+
+        <!-- ══ STEP 1: PARCEL INFO ══ -->
+        <div class="wizard-step active" data-step="0">
+
+          <!-- Section A: Identification -->
+          <div class="field-section">
+            <div class="field-section-label"><i class="bi bi-upc" style="color:var(--gold);"></i> Identification</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Parcel Number *</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="parcelNumber" readonly>
+                  <button class="btn btn-outline-primary" type="button" id="generateBtn"><i class="bi bi-arrow-repeat"></i> Generate</button>
+                </div>
+                <div class="text-danger small d-none" id="parcelNumberError"></div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Title Deed Number</label>
+                <input type="text" class="form-control" id="titleDeedNumber" placeholder="Leave blank — generated automatically">
+                <div class="form-text">Auto-generated at registration if left blank.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Plot Number <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted)">(optional)</span></label>
+                <input type="text" class="form-control" id="plotNumber" placeholder="e.g. PL-2026-001">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Block / Section</label>
+                <input type="text" class="form-control" id="blockSection" placeholder="Optional">
+              </div>
+            </div>
+          </div>
+
+          <!-- Section B: Location -->
+          <div class="field-section">
+            <div class="field-section-label"><i class="bi bi-geo-alt" style="color:var(--gold);"></i> Location</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">GPS Latitude <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted)">(optional)</span></label>
+                <input type="text" class="form-control" id="gpsLat" placeholder="e.g. -15.4167">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">GPS Longitude <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted)">(optional)</span></label>
+                <input type="text" class="form-control" id="gpsLng" placeholder="e.g. 28.2833">
+              </div>
+              <div class="col-12">
+                <div class="d-flex gap-2 flex-wrap">
+                  <button type="button" class="btn-outline-custom" id="useCurrentLocationBtn">
+                    <i class="bi bi-crosshair"></i> Use My Current Location
+                  </button>
+                  <button type="button" class="btn-outline-custom" id="resolveLocationBtn">
+                    <i class="bi bi-geo-alt"></i> Get Location from Coordinates
+                  </button>
+                </div>
+                <div id="resolvedLocation" class="form-text mt-2" aria-live="polite"></div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Province *</label>
+                <select class="form-select" id="province">
+                  <option value="">Select province</option>
+                  <option>Lusaka</option>
+                  <option>Northern</option><option>Western</option><option>Southern</option><option>North-Western</option>
+                  <option>Luapula</option><option>Muchinga</option>
+                </select>
+                <div class="text-danger small d-none" id="provinceError"></div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">District *</label>
+                <select class="form-select" id="district">
+                  <option value="">Select district</option>
+                </select>
+                <div class="text-danger small d-none" id="districtError"></div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Location / Street Address *</label>
+                <input type="text" class="form-control" id="locationAddress" placeholder="e.g. Plot 12, Cairo Road, Lusaka">
+                <div class="text-danger small d-none" id="locationAddressError"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section C: Classification -->
+          <div class="field-section">
+            <div class="field-section-label"><i class="bi bi-tags" style="color:var(--gold);"></i> Classification &amp; Tenure</div>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Plot Size (sqm) *</label>
+                <input type="number" class="form-control" id="plotSize" step="0.01" min="0.01" placeholder="e.g. 450">
+                <div class="text-danger small d-none" id="plotSizeError"></div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Land Use *</label>
+                <select class="form-select" id="landUseType">
+                  <option value="">Select land use</option>
+                  <option value="RESIDENTIAL">Residential</option>
+                  <option value="COMMERCIAL">Commercial</option>
+                  <option value="AGRICULTURAL">Agricultural</option>
+                  <option value="INDUSTRIAL">Industrial</option>
+                  <option value="MIXED_USE">Mixed Use</option>
+                </select>
+                <div class="text-danger small d-none" id="landUseTypeError"></div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Land Category <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted)">(optional)</span></label>
+                <select class="form-select" id="landCategory">
+                  <option value="">Select category</option>
+                  <option value="URBAN">Urban</option>
+                  <option value="RURAL">Rural</option>
+                  <option value="PERI_URBAN">Peri-Urban</option>
+                  <option value="DESIGNATED">Designated Area</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /step 1 -->
+
+        <!-- ══ STEP 2: OWNER DETAILS ══ -->
+        <div class="wizard-step" data-step="1">
+
+          <div class="alert alert-info" style="margin-bottom:18px;">
+            <i class="bi bi-info-circle me-2"></i>
+            Search an existing landowner above to auto-fill these fields, or enter new owner details manually.
+          </div>
+
+          <div class="field-section">
+            <div class="field-section-label"><i class="bi bi-camera" style="color:var(--gold);"></i> Live Owner Photograph</div>
+            <div class="row g-3 align-items-start">
+              <div class="col-md-7">
+                <video id="ownerPhotoVideo" class="owner-photo-video d-none" autoplay playsinline></video>
+                <canvas id="ownerPhotoCanvas" class="d-none"></canvas>
+                <div id="ownerPhotoPreview" class="owner-photo-preview"><i class="bi bi-person-bounding-box"></i><span>No photograph captured</span></div>
+                <div class="d-flex gap-2 mt-2 flex-wrap">
+                  <button type="button" class="btn btn-outline-primary" id="startCameraBtn"><i class="bi bi-camera-video"></i> Open camera</button>
+                  <button type="button" class="btn btn-primary d-none" id="capturePhotoBtn"><i class="bi bi-camera-fill"></i> Capture photograph</button>
+                </div>
+                <div class="form-text">Capture a clear photograph of the registered landowner. The image is stored with the owner record for verification and audit use.</div>
+                <div class="text-danger small d-none" id="ownerPhotoError"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Primary Identity -->
+          <div class="field-section">
+            <div class="field-section-label"><i class="bi bi-person-badge" style="color:var(--gold);"></i> Owner Identity</div>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Owner User ID <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted)">(from system)</span></label>
+                <input type="number" class="form-control" id="ownerUserId" placeholder="Auto-filled from search">
+                <div class="text-danger small d-none" id="ownerUserIdError"></div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Full Name *</label>
+                <input type="text" class="form-control" id="ownerName" placeholder="e.g. Christine Lunguu">
+                <div class="text-danger small d-none" id="ownerNameError"></div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">NRC / National ID *</label>
+                <input type="text" class="form-control" id="ownerNid" placeholder="e.g. 613180/10/1">
+                <div class="text-danger small d-none" id="ownerNidError"></div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Gender *</label>
+                <select class="form-select" id="ownerGender">
+                  <option value="">Select gender</option>
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                </select>
+                <div class="text-danger small d-none" id="ownerGenderError"></div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Marital Status</label>
+                <select class="form-select" id="maritalStatus">
+                  <option value="">Select</option>
+                  <option value="SINGLE">Single</option>
+                  <option value="MARRIED">Married</option>
+                  <option value="DIVORCED">Divorced</option>
+                  <option value="WIDOWED">Widowed</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Occupation <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted)">(optional)</span></label>
+                <input type="text" class="form-control" id="ownerOccupation" placeholder="e.g. Self-employed">
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact -->
+          <div class="field-section">
+            <div class="field-section-label"><i class="bi bi-telephone" style="color:var(--gold);"></i> Contact Details</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Email Address *</label>
+                <input type="email" class="form-control" id="ownerEmail" placeholder="owner@example.com">
+                <div class="text-danger small d-none" id="ownerEmailError"></div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Phone Number *</label>
+                <input type="text" class="form-control" id="ownerPhone" placeholder="+260 97X XXX XXX">
+                <div class="text-danger small d-none" id="ownerPhoneError"></div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Residential Address *</label>
+                <input type="text" class="form-control" id="ownerAddress" placeholder="e.g. Plot 45, Kabwe Road, Lusaka">
+                <div class="text-danger small d-none" id="ownerAddressError"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Supporting Documents -->
+          <div class="field-section">
+            <div class="field-section-label"><i class="bi bi-paperclip" style="color:var(--gold);"></i> Supporting Documents</div>
+            <div class="doc-upload-grid">
+              <div>
+                <label class="form-label">Document of Preferences <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted)">(optional)</span></label>
+                <input type="file" class="form-control" id="preferencesDoc" accept="application/pdf,image/*" style="height:auto;padding:5px 10px;">
+              </div>
+              <div>
+                <label class="form-label">NRC Copy <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted)">(mandatory)</span></label>
+                <input type="file" class="form-control" id="nrcDoc" accept="image/*,application/pdf" style="height:auto;padding:5px 10px;" required >
+              </div>
+            </div>
+          </div>
+
+          <!-- Ownership -->
+          <div class="field-section">
+            <div class="field-section-label"><i class="bi bi-file-earmark-lock" style="color:var(--gold);"></i> Ownership</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Ownership Type *</label>
+                <select class="form-select" id="ownershipType">
+                  <option value="">Select type</option>
+                  <option value="SOLE">Sole</option>
+                  <option value="JOINT">Joint</option>
+                  <option value="LEASEHOLD">Leasehold</option>
+                  <option value="FREEHOLD">Freehold</option>
+                </select>
+                <div class="text-danger small d-none" id="ownershipTypeError"></div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Ownership Start Date *</label>
+                <input type="date" class="form-control" id="startDate">
+                <div class="text-danger small d-none" id="startDateError"></div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Blockchain Wallet Address <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted)">(optional)</span></label>
+                <input type="text" class="form-control" id="ownerWalletAddress" placeholder="0x..." style="font-family:'JetBrains Mono',monospace;font-size:12px;">
+                <div class="text-danger small d-none" id="ownerWalletAddressError"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next of Kin -->
+          <div class="field-section" style="border-bottom:none;padding-bottom:0;">
+            <div class="field-section-label"><i class="bi bi-people" style="color:var(--gold);"></i> Next of Kin <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);margin-left:4px;">(optional)</span></div>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="nokName" placeholder="e.g. Zimba Lunguu">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Phone</label>
+                <input type="text" class="form-control" id="nokPhone" placeholder="+260 XXX XXX XXX">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Relationship</label>
+                <input type="text" class="form-control" id="nokRelation" placeholder="e.g. Mother, Spouse">
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /step 2 -->
+
+        <!-- ══ STEP 3: REVIEW & SUBMIT ══ -->
+        <div class="wizard-step" data-step="2">
+
+          <div class="alert alert-light" style="margin-bottom:18px;">
+            <i class="bi bi-eye me-2"></i>
+            Review all details carefully. The owner must sign below after confirming the information.
+          </div>
+
+          <!-- Review: Parcel -->
+          <div class="review-block">
+            <div class="review-block-header">
+              <i class="bi bi-map"></i>
+              <span>Parcel Details</span>
+            </div>
+            <div class="review-grid" id="reviewParcelGrid">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Review: Owner -->
+          <div class="review-block">
+            <div class="review-block-header">
+              <i class="bi bi-person"></i>
+              <span>Owner Details</span>
+            </div>
+            <div class="review-grid" id="reviewOwnerGrid">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <div class="field-section">
+            <div class="field-section-label"><i class="bi bi-pen" style="color:var(--gold);"></i> Owner Confirmation &amp; Signature</div>
+            <p class="form-text mt-0">After reviewing the details above, the landowner confirms that the information is accurate and signs this registration.</p>
+            <div class="d-flex gap-2 align-items-center flex-wrap">
+              <button type="button" class="btn btn-outline-primary" id="ownerSignBtn"><i class="bi bi-pen"></i> Owner signs registration</button>
+              <span id="ownerSignatureStatus" class="text-muted small">Awaiting owner signature</span>
+            </div>
+            <input type="hidden" id="ownerSignature">
+            <div class="text-danger small d-none" id="ownerSignatureError"></div>
+          </div>
+
+          <!-- Document Hash -->
+          <div class="field-section">
+            <div class="field-section-label"><i class="bi bi-shield-check" style="color:var(--gold);"></i> Document Verification</div>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Document Hash (SHA-256) *</label>
+                <input type="text" class="form-control" id="documentHash" placeholder="Enter the 64-character SHA-256 hash of the primary document" style="font-family:'JetBrains Mono',monospace;font-size:12px;">
+                <div class="text-danger small d-none" id="documentHashError"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Joint / Company -->
+          <div class="field-section">
+            <div class="field-section-label"><i class="bi bi-building" style="color:var(--gold);"></i> Joint / Company Details <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);margin-left:4px;">(optional)</span></div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Joint Owner Name</label>
+                <input type="text" class="form-control" id="owner2Name" placeholder="Optional">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Joint Owner NRC</label>
+                <input type="text" class="form-control" id="owner2Nid" placeholder="Optional">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Company Name</label>
+                <input type="text" class="form-control" id="companyName" placeholder="Optional">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">PACRA Number</label>
+                <input type="text" class="form-control" id="pacraNumber" placeholder="Optional">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Director Name</label>
+                <input type="text" class="form-control" id="directorName" placeholder="Optional">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Director NRC</label>
+                <input type="text" class="form-control" id="directorNid" placeholder="Optional">
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /step 3 -->
+
+        <!-- NAVIGATION -->
+        <div class="wizard-navigation">
+          <button class="btn btn-secondary" id="prevStepBtn" type="button"><i class="bi bi-arrow-left"></i> Previous</button>
+          <div class="d-flex gap-2">
+            <button class="btn btn-secondary" id="nextStepBtn" type="button">Next <i class="bi bi-arrow-right"></i></button>
+            <button class="btn-primary-custom" id="submitBtn" type="button"><i class="bi bi-save"></i> Register Parcel</button>
+          </div>
+        </div>
+
+        <div id="postRegisterActions" class="mt-3 d-none">
+          <div class="alert alert-success d-flex justify-content-between align-items-center mb-0">
+            <span id="postRegisterMessage"></span>
+            <div class="d-flex gap-2">
+              <button class="btn-outline-custom" id="anotherParcelBtn"><i class="bi bi-plus-circle"></i> Register another</button>
+              <button class="btn-outline-custom" id="gotoDashboardBtn"><i class="bi bi-house"></i> Dashboard</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /card-body-custom -->
+    </div><!-- /form-card -->
+
+  </div><!-- /main-content -->
+</div><!-- /dashboard-container -->
+
+<div class="signature-modal" id="registrationSignatureModal" role="dialog" aria-modal="true" aria-labelledby="registrationSignatureTitle">
+  <div class="signature-modal-content">
+    <div class="signature-modal-header">
+      <h5 id="registrationSignatureTitle"><i class="bi bi-pen me-2"></i>Owner Signature</h5>
+      <button type="button" class="btn btn-sm btn-outline-secondary" id="closeRegistrationSignature">Close</button>
+    </div>
+    <p class="form-text">Draw the owner's signature in the box below using a mouse, touch screen, or stylus.</p>
+    <canvas id="registrationSignatureCanvas" width="680" height="220"></canvas>
+    <div class="signature-modal-actions">
+      <button type="button" class="btn btn-outline-secondary" id="clearRegistrationSignature">Clear</button>
+      <button type="button" class="btn btn-primary" id="saveRegistrationSignature"><i class="bi bi-check2 me-1"></i>Save Signature</button>
+    </div>
+  </div>
+</div>
+
+<!-- Blockchain registration success modal -->
+<div class="modal fade blockchain-success" id="blockchainSuccessModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-check-circle-fill me-2"></i>Parcel Registered Successfully</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div style="font-weight:600;color:#166534;">Blockchain Record Created</div>
+        <div class="chain-record-grid">
+          <div class="chain-record-item" style="grid-column:1 / -1;">
+            <div class="chain-record-label">Transaction Hash</div>
+            <div class="chain-record-value hash" id="successTransactionHash">—</div>
+          </div>
+          <div class="chain-record-item">
+            <div class="chain-record-label">Block Number</div>
+            <div class="chain-record-value" id="successBlockNumber">—</div>
+          </div>
+          <div class="chain-record-item">
+            <div class="chain-record-label">Smart Contract</div>
+            <div class="chain-record-value" id="successContract">LandRegistry.sol</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-custom" data-bs-dismiss="modal">Close</button>
+        <a class="btn-primary-custom" id="viewBlockchainRecordBtn" href="#"><i class="bi bi-shield-check"></i> View Blockchain Record</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Owner Found Modal -->
+<div class="modal fade" id="ownerFoundModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-person-check me-2" style="color:var(--gold);"></i>Landowner Record Found</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>A matching record was found for <strong id="foundOwnerName"></strong>.</p>
+        <p class="mt-2">Would you like to register a new parcel under this existing account?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-outline-custom" data-bs-dismiss="modal" id="viewDetailsBtn">View Details</button>
+        <button class="btn-primary-custom" id="registerUnderOwnerBtn"><i class="bi bi-plus-circle"></i> Register Parcel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { api } from '/js/api.js';
+  import { requireLogin, getSession, logout, showLogoutConfirmation } from '/js/auth.js';
+  import { generateSystemSignature } from '/js/web3.js';
+
+  const PROVINCE_DISTRICTS = {
+    'Lusaka': ['Lusaka'],
+    'Copperbelt': [
+      'Chililabombwe', 'Chingola', 'Kalulushi', 'Kitwe', 'Luanshya',
+      'Lufwanyama', 'Masaiti', 'Mpongwe', 'Mufulira', 'Ndola'
+    ],
+    'Central': ['Kabwe'],
+    'Eastern': ['Chipata'],
+    'Northern': ['Kasama'],
+    'Western': ['Mongu'],
+    'Southern': ['Choma'],
+    'North-Western': ['Solwezi'],
+    'Luapula': ['Mansa'],
+    'Muchinga': ['Chinsali']
+  };
+
+  function showToast(message, type='success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast-msg ${type}`;
+    const icon = type==='success'?'check-circle-fill':type==='error'?'exclamation-triangle-fill':'info-circle-fill';
+    toast.innerHTML = `<i class="bi bi-${icon}"></i> ${message}`;
+    container.appendChild(toast);
+    setTimeout(()=>toast.remove(),4000);
+  }
+
+  function showMsg(text, type) {
+    const msgDiv = document.getElementById('msg');
+    const messageTypes = {
+      success: { label: 'Success', icon: 'check-circle-fill' },
+      info: { label: 'Information', icon: 'info-circle-fill' },
+      warning: { label: 'Warning', icon: 'exclamation-triangle-fill' },
+      danger: { label: 'Error', icon: 'x-circle-fill' },
+      error: { label: 'Error', icon: 'x-circle-fill' }
+    };
+    const messageType = messageTypes[type] || messageTypes.info;
+    const alertType = type === 'error' ? 'danger' : type;
+    const html = `<div class="alert alert-${alertType} alert-dismissible fade show" role="alert">
+      <i class="bi bi-${messageType.icon}" aria-hidden="true"></i>
+      <div class="message-content"><strong class="message-type">${messageType.label}</strong>${text}</div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>`;
+    if (msgDiv) {
+      msgDiv.innerHTML = html;
+      setTimeout(()=>{ if(msgDiv.firstChild) msgDiv.firstChild.remove(); }, 5000);
+    }
+    // Also show message inside the form card if present (keeps message visually inside the box)
+    const formMsg = document.getElementById('formMsg');
+    if (formMsg) {
+      formMsg.innerHTML = html;
+      setTimeout(()=>{ if(formMsg.firstChild) formMsg.firstChild.remove(); }, 5000);
+    }
+  }
+
+  async function updateTopBar() {
+    requireLogin();
+    const session = getSession();
+    const fullName = session.fullName || session.name || session.email || 'Land Officer';
+    const profileResult = await api.getMyProfile();
+    const profile = profileResult?.data || profileResult || {};
+    const savedPhoto = profile.photoPath || session.photoPath || localStorage.getItem('lv_photo') || '';
+    if (profile.photoPath) localStorage.setItem('lv_photo', profile.photoPath);
+    document.getElementById('topUserName').textContent = fullName;
+    document.getElementById('topUserDetails').textContent = session.role ? session.role.replace(/_/g,' ') : 'Land Officer';
+    const av = document.getElementById('userAvatarInitials');
+    if (savedPhoto) {
+      const photoUrl = savedPhoto.startsWith('http') || savedPhoto.startsWith('/') ? savedPhoto : `/uploads/${savedPhoto}`;
+      if (av) av.innerHTML = `<img src="${photoUrl}" alt="Profile photo" />`;
+    } else {
+      const initials = fullName.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+      if (av && !av.querySelector('img')) av.textContent = initials;
+    }
+    try {
+      const notifResult = await api.officerUnreadNotificationCount?.();
+      const count = notifResult?.data?.count ?? notifResult?.data ?? 0;
+      const sn = document.getElementById('sidebarNotifCount');
+      if(sn){ sn.textContent = count>0?count:''; sn.style.display=count>0?'inline':'none'; }
+    } catch(e){ console.warn('Notification count unavailable',e); }
+  }
+
+  let currentSearchOwners = [];
+  let ownerPhotoFile = null;
+  let ownerPhotoStream = null;
+  let ownerSignature = '';
+
+  function invalidateOwnerSignature() {
+    if (!ownerSignature) return;
+    ownerSignature = '';
+    document.getElementById('ownerSignature').value = '';
+    document.getElementById('ownerSignatureStatus').textContent = 'Details changed — signature required again';
+    document.getElementById('ownerSignatureStatus').className = 'text-warning small';
+  }
+  document.getElementById('startDate').value = new Date().toISOString().split('T')[0];
+
+  function normalizeLocationName(value) {
+    return String(value || '').toLowerCase().replace(/\s+province$/i, '').replace(/\s+/g, ' ').trim();
+  }
+
+  function setDistrictOptions(province, selectedDistrict = '') {
+    const select = document.getElementById('district');
+    const districts = PROVINCE_DISTRICTS[province] || [];
+    select.innerHTML = '<option value="">Select district</option>';
+    districts.forEach(district => {
+      const option = document.createElement('option');
+      option.value = district;
+      option.textContent = district;
+      select.appendChild(option);
+    });
+    const matchingDistrict = districts.find(district => normalizeLocationName(district) === normalizeLocationName(selectedDistrict));
+    if (matchingDistrict) select.value = matchingDistrict;
+  }
+
+  function setProvinceFromGeocoder(provinceName) {
+    const normalizedProvince = normalizeLocationName(provinceName);
+    const provinceSelect = document.getElementById('province');
+    const option = Array.from(provinceSelect.options).find(item => normalizeLocationName(item.value || item.text) === normalizedProvince);
+    if (!option) return false;
+    provinceSelect.value = option.value;
+    return true;
+  }
+
+  async function resolveLocationFromCoordinates() {
+    const latitude = Number(document.getElementById('gpsLat').value.trim());
+    const longitude = Number(document.getElementById('gpsLng').value.trim());
+    const button = document.getElementById('resolveLocationBtn');
+    const result = document.getElementById('resolvedLocation');
+
+    if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 ||
+        !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+      showMsg('Enter valid coordinates before getting the location. Latitude must be between -90 and 90, and longitude between -180 and 180.', 'warning');
+      return;
+    }
+
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Finding location...';
+    result.textContent = '';
+    try {
+      const query = new URLSearchParams({
+        format: 'jsonv2',
+        lat: String(latitude),
+        lon: String(longitude),
+        zoom: '18',
+        addressdetails: '1'
+      });
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?${query}`, {
+        headers: { Accept: 'application/json' }
+      });
+      if (!response.ok) throw new Error(`Location service returned ${response.status}`);
+      const data = await response.json();
+      if (!data.display_name) throw new Error('No address was found for these coordinates.');
+
+      const address = data.address || {};
+      const country = normalizeLocationName(address.country);
+      if (country !== 'zambia') {
+        throw new Error('The provided coordinates are outside Zambia.');
+      }
+
+      const province = address.state || address.province || '';
+      const district = address.city_district || address.district || address.city || address.town || address.municipality || '';
+      if (!setProvinceFromGeocoder(province)) {
+        throw new Error('The location is in Zambia, but its province is not in the system list.');
+      }
+      setDistrictOptions(document.getElementById('province').value, district);
+      if (!document.getElementById('district').value) {
+        throw new Error('The location is in Zambia, but its district is not in the system list.');
+      }
+      document.getElementById('locationAddress').value = data.display_name;
+      result.innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i><strong>Resolved location:</strong> ${data.display_name}`;
+      showMsg('Location identified successfully. Province, district, and address were updated.', 'success');
+    } catch (error) {
+      result.innerHTML = `<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i>${error.message}`;
+      showMsg(error.message.includes('outside Zambia') ? error.message : `Unable to determine the location from these coordinates: ${error.message}`, 'warning');
+    } finally {
+      button.disabled = false;
+      button.innerHTML = '<i class="bi bi-geo-alt"></i> Get Location from Coordinates';
+    }
+  }
+
+  document.getElementById('resolveLocationBtn')?.addEventListener('click', resolveLocationFromCoordinates);
+  document.getElementById('useCurrentLocationBtn')?.addEventListener('click', () => {
+    if (!navigator.geolocation) {
+      showMsg('This browser does not support device location. Enter coordinates manually.', 'warning');
+      return;
+    }
+    const button = document.getElementById('useCurrentLocationBtn');
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Reading device location...';
+    navigator.geolocation.getCurrentPosition(async position => {
+      document.getElementById('gpsLat').value = position.coords.latitude.toFixed(6);
+      document.getElementById('gpsLng').value = position.coords.longitude.toFixed(6);
+      await resolveLocationFromCoordinates();
+      button.disabled = false;
+      button.innerHTML = '<i class="bi bi-crosshair"></i> Use My Current Location';
+    }, error => {
+      const message = error.code === error.PERMISSION_DENIED
+        ? 'Location permission was denied. Allow access or enter coordinates manually.'
+        : 'Unable to read your current location. Enter coordinates manually.';
+      showMsg(message, 'warning');
+      button.disabled = false;
+      button.innerHTML = '<i class="bi bi-crosshair"></i> Use My Current Location';
+    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+  });
+
+  window.generateParcelNumber = async function() {
+    const province = document.getElementById('province').value;
+    if(!province){ showToast('Select a province first.','warning'); return; }
+    const btn = document.getElementById('generateBtn');
+    btn.disabled=true; btn.innerHTML='<span class="spinner-border spinner-border-sm"></span>';
+    try {
+      const res = await api.generateParcelNumber(province);
+      const parcelNum = res?.data?.parcelNumber || res?.parcelNumber;
+      if(parcelNum) document.getElementById('parcelNumber').value = parcelNum;
+      else throw new Error('Invalid response');
+      showToast('Parcel number generated','success');
+    } catch(e){ showToast('Failed to generate parcel number: '+e.message,'error'); }
+    finally { btn.disabled=false; btn.innerHTML='<i class="bi bi-arrow-repeat"></i> Generate'; }
+  };
+
+  window.searchLandowners = async function() {
+    const query = document.getElementById('ownerSearchQuery').value.trim();
+    const resultsDiv = document.getElementById('ownerSearchResults');
+    if(!query){ resultsDiv.innerHTML='<div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-2"></i>Enter a search term to find a landowner.</div>'; return; }
+    const btn = document.getElementById('searchOwnerBtn');
+    btn.disabled=true; btn.innerHTML='<span class="spinner-border spinner-border-sm"></span>';
+    try {
+      const response = await api.searchLandowners(query);
+      currentSearchOwners = Array.isArray(response)?response:(response?.data||[]);
+      if(currentSearchOwners.length===0){
+        resultsDiv.innerHTML='<div class="alert alert-info"><i class="bi bi-info-circle me-2"></i>No existing record found. Fill in owner details below to register a new owner.</div>';
+      } else {
+        const owner = currentSearchOwners[0];
+        document.getElementById('foundOwnerName').innerText = owner.fullName || 'Owner';
+        new bootstrap.Modal(document.getElementById('ownerFoundModal')).show();
+        resultsDiv.innerHTML='';
+      }
+    } catch(e){ showToast('Search failed','error'); }
+    finally { btn.disabled=false; btn.innerHTML='<i class="bi bi-search"></i> Find Landowner'; }
+  };
+
+  window.registerNewParcelUnderOwner = function() {
+    if(!currentSearchOwners.length) return;
+    const o = currentSearchOwners[0];
+    document.getElementById('ownerUserId').value  = o.userId;
+    document.getElementById('ownerName').value    = o.fullName||'';
+    document.getElementById('ownerEmail').value   = o.email||'';
+    document.getElementById('ownerNid').value     = o.nationalId||'';
+    document.getElementById('ownerPhone').value   = o.phoneNumber||'';
+    document.getElementById('ownerAddress').value = o.address||'';
+    document.getElementById('ownerGender').value  = o.gender||'';
+    bootstrap.Modal.getInstance(document.getElementById('ownerFoundModal'))?.hide();
+    showMsg(`Owner details loaded for <strong>${o.fullName}</strong>. Complete the parcel details and proceed.`,'success');
+  };
+
+  window.viewSearchDetails = function() {
+    bootstrap.Modal.getInstance(document.getElementById('ownerFoundModal'))?.hide();
+    if(currentSearchOwners.length){
+      showMsg(`Owner: <strong>${currentSearchOwners[0].fullName}</strong> — ${currentSearchOwners[0].parcels?.length||0} parcel(s) registered.`,'info');
+    }
+  };
+
+  // ── WIZARD ──
+  const wizardSteps     = Array.from(document.querySelectorAll('.wizard-step'));
+  const wizardStepCards = Array.from(document.querySelectorAll('.wizard-step-card'));
+  let currentWizardStep = 0;
+  const totalWizardSteps = wizardSteps.length;
+
+  function updateWizardProgress() {
+    const percent = totalWizardSteps>1?(currentWizardStep/(totalWizardSteps-1))*100:100;
+    document.getElementById('wizardProgressFill').style.width = `${percent}%`;
+    document.getElementById('wizardProgressText').textContent = `Step ${currentWizardStep+1} of ${totalWizardSteps}`;
+    wizardSteps.forEach((s,i)=>s.classList.toggle('active',i===currentWizardStep));
+    wizardStepCards.forEach((c,i)=>{
+      c.classList.toggle('active',i===currentWizardStep);
+      c.classList.toggle('completed',i<currentWizardStep);
+    });
+    if(currentWizardStep===totalWizardSteps-1) buildReviewSection();
+    document.getElementById('prevStepBtn').style.display  = currentWizardStep>0?'inline-flex':'none';
+    document.getElementById('nextStepBtn').style.display  = currentWizardStep<totalWizardSteps-1?'inline-flex':'none';
+    document.getElementById('submitBtn').style.display    = currentWizardStep===totalWizardSteps-1?'inline-flex':'none';
+  }
+
+  function goToStep(index) {
+    if(index<0||index>=totalWizardSteps) return;
+    currentWizardStep = index;
+    updateWizardProgress();
+    window.scrollTo({top:document.querySelector('.wizard-header').offsetTop-20,behavior:'smooth'});
+  }
+
+  function validateStep(index) {
+    const validators = {
+      0: ()=>{
+        const required=['province','district','locationAddress','plotSize','landUseType'];
+        for(const f of required){
+          const el=document.getElementById(f);
+          if(!el.value.trim()){ showMsg(`Please fill in: <strong>${f.replace(/([A-Z])/g,' $1')}</strong>`,'warning'); return false; }
+        }
+        const latitude = document.getElementById('gpsLat').value.trim();
+        const longitude = document.getElementById('gpsLng').value.trim();
+        if ((latitude && !longitude) || (!latitude && longitude)) {
+          showMsg('Enter both GPS latitude and GPS longitude, or leave both fields empty.', 'warning');
+          return false;
+        }
+        if (latitude || longitude) {
+          const lat = Number(latitude);
+          const lng = Number(longitude);
+          if (!Number.isFinite(lat) || lat < -90 || lat > 90 || !Number.isFinite(lng) || lng < -180 || lng > 180) {
+            showMsg('GPS coordinates are invalid. Latitude must be between -90 and 90, and longitude between -180 and 180.', 'warning');
+            return false;
+          }
+        }
+        return true;
+      },
+      1: ()=>{
+        if(!ownerPhotoFile){ showMsg('Capture the landowner photograph before continuing.','warning'); return false; }
+        const ownerId=document.getElementById('ownerUserId').value.trim();
+        const ownerName=document.getElementById('ownerName').value.trim();
+        if(!ownerId&&!ownerName){ showMsg('Select an existing owner or provide owner name.','warning'); return false; }
+        const required=ownerId?['ownershipType','startDate']:['ownerName','ownerNid','ownerPhone','ownerEmail','ownerGender','ownerAddress','ownershipType','startDate'];
+        for(const f of required){
+          const el=document.getElementById(f);
+          if(!el.value.trim()){ showMsg(`Please fill in: <strong>${f.replace(/([A-Z])/g,' $1')}</strong>`,'warning'); return false; }
+        }
+        return true;
+      },
+      2: ()=>{
+        if(!ownerSignature){
+          showMsg('After reviewing the details, the parcel owner must sign before registration.','warning');
+          return false;
+        }
+        return true;
+      }
+    };
+    return validators[index]?validators[index]():true;
+  }
+
+  function validateAllSteps() {
+    for(let s=0;s<totalWizardSteps;s++){ if(!validateStep(s)){ goToStep(s); return false; } }
+    return true;
+  }
+
+  // ── BUILD REVIEW SUMMARY (structured, 2-col grid) ──
+  function buildReviewSection() {
+    const v = id => document.getElementById(id)?.value?.trim()||'';
+    const row = (label, value, mono=false, emptyLabel='Not provided') =>
+      `<div class="review-row">
+        <div class="review-label">${label}</div>
+        <div class="review-value ${!value?'empty':''}${mono?' mono':''}">${value||emptyLabel}</div>
+      </div>`;
+    const rowFull = (label, value, mono=false, emptyLabel='Not provided') =>
+      `<div class="review-row full-width">
+        <div class="review-label">${label}</div>
+        <div class="review-value ${!value?'empty':''}${mono?' mono':''}">${value||emptyLabel}</div>
+      </div>`;
+
+    // Parcel block
+    const parcelHtml =
+      row('Parcel Number',    v('parcelNumber'), true) +
+      row('Title Deed Number',v('titleDeedNumber'),'','Will be generated automatically') +
+      row('Plot Number',      v('plotNumber')) +
+      row('Block / Section',  v('blockSection'), false, 'Not provided') +
+      row('Province',         v('province')) +
+      row('District',         v('district')) +
+      rowFull('Location / Address', v('locationAddress')) +
+      row('Plot Size (sqm)',  v('plotSize')) +
+      row('Land Use',         v('landUseType')) +
+      row('Land Category',    v('landCategory')) +
+      row('GPS Latitude',     v('gpsLat')) +
+      row('GPS Longitude',    v('gpsLng')) +
+      '';
+    document.getElementById('reviewParcelGrid').innerHTML = parcelHtml;
+
+    // Owner block
+    const ownerHtml =
+      row('Owner User ID',     v('ownerUserId'), false, 'New owner') +
+      row('Full Name',         v('ownerName')) +
+      row('NRC / National ID', v('ownerNid')) +
+      row('Gender',            v('ownerGender')) +
+      row('Marital Status',    v('maritalStatus')) +
+      row('Email',             v('ownerEmail')) +
+      row('Phone',             v('ownerPhone')) +
+      rowFull('Address',       v('ownerAddress')) +
+      row('Ownership Type',    v('ownershipType')) +
+      row('Ownership Start Date', v('startDate')) +
+      rowFull('Owner Registration Signature', ownerSignature ? 'Signed and recorded' : '', false, 'Pending owner signature') +
+      row('Occupation',        v('ownerOccupation')) +
+      (v('ownerWalletAddress') ? rowFull('Wallet Address', v('ownerWalletAddress'), true) : '') +
+      (v('nokName') ? row('Next of Kin', `${v('nokName')} (${v('nokRelation')}) · ${v('nokPhone')}`) : '');
+    document.getElementById('reviewOwnerGrid').innerHTML = ownerHtml;
+  }
+
+  function handleNextStep() {
+    if(!validateStep(currentWizardStep)) return;
+    if(currentWizardStep<totalWizardSteps-1) goToStep(currentWizardStep+1);
+  }
+
+  async function validateAndSubmit() {
+    if(!validateAllSteps()) return;
+    const ownerId=document.getElementById('ownerUserId').value;
+    if(!ownerId&&(!document.getElementById('ownerName').value.trim()||!document.getElementById('ownerEmail').value.trim())){
+      showMsg('Provide owner name and email, or select existing owner.','warning'); return;
+    }
+    const payload = {
+      parcelNumber:      null,
+      titleDeedNumber:   document.getElementById('titleDeedNumber').value||null,
+      plotNumber:        document.getElementById('plotNumber').value||null,
+      blockSection:      document.getElementById('blockSection').value||null,
+      province:          document.getElementById('province').value,
+      district:          document.getElementById('district').value,
+      locationAddress:   document.getElementById('locationAddress').value,
+      plotSize:          parseInt(document.getElementById('plotSize').value,10),
+      landUseType:       document.getElementById('landUseType').value,
+      landCategory:      document.getElementById('landCategory').value||null,
+      gpsLat:            document.getElementById('gpsLat').value||null,
+      gpsLng:            document.getElementById('gpsLng').value||null,
+      ownerUserId:       ownerId?parseInt(ownerId):null,
+      ownerName:         document.getElementById('ownerName').value||null,
+      ownerNid:          document.getElementById('ownerNid').value||null,
+      ownerEmail:        document.getElementById('ownerEmail').value||null,
+      ownerPhone:        document.getElementById('ownerPhone').value||null,
+      ownerAddress:      document.getElementById('ownerAddress').value||null,
+      ownerGender:       document.getElementById('ownerGender').value||null,
+      ownerOccupation:   document.getElementById('ownerOccupation').value||null,
+      maritalStatus:     document.getElementById('maritalStatus').value||null,
+      nokName:           document.getElementById('nokName').value||null,
+      nokPhone:          document.getElementById('nokPhone').value||null,
+      nokRelation:       document.getElementById('nokRelation').value||null,
+      owner2Name:        document.getElementById('owner2Name').value||null,
+      owner2Nid:         document.getElementById('owner2Nid').value||null,
+      companyName:       document.getElementById('companyName').value||null,
+      pacraNumber:       document.getElementById('pacraNumber').value||null,
+      directorName:      document.getElementById('directorName').value||null,
+      directorNid:       document.getElementById('directorNid').value||null,
+      ownerWalletAddress:document.getElementById('ownerWalletAddress').value||null,
+      ownerSignature:     ownerSignature || null,
+      ownershipType:     document.getElementById('ownershipType').value,
+      startDate:         document.getElementById('startDate').value,
+      documentHash:      document.getElementById('documentHash').value.trim() || null
+    };
+    const btn = document.getElementById('submitBtn');
+    btn.disabled=true; btn.innerHTML='<span class="spinner-border spinner-border-sm"></span> Registering…';
+    try {
+      const res = await api.registerParcel(payload, ownerPhotoFile);
+      const serverParcelNumber = res?.data?.parcelNumber || payload.parcelNumber;
+
+      // Attach preferences document (optional)
+      const prefFile = document.getElementById('preferencesDoc').files[0];
+      if(prefFile){
+        const fd1 = new FormData();
+        fd1.append('parcelNumber', serverParcelNumber);
+        fd1.append('category', 'OTHER');
+        fd1.append('files', prefFile);
+        await api.attachDocuments(fd1);
+      }
+
+      // Attach NRC / ID copy (optional)
+      const nrcFile = document.getElementById('nrcDoc').files[0];
+      if(nrcFile){
+        const fd=new FormData();
+        fd.append('parcelNumber', serverParcelNumber);
+        fd.append('category','ID_COPY');
+        fd.append('files',nrcFile);
+        await api.attachDocuments(fd);
+      }
+
+      if(res?.data?.titleDeedNumber) document.getElementById('titleDeedNumber').value=res.data.titleDeedNumber;
+      if(res?.data?.parcelNumber) document.getElementById('parcelNumber').value = res.data.parcelNumber;
+      showMsg('Your parcel has been successfully registered.','success');
+      document.getElementById('postRegisterActions').classList.remove('d-none');
+      const baseMsg=res?.data?.titleDeedNumber?`Parcel registered. Title Deed: ${res.data.titleDeedNumber}.`:'Parcel registered successfully.';
+      document.getElementById('postRegisterMessage').innerText=res?.data?.ownerEmailSent?`${baseMsg} Login details emailed.`:baseMsg;
+
+      const parcelId = res?.data?.parcelId;
+      const fallbackHash = res?.data?.blockchainHash || '';
+      let blockchainRecord = { transactionHash: fallbackHash };
+      if (parcelId) {
+        try {
+          const recordResponse = await api.getParcelBlockchainRecord(parcelId);
+          blockchainRecord = recordResponse?.data || blockchainRecord;
+        } catch (recordError) {
+          console.warn('Blockchain audit record is not available yet:', recordError.message);
+        }
+      }
+      document.getElementById('successTransactionHash').textContent = blockchainRecord.transactionHash || 'Not recorded';
+      document.getElementById('successBlockNumber').textContent = blockchainRecord.blockNumber != null ? blockchainRecord.blockNumber : 'Pending';
+      document.getElementById('successContract').textContent = blockchainRecord.contractAddress || 'LandRegistry.sol';
+      const recordLink = document.getElementById('viewBlockchainRecordBtn');
+      recordLink.href = parcelId ? `parcel-detail.html?parcelId=${encodeURIComponent(parcelId)}` : 'parcel-registry.html';
+      new bootstrap.Modal(document.getElementById('blockchainSuccessModal')).show();
+    } catch(e){ showMsg('Registration failed: '+e.message,'danger'); }
+    finally { btn.disabled=false; btn.innerHTML='<i class="bi bi-save"></i> Register Parcel'; }
+  }
+
+  function resetForm() {
+    const fields=['parcelNumber','titleDeedNumber','plotNumber','blockSection','province','district','locationAddress','plotSize','landUseType','landCategory','gpsLat','gpsLng','ownershipType','documentHash','ownerUserId','ownerName','ownerNid','ownerEmail','ownerPhone','ownerAddress','ownerGender','ownerWalletAddress','ownerOccupation','maritalStatus','nokName','nokPhone','nokRelation','owner2Name','owner2Nid','companyName','pacraNumber','directorName','directorNid'];
+    fields.forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+    document.getElementById('startDate').value=new Date().toISOString().split('T')[0];
+    document.getElementById('preferencesDoc').value='';
+    document.getElementById('nrcDoc').value='';
+    ownerPhotoFile = null;
+    ownerSignature = '';
+    ownerPhotoStream?.getTracks().forEach(track => track.stop());
+    ownerPhotoStream = null;
+    document.getElementById('ownerPhotoVideo')?.classList.add('d-none');
+    document.getElementById('capturePhotoBtn')?.classList.add('d-none');
+    document.getElementById('ownerPhotoPreview').innerHTML='<i class="bi bi-person-bounding-box"></i><span>No photograph captured</span>';
+    document.getElementById('ownerSignature').value='';
+    document.getElementById('ownerSignatureStatus').textContent='Awaiting owner signature';
+    document.getElementById('ownerSignatureStatus').className='text-muted small';
+    document.getElementById('postRegisterActions').classList.add('d-none');
+    document.getElementById('ownerSearchResults').innerHTML='';
+    goToStep(0);
+    showMsg('Form reset. Ready for a new registration.','info');
+  }
+
+  // Event bindings
+  document.getElementById('generateBtn')?.addEventListener('click', window.generateParcelNumber);
+  document.getElementById('province')?.addEventListener('change',()=>{
+    const prov = document.getElementById('province').value;
+    if(!document.getElementById('parcelNumber').value.trim()) window.generateParcelNumber();
+    setDistrictOptions(prov);
+  });
+  document.getElementById('searchOwnerBtn')?.addEventListener('click', window.searchLandowners);
+  document.getElementById('submitBtn')?.addEventListener('click', validateAndSubmit);
+  document.getElementById('prevStepBtn')?.addEventListener('click',()=>goToStep(currentWizardStep-1));
+  document.getElementById('nextStepBtn')?.addEventListener('click', handleNextStep);
+  document.querySelectorAll('.wizard-step-card').forEach((card,index)=>{
+    card.addEventListener('click',()=>{ if(index<=currentWizardStep+1) goToStep(index); });
+  });
+
+  const ownerDetailFields = ['ownerName','ownerNid','ownerEmail','ownerPhone','ownerAddress','ownerGender','ownerOccupation','maritalStatus'];
+  ownerDetailFields.forEach(fieldId => {
+    const input = document.getElementById(fieldId);
+    if (!input) return;
+    input.addEventListener('input', () => {
+      const ownerUserIdEl = document.getElementById('ownerUserId');
+      if (ownerUserIdEl && ownerUserIdEl.value.trim()) {
+        ownerUserIdEl.value = '';
+      }
+      invalidateOwnerSignature();
+    });
+  });
+  ['parcelNumber','plotNumber','blockSection','province','district','locationAddress','plotSize','landUseType','landCategory','gpsLat','gpsLng','ownershipType','startDate'].forEach(fieldId => {
+    document.getElementById(fieldId)?.addEventListener('input', invalidateOwnerSignature);
+    document.getElementById(fieldId)?.addEventListener('change', invalidateOwnerSignature);
+  });
+  document.getElementById('registerUnderOwnerBtn')?.addEventListener('click', window.registerNewParcelUnderOwner);
+  document.getElementById('viewDetailsBtn')?.addEventListener('click', window.viewSearchDetails);
+  document.getElementById('anotherParcelBtn')?.addEventListener('click', resetForm);
+  document.getElementById('gotoDashboardBtn')?.addEventListener('click',()=>window.location.href='/pages/officer/dashboard.html');
+
+  document.getElementById('startCameraBtn')?.addEventListener('click', async () => {
+    try {
+      ownerPhotoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+      const video = document.getElementById('ownerPhotoVideo');
+      video.srcObject = ownerPhotoStream;
+      video.classList.remove('d-none');
+      document.getElementById('capturePhotoBtn').classList.remove('d-none');
+    } catch (error) {
+      showMsg('Camera access was unavailable. Please allow camera access to capture the photograph.','warning');
+    }
+  });
+  document.getElementById('capturePhotoBtn')?.addEventListener('click', () => {
+    const video = document.getElementById('ownerPhotoVideo');
+    const canvas = document.getElementById('ownerPhotoCanvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(blob => {
+      ownerPhotoFile = new File([blob], `owner-photo-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      document.getElementById('ownerPhotoPreview').innerHTML = `<img src="${URL.createObjectURL(ownerPhotoFile)}" alt="Captured landowner photograph">`;
+      ownerPhotoStream?.getTracks().forEach(track => track.stop());
+      ownerPhotoStream = null;
+      video.classList.add('d-none');
+      document.getElementById('capturePhotoBtn').classList.add('d-none');
+    }, 'image/jpeg', 0.9);
+  });
+  let registrationSignatureCanvas;
+  let registrationSignatureContext;
+  let registrationSignatureDrawing = false;
+  let registrationSignatureHasInk = false;
+
+  function registrationSignaturePoint(event) {
+    const rect = registrationSignatureCanvas.getBoundingClientRect();
+    const point = event.touches?.[0] || event;
+    return {
+      x: (point.clientX - rect.left) * registrationSignatureCanvas.width / rect.width,
+      y: (point.clientY - rect.top) * registrationSignatureCanvas.height / rect.height
+    };
+  }
+
+  function clearRegistrationSignature() {
+    if (!registrationSignatureContext) return;
+    registrationSignatureContext.clearRect(0, 0, registrationSignatureCanvas.width, registrationSignatureCanvas.height);
+    registrationSignatureHasInk = false;
+  }
+
+  function closeRegistrationSignaturePad() {
+    document.getElementById('registrationSignatureModal').style.display = 'none';
+  }
+
+  function openRegistrationSignaturePad() {
+    if (!registrationSignatureCanvas) {
+      registrationSignatureCanvas = document.getElementById('registrationSignatureCanvas');
+      registrationSignatureContext = registrationSignatureCanvas.getContext('2d');
+      registrationSignatureContext.lineWidth = 2.5;
+      registrationSignatureContext.lineCap = 'round';
+      registrationSignatureContext.lineJoin = 'round';
+      registrationSignatureContext.strokeStyle = '#0e2240';
+
+      const startDrawing = event => {
+        event.preventDefault();
+        const point = registrationSignaturePoint(event);
+        registrationSignatureDrawing = true;
+        registrationSignatureHasInk = true;
+        registrationSignatureContext.beginPath();
+        registrationSignatureContext.moveTo(point.x, point.y);
+      };
+      const draw = event => {
+        if (!registrationSignatureDrawing) return;
+        event.preventDefault();
+        const point = registrationSignaturePoint(event);
+        registrationSignatureContext.lineTo(point.x, point.y);
+        registrationSignatureContext.stroke();
+      };
+      const stopDrawing = () => { registrationSignatureDrawing = false; };
+      registrationSignatureCanvas.addEventListener('mousedown', startDrawing);
+      registrationSignatureCanvas.addEventListener('touchstart', startDrawing, { passive: false });
+      registrationSignatureCanvas.addEventListener('mousemove', draw);
+      registrationSignatureCanvas.addEventListener('touchmove', draw, { passive: false });
+      window.addEventListener('mouseup', stopDrawing);
+      window.addEventListener('touchend', stopDrawing);
+    }
+    clearRegistrationSignature();
+    document.getElementById('registrationSignatureModal').style.display = 'flex';
+  }
+
+  document.getElementById('ownerSignBtn')?.addEventListener('click', () => {
+    const ownerName = document.getElementById('ownerName').value.trim();
+    const ownerNid = document.getElementById('ownerNid').value.trim();
+    const parcelNumber = document.getElementById('parcelNumber').value.trim();
+    if(!ownerName || !ownerNid || !parcelNumber){
+      showMsg('Enter the owner name, national ID, and parcel number before signing.','warning');
+      return;
+    }
+    openRegistrationSignaturePad();
+  });
+
+  document.getElementById('closeRegistrationSignature')?.addEventListener('click', closeRegistrationSignaturePad);
+  document.getElementById('clearRegistrationSignature')?.addEventListener('click', clearRegistrationSignature);
+  document.getElementById('saveRegistrationSignature')?.addEventListener('click', async () => {
+    if (!registrationSignatureHasInk) {
+      showMsg('Please draw the owner signature before saving.','warning');
+      return;
+    }
+    const ownerName = document.getElementById('ownerName').value.trim();
+    const ownerNid = document.getElementById('ownerNid').value.trim();
+    const parcelNumber = document.getElementById('parcelNumber').value.trim();
+    const button = document.getElementById('saveRegistrationSignature');
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Saving...';
+    try {
+      const signatureImage = registrationSignatureCanvas.toDataURL('image/png');
+      const result = await generateSystemSignature({
+        action: 'PARCEL_REGISTRATION_OWNER_CONSENT',
+        ownerName,
+        ownerNid,
+        parcelNumber,
+        signatureImage,
+        signedAt: new Date().toISOString()
+      });
+      ownerSignature = result.value;
+      document.getElementById('ownerSignature').value = ownerSignature;
+      document.getElementById('ownerSignatureStatus').textContent = `Signed: ${result.signatureId}`;
+      document.getElementById('ownerSignatureStatus').className = 'text-success small';
+      closeRegistrationSignaturePad();
+    } catch (error) {
+      showMsg('Unable to record owner signature: ' + error.message,'danger');
+    } finally {
+      button.disabled = false;
+      button.innerHTML = '<i class="bi bi-check2 me-1"></i>Save Signature';
+    }
+  });
+
+  function doSignOut(e){ e.preventDefault(); showLogoutConfirmation(logout); }
+  document.getElementById('signOutBtn')?.addEventListener('click', doSignOut);
+  document.getElementById('signOutSidebarBtn')?.addEventListener('click', doSignOut);
+  document.getElementById('exportDataBtn')?.addEventListener('click',e=>{ e.preventDefault(); showToast('Export coming soon','info'); });
+
+  updateWizardProgress();
+  updateTopBar();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+  /* Restored ARMS inline styles */
+  :root{--primary:#1a3a5c;--gold:#e8982a;--text:#1c2a3a;--bg:#eef1f7;--border:#dde4ef;--radius:10px}
+  .page-header{background:var(--bg-card);border:1px solid var(--border);box-shadow:0 1px 2px rgba(14,34,64,0.04);padding:18px 20px;border-radius:6px;color:var(--navy)}
+  .nav-seal{background:url('/images/coat-of-arms.png') center/contain no-repeat}
+  .alert-custom{display:none;padding:10px;border-radius:6px}
+  .alert-custom.alert-success{background:#e6f7ed;color:#1e8c4a;border:1px solid #dff2e3}
+  .alert-custom.alert-danger{background:#fdecea;color:#c0392b;border:1px solid #f7d3d1}
+  .toast-stack{position:fixed;right:18px;bottom:18px;z-index:1200;display:flex;flex-direction:column;gap:8px}
+  .btn-primary-custom{background:var(--gold);color:#fff;padding:8px 12px;border-radius:6px;border:none}
+  .btn-secondary-custom{background:#f3f6fb;color:var(--text);padding:8px 12px;border-radius:6px;border:1px solid var(--border)}
+  .coat-watermark{background:url('/images/coat-of-arms.png') center center no-repeat;opacity:.06}
+  </style>
+</body>
+</html>

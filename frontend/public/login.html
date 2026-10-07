@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LandVerify ZM — Republic of Zambia Land Registry</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --navy:          #0e2240;
+      --navy-mid:      #1a3560;
+      --navy-xlight:   #f0f4fb;
+      --gold:          #c8a040;
+      --gold-mid:      #b8902e;
+      --gold-dark:     #9a7420;
+      --gold-light:    #fdf6e3;
+      --gold-xlight:   #fefbf3;
+      --text-primary:  #111827;
+      --text-secondary:#4b5568;
+      --text-muted:    #8a94a6;
+      --border:        #e4dfd4;
+      --border-mid:    #d0c9ba;
+      --bg-page:       #f7f4ef;
+      --bg-card:       #ffffff;
+      --bg-input:      #fdfbf8;
+      --radius:        6px;
+      --radius-lg:     10px;
+      --shadow-card:   0 2px 12px rgba(14,34,64,0.08), 0 1px 4px rgba(14,34,64,0.04);
+      --page-max:      1200px;
+      --page-pad:      40px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-primary);
+      background: var(--bg-page);
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ═══════════════════════════════════════
+       TOP BAR
+    ═══════════════════════════════════════ */
+    .topbar {
+      background: #07142a;
+      border-bottom: 1px solid rgba(200,160,64,0.18);
+      padding: 0 var(--page-pad);
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: rgba(200,160,64,0.6);
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 6px; }
+
+    /* ═══════════════════════════════════════
+       NAV — single unified navy bar
+    ═══════════════════════════════════════ */
+    .nav {
+      background: var(--navy);
+      border-bottom: 2px solid rgba(200,160,64,0.3);
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--page-pad);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-shrink: 0;
+    }
+
+    /* Logo */
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      flex-shrink: 0;
+      text-decoration: none;
+    }
+
+    .nav-seal {
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+    }
+
+    .nav-logo-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .nav-logo-text .logo-name {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+    .nav-logo-text .logo-sub {
+      font-size: 10.5px;
+      color: rgba(200,160,64,0.72);
+      margin-top: 2px;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    /* Nav links */
+    .nav-links {
+      display: flex;
+      align-items: stretch;
+      height: 100%;
+      margin-left: 32px;
+      flex: 1;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 0 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.62);
+      text-decoration: none;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+    .nav-link:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.06);
+    }
+    .nav-link.active {
+      color: var(--gold);
+      font-weight: 600;
+      border-bottom-color: var(--gold);
+    }
+
+    /* Dropdown */
+    .nav-dropdown {
+      position: relative;
+      display: flex;
+      align-items: stretch;
+    }
+    .nav-dropdown-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.62);
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+    .nav-dropdown-toggle:hover { color: #fff; background: rgba(255,255,255,0.06); }
+    .nav-dropdown-toggle.open  { color: var(--gold); font-weight: 600; border-bottom-color: var(--gold); }
+
+    .nav-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 2px);
+      left: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--gold);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      min-width: 280px;
+      z-index: 200;
+      box-shadow: 0 8px 28px rgba(14,34,64,0.14);
+      overflow: hidden;
+    }
+    .nav-dropdown-menu.open { display: block; }
+
+    .nav-dropdown-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 16px;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.12s;
+    }
+    .nav-dropdown-item:last-child { border-bottom: none; }
+    .nav-dropdown-item:hover { background: var(--gold-xlight); }
+
+    .nav-dd-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--navy-xlight);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--navy);
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+    .nav-dropdown-item:hover .nav-dd-icon { background: var(--gold-light); color: var(--gold-dark); }
+    .nav-dd-text strong { display: block; font-size: 12.5px; font-weight: 600; color: var(--navy); }
+    .nav-dd-text small  { display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* Sign In button */
+    .nav-right { display: flex; align-items: center; margin-left: 20px; }
+
+    .btn-signin {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      padding: 0 20px;
+      height: 38px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-signin:hover { background: var(--gold-mid); }
+
+    /* ═══════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════ */
+    .hero {
+      background: var(--navy);
+      padding: 80px var(--page-pad) 88px;
+      text-align: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 700px 400px at 50% 0%, rgba(200,160,64,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(200,160,64,0.09);
+      border: 1px solid rgba(200,160,64,0.3);
+      color: rgba(200,160,64,0.88);
+      font-size: 10.5px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.15;
+      letter-spacing: -0.6px;
+      margin-bottom: 20px;
+    }
+    .hero h1 .gold { color: var(--gold); }
+
+    .hero-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,0.52);
+      line-height: 1.75;
+      margin-bottom: 36px;
+    }
+    .hero-sub strong { color: rgba(255,255,255,0.78); font-weight: 600; }
+
+    .btn-access {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      padding: 0 32px;
+      height: 46px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+      letter-spacing: 0.02em;
+    }
+    .btn-access:hover { background: var(--gold-mid); }
+
+    /* ═══════════════════════════════════════
+       ABOUT SECTION
+    ═══════════════════════════════════════ */
+    .about {
+      padding: 64px var(--page-pad);
+      background: var(--bg-page);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .about-inner {
+      max-width: var(--page-max);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 56px;
+      align-items: start;
+    }
+
+    /* Left column */
+    .about-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--gold-dark);
+      margin-bottom: 8px;
+    }
+
+    .about-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: -0.4px;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .about-body {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .about-body p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.78;
+    }
+
+    .about-body strong { color: var(--text-primary); font-weight: 600; }
+
+    /* Right column — facts card */
+    .facts-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--gold);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .facts-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-page);
+    }
+    .facts-header span {
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    .fact-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .fact-row:last-child { border-bottom: none; }
+
+    .fact-icon-wrap {
+      width: 34px;
+      height: 34px;
+      background: var(--navy-xlight);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--navy);
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .fact-label {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+      line-height: 1;
+    }
+    .fact-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy);
+      line-height: 1.3;
+    }
+
+    /* ═══════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════ */
+    .footer {
+      background: var(--navy);
+      border-top: 1px solid rgba(200,160,64,0.15);
+      padding: 16px var(--page-pad);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: rgba(255,255,255,0.35);
+      margin-top: auto;
+      flex-shrink: 0;
+    }
+    .footer-left { display: flex; align-items: center; gap: 10px; }
+    .footer-mini-seal { width: 20px; height: 20px; opacity: 0.45; flex-shrink: 0; }
+    .footer a { color: rgba(200,160,64,0.6); text-decoration: none; }
+    .footer a:hover { color: var(--gold); }
+
+    /* ═══════════════════════════════════════
+       MODAL
+    ═══════════════════════════════════════ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(7,20,42,0.78);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(3px);
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 430px;
+      box-shadow: 0 24px 64px rgba(7,20,42,0.4);
+      overflow: hidden;
+      animation: modal-in 0.18s ease;
+    }
+    @keyframes modal-in {
+      from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-head {
+      background: var(--navy);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 2px solid rgba(200,160,64,0.22);
+    }
+    .modal-head-left { display: flex; align-items: center; gap: 12px; }
+    .modal-head-seal { width: 36px; height: 36px; flex-shrink: 0; }
+    .modal-head-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 2px;
+    }
+    .modal-head-sub {
+      font-size: 11px;
+      color: rgba(200,160,64,0.6);
+      margin: 0;
+    }
+    .modal-close-btn {
+      width: 28px; height: 28px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius);
+      color: rgba(255,255,255,0.55);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.13s, color 0.13s;
+    }
+    .modal-close-btn:hover { background: rgba(255,255,255,0.16); color: #fff; }
+
+    .modal-body { padding: 24px; }
+
+    .modal-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--gold-light);
+      border: 1px solid rgba(200,160,64,0.3);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 11px 14px;
+      margin-bottom: 22px;
+      font-size: 12px;
+      color: var(--gold-dark);
+      line-height: 1.6;
+    }
+    .modal-notice i { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+
+    .modal-error {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-left: 3px solid #ef4444;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 10px 13px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: #991b1b;
+    }
+    .modal-error.show { display: flex; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+    .form-input {
+      display: block;
+      width: 100%;
+      height: 38px;
+      padding: 0 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.13s, box-shadow 0.13s;
+    }
+    .form-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(200,160,64,0.13);
+    }
+    .form-input::placeholder { color: var(--text-muted); }
+
+    .form-select {
+      display: block;
+      width: 100%;
+      height: 38px;
+      padding: 0 36px 0 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text-primary);
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a94a6' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      cursor: pointer;
+      transition: border-color 0.13s, box-shadow 0.13s;
+    }
+    .form-select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(200,160,64,0.13);
+    }
+
+    .pw-wrap { position: relative; }
+    .pw-toggle {
+      position: absolute;
+      right: 10px; top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 15px;
+      cursor: pointer;
+      padding: 2px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      transition: color 0.13s;
+    }
+    .pw-toggle:hover { color: var(--navy); }
+
+    .modal-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-cancel {
+      height: 36px;
+      padding: 0 18px;
+      background: none;
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background 0.13s;
+    }
+    .btn-cancel:hover { background: var(--bg-page); }
+
+    .btn-submit {
+      height: 36px;
+      padding: 0 22px;
+      background: var(--navy);
+      border: none;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: background 0.15s;
+    }
+    .btn-submit:hover { background: var(--navy-mid); }
+
+    .spinner {
+      display: none;
+      width: 13px; height: 13px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+    }
+    .btn-submit.loading .spinner { display: block; }
+    .btn-submit.loading .btn-label { opacity: 0.7; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════ */
+    @media (max-width: 960px) {
+      :root { --page-pad: 24px; }
+      .about-inner { grid-template-columns: 1fr; gap: 32px; }
+      .hero h1 { font-size: 34px; }
+    }
+    @media (max-width: 640px) {
+      .topbar { display: none; }
+      .hero h1 { font-size: 28px; }
+      .hero { padding: 56px var(--page-pad) 64px; }
+    }
+    @media (max-width: 480px) {
+      .modal { max-width: calc(100vw - 24px); }
+      .nav-logo-text .logo-sub { display: none; }
+    }
+
+    /* ═══════════════════════════════════════
+       COAT OF ARMS - CIRCULAR STYLING
+    ═══════════════════════════════════════ */
+    .nav-seal,
+    .modal-head-seal,
+    .footer-mini-seal {
+        border-radius: 50%;
+        object-fit: cover;
+        display: block;
+        flex-shrink: 0;
+    }
+
+   .nav-seal {
+    width: clamp(50px, 8vw, 80px);  /* min: 50px, preferred: 8% of viewport, max: 80px */
+    height: clamp(50px, 8vw, 80px);
+    border-radius: 50%;
+    object-fit: contain;
+    border: 2px solid var(--gold);
+    padding: 3px;
+    background: rgba(200,160,64,0.07);
+    flex-shrink: 0;
+}
+
+    .modal-head-seal {
+        border: 2px solid var(--gold);
+        padding: 2px;
+        background: rgba(200,160,64,0.07);
+    }
+
+    .footer-mini-seal {
+        border: 1px solid rgba(200,160,64,0.3);
+        padding: 1px;
+        opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="topbar">
+  <div class="topbar-left">
+    <i class="bi bi-shield-check"></i>
+    Land Verification Portal — Republic of Zambia
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<nav class="nav">
+
+  <a href="index.html" class="nav-logo">
+    <!-- Zambian Coat of Arms Image -->
+    <img src="./images/coat-of-arms.png" alt="Zambian Coat of Arms" class="nav-seal" width="42" height="42" />
+    <div class="nav-logo-text">
+      <span class="logo-name">LandVerify ZM</span>
+      <span class="logo-sub">Republic of Zambia</span>
+    </div>
+  </a>
+
+  <div class="nav-links">
+    <a href="index.html" class="nav-link active">Home</a>
+    <a href="pages/how-it-works.html" class="nav-link">How It Works</a>
+    <div class="nav-dropdown">
+      <button class="nav-dropdown-toggle" id="servicesToggle" aria-haspopup="true" aria-expanded="false">
+        Services <i class="bi bi-chevron-down" style="font-size:10px"></i>
+      </button>
+      <div class="nav-dropdown-menu" id="servicesMenu" role="menu">
+        <a href="index.html" class="nav-dropdown-item" role="menuitem">
+          <span class="nav-dd-icon"><i class="bi bi-patch-check"></i></span>
+          <span class="nav-dd-text">
+            <strong>Verify a Title Deed</strong>
+            <small>Confirm ownership of any registered parcel</small>
+          </span>
+        </a>
+        <a href="track-application.html" class="nav-dropdown-item" role="menuitem">
+          <span class="nav-dd-icon"><i class="bi bi-arrow-left-right"></i></span>
+          <span class="nav-dd-text">
+            <strong>Track a Transfer</strong>
+            <small>Check your transfer application status</small>
+          </span>
+        </a>
+        <a href="pages/records.html" class="nav-dropdown-item" role="menuitem">
+          <span class="nav-dd-icon"><i class="bi bi-file-earmark-text"></i></span>
+          <span class="nav-dd-text">
+            <strong>Download Records</strong>
+            <small>Access certified land documents</small>
+          </span>
+        </a>
+      </div>
+    </div>
+    <a href="pages/contact.html" class="nav-link">Contact</a>
+  </div>
+
+  <div class="nav-right">
+    <button class="btn-signin" id="navSigninBtn">
+      <i class="bi bi-box-arrow-in-right"></i>
+      Officer Sign In
+    </button>
+  </div>
+
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">
+      <i class="bi bi-geo-alt-fill"></i>
+      Republic of Zambia — National Land Registry
+    </div>
+    <h1>Digital Land Verification Platform<br>for <span class="gold">Zambia</span>.</h1>
+    <p class="hero-sub">
+      <strong>LandVerify ZM</strong> is the authorised digital platform for land ownership records,
+      title deed verification, and transfer management — operated by the
+      Ministry of Lands and Natural Resources.
+    </p>
+    <button class="btn-access" id="heroAccessBtn">
+      <i class="bi bi-box-arrow-in-right"></i>
+      Access the System
+    </button>
+  </div>
+</section>
+
+<!-- ── ABOUT ── -->
+<section class="about">
+  <div class="about-inner">
+
+    <!-- Left: text -->
+    <div>
+      <p class="about-eyebrow">About This System</p>
+      <h2 class="about-title">What is LandVerify ZM?</h2>
+      <div class="about-body">
+        <p>LandVerify ZM is the Republic of Zambia's official digital land registry portal, established under the Ministry of Lands and Natural Resources to modernise and secure land administration across all ten provinces.</p>
+        <p>The system enables authorised land officers to register parcels, process ownership transfers, manage title deeds, and maintain an accurate national land record — all within a single, fully audited environment.</p>
+        <p>All records held in this system are legally authoritative and governed by the <strong>Lands Act, Chapter 184 of the Laws of Zambia</strong>. The system is powered by <strong>ARMS</strong> — the Automated Registry Management System — the Ministry's internal processing engine.</p>
+      </div>
+    </div>
+
+    <!-- Right: facts card -->
+    <div class="facts-card">
+      <div class="facts-header">
+        <span>System Information</span>
+      </div>
+      <div class="fact-row">
+        <div class="fact-icon-wrap"><i class="bi bi-building-fill-gear"></i></div>
+        <div>
+          <div class="fact-label">Operated by</div>
+          <div class="fact-value">Ministry of Lands &amp; Natural Resources</div>
+        </div>
+      </div>
+      <div class="fact-row">
+        <div class="fact-icon-wrap"><i class="bi bi-file-earmark-law-fill"></i></div>
+        <div>
+          <div class="fact-label">Legal authority</div>
+          <div class="fact-value">Lands Act, Chapter 184</div>
+        </div>
+      </div>
+      <div class="fact-row">
+        <div class="fact-icon-wrap"><i class="bi bi-map-fill"></i></div>
+        <div>
+          <div class="fact-label">Coverage</div>
+          <div class="fact-value">All 10 Provinces of Zambia</div>
+        </div>
+      </div>
+      <div class="fact-row">
+        <div class="fact-icon-wrap"><i class="bi bi-shield-lock-fill"></i></div>
+        <div>
+          <div class="fact-label">Access</div>
+          <div class="fact-value">Authorised Ministry Officers Only</div>
+        </div>
+      </div>
+      <div class="fact-row">
+        <div class="fact-icon-wrap"><i class="bi bi-cpu-fill"></i></div>
+        <div>
+          <div class="fact-label">Processing engine</div>
+          <div class="fact-value">ARMS — Automated Registry Management System</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer class="footer">
+  <div class="footer-left">
+    <svg class="footer-mini-seal" viewBox="0 0 22 22" fill="none">
+      <circle cx="11" cy="11" r="10" stroke="#c8a040" stroke-width="1" fill="rgba(200,160,64,0.07)"/>
+      <path d="M11 4.5 L15.5 7 L15.5 13 Q15.5 17 11 19 Q6.5 17 6.5 13 L6.5 7Z" fill="#c8a040" opacity="0.75"/>
+    </svg>
+    <span>© 2026 Republic of Zambia &middot; Ministry of Lands &amp; Natural Resources &middot; All rights reserved</span>
+  </div>
+  <div style="text-align:right;line-height:1.35;">
+    <a href="pages/contact.html" style="color:rgba(200,160,64,0.8);font-weight:700;text-decoration:none;">Contact the Ministry</a>
+    <div style="font-size:12px;color:rgba(255,255,255,0.55);margin-top:6px;text-align:right">
+      <div>📍 <strong>Location:</strong> Lusaka, Zambia</div>
+      <div>📞 <strong>Phone:</strong> +260 975306227 <em style="font-weight:600">(Demo)</em></div>
+      <div>✉️ <strong>Email:</strong> <a href="mailto:support@landverifyzm.demo" style="color:rgba(200,160,64,0.9);text-decoration:underline;">support@landverifyzm.demo</a></div>
+      <div>🕐 <strong>Support Hours:</strong> Monday – Friday, 08:00 – 17:00</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ── SIGN IN MODAL ── -->
+<div class="modal-overlay" id="signinModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+
+    <div class="modal-head">
+      <div class="modal-head-left">
+        <img 
+            class="modal-head-seal" 
+          src="./images/coat-of-arms.png" alt="Zambian Coat of Arms" width="36"  height="36"/>
+        <div>
+          <p class="modal-head-title" id="modalTitle">Officer Sign In</p>
+          <p class="modal-head-sub">LandVerify ZM &middot; Ministry Restricted Access</p>
+        </div>
+      </div>
+      <button class="modal-close-btn" id="modalClose" aria-label="Close">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="modal-error" id="modalError">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span id="modalErrorText">Invalid credentials. Please check your Staff ID and password.</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="staffId">Staff Email</label>
+        <input class="form-input" type="email" id="staffId" name="email"
+               placeholder="Enter your Ministry email address" autocomplete="username"/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="pw-wrap">
+          <input class="form-input" type="password" id="password" name="password"
+                 placeholder="Enter your password" autocomplete="current-password"
+                 style="padding-right:38px"/>
+          <button class="pw-toggle" type="button" id="pwToggle" aria-label="Show password" tabindex="-1">
+            <i class="bi bi-eye" id="pwIcon"></i>
+          </button>
+        </div>
+      </div>
+
+      <div style="text-align:right;margin-top:6px;margin-bottom:6px;">
+        <a href="#" id="forgotLink" style="font-size:13px;color:var(--navy);text-decoration:underline;">Forgot password?</a>
+      </div>
+
+      <hr class="modal-divider"/>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" id="modalCancelBtn" type="button">Cancel</button>
+        <button class="btn-submit" id="modalSigninBtn" type="button">
+          <span class="spinner"></span>
+          <span class="btn-label">
+            <i class="bi bi-box-arrow-in-right" style="font-size:12px"></i>
+            Sign In
+          </span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── FORGOT PASSWORD MODAL ── -->
+<div class="modal-overlay" id="forgotModal" role="dialog" aria-modal="true" style="display:none;">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-head">
+      <div class="modal-head-left">
+        <img class="modal-head-seal" src="./images/coat-of-arms.png" alt="Seal" width="36" height="36"/>
+        <div>
+          <p class="modal-head-title">Password Reset</p>
+          <p class="modal-head-sub">Request a password reset link for your account</p>
+        </div>
+      </div>
+      <button class="modal-close-btn" id="forgotClose" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-error" id="forgotError" style="display:none;">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span id="forgotErrorText">An error occurred</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="forgotEmail">Registered email</label>
+        <input class="form-input" type="email" id="forgotEmail" placeholder="Enter your registered email" autocomplete="email" />
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">
+        <button class="btn-cancel" id="forgotCancel">Cancel</button>
+        <button class="btn-submit" id="forgotSubmit">Send Reset Link</button>
+      </div>
+      <p style="font-size:13px;color:var(--text-muted);margin-top:12px;">If password reset is not configured, contact support at <a href="mailto:support@landverifyzm.demo">support@landverifyzm.demo</a>.</p>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/js/auth.js"></script>
+<script>
+  /* ── Dropdown ── */
+  const toggle = document.getElementById('servicesToggle');
+  const menu   = document.getElementById('servicesMenu');
+  toggle.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = menu.classList.toggle('open');
+    toggle.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', open);
+  });
+  document.addEventListener('click', () => {
+    menu.classList.remove('open');
+    toggle.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  });
+  menu.addEventListener('click', e => e.stopPropagation());
+
+  /* ── Modal ── */
+  const modal       = document.getElementById('signinModal');
+  const modalError  = document.getElementById('modalError');
+  const modalErrTxt = document.getElementById('modalErrorText');
+  const modalSignin = document.getElementById('modalSigninBtn');
+  const pwField     = document.getElementById('password');
+  const pwIcon      = document.getElementById('pwIcon');
+
+  function resetSigninForm() {
+    document.getElementById('staffId').value = '';
+    pwField.value = '';
+    pwField.type = 'password';
+    pwIcon.className = 'bi bi-eye';
+    modalError.classList.remove('show');
+    modalSignin.classList.remove('loading');
+  }
+
+  function openModal() {
+    resetSigninForm();
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('staffId').focus(), 60);
+  }
+  function closeModal() {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    resetSigninForm();
+  }
+
+  document.getElementById('heroAccessBtn').addEventListener('click', openModal);
+  document.getElementById('navSigninBtn').addEventListener('click', openModal);
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('modalCancelBtn').addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+
+  document.getElementById('pwToggle').addEventListener('click', () => {
+    const show = pwField.type === 'password';
+    pwField.type = show ? 'text' : 'password';
+    pwIcon.className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+  });
+
+  // ── Forgot password flow ──
+  const forgotLink = document.getElementById('forgotLink');
+  const forgotModal = document.getElementById('forgotModal');
+  const forgotClose = document.getElementById('forgotClose');
+  const forgotCancel = document.getElementById('forgotCancel');
+  const forgotSubmit = document.getElementById('forgotSubmit');
+  const forgotEmail = document.getElementById('forgotEmail');
+  const forgotError = document.getElementById('forgotError');
+  const forgotErrorText = document.getElementById('forgotErrorText');
+
+  function openForgot() { forgotModal.style.display = 'flex'; document.body.style.overflow = 'hidden'; forgotEmail.focus(); }
+  function closeForgot() { forgotModal.style.display = 'none'; document.body.style.overflow = ''; forgotError.style.display = 'none'; }
+
+  forgotLink.addEventListener('click', (e) => { e.preventDefault(); openForgot(); });
+  forgotClose.addEventListener('click', closeForgot);
+  forgotCancel.addEventListener('click', closeForgot);
+
+  forgotSubmit.addEventListener('click', async () => {
+    const email = (forgotEmail.value || '').trim();
+    if (!email) { forgotErrorText.textContent = 'Please enter your registered email.'; forgotError.style.display = 'block'; return; }
+
+    forgotSubmit.disabled = true;
+    try {
+      const res = await fetch('/api/auth/forgot', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        forgotErrorText.textContent = data.message || 'If this email is registered, a reset link has been sent.';
+        forgotError.style.display = 'block';
+        forgotError.classList.add('show');
+        setTimeout(closeForgot, 3500);
+      } else {
+        forgotErrorText.textContent = data.message || 'Unable to process request.';
+        forgotError.style.display = 'block';
+      }
+    } catch (err) {
+      console.error(err);
+      forgotErrorText.textContent = 'Network error. Please try again later.';
+      forgotError.style.display = 'block';
+    } finally {
+      forgotSubmit.disabled = false;
+    }
+  });
+
+  modalSignin.addEventListener('click', () => {
+    const email    = document.getElementById('staffId').value.trim();
+    const password = pwField.value;
+    modalError.classList.remove('show');
+
+    if (!email || !password) {
+      modalErrTxt.textContent = 'Please enter your email and password before signing in.';
+      modalError.classList.add('show');
+      return;
+    }
+
+    modalSignin.classList.add('loading');
+    fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    })
+    .then(r => r.json().then(data => {
+      modalSignin.classList.remove('loading');
+      if (r.ok && data?.success !== false && data?.data?.token) {
+        try {
+          if (window.saveSession && data?.data) {
+            window.saveSession(data.data);
+          } else if (data?.data) {
+            localStorage.setItem('lv_token', data.data.token || '');
+            localStorage.setItem('lv_email', data.data.email || '');
+            localStorage.setItem('lv_role',  data.data.role  || '');
+          }
+        } catch(e) { console.warn('Session save failed', e); }
+        if (window.redirectByRole) window.redirectByRole();
+        else window.location.href = '/index.html';
+      } else {
+        modalErrTxt.textContent = data?.message || 'Invalid email or password.';
+        modalError.classList.add('show');
+      }
+    }))
+    .catch(err => {
+      modalSignin.classList.remove('loading');
+      console.error(err);
+      modalErrTxt.textContent = 'Unable to reach the server. Please try again.';
+      modalError.classList.add('show');
+    });
+  });
+
+  ['staffId','password'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') modalSignin.click();
+    });
+  });
+</script>
+</body>
+</html>

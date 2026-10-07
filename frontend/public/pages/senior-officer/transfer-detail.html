@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Senior Officer Transfer Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary:       #1a3c5e;
+      --accent:        #c8973a;
+      --surface:       #f8f6f2;
+      --card-bg:       #ffffff;
+      --text:          #1a1a2e;
+      --muted:         #6b7280;
+      --border:        #e5e0d8;
+      --sidebar-w:     260px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--surface);
+      color: var(--text);
+    }
+    .navbar-top {
+      position: sticky; top: 0; z-index: 1040;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.5rem; height: 62px;
+      background: var(--primary); border-bottom: 3px solid var(--accent);
+    }
+    .navbar-brand-text { font-family: 'Inter', Arial, sans-serif; font-size: 1.35rem; color: #fff; }
+    .navbar-brand-text span { color: var(--accent); }
+    .nav-info { color: rgba(255,255,255,.75); font-size: .875rem; }
+    .nav-info strong { color: #fff; }
+    .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; }
+    .sidebar { width: var(--sidebar-w); position: fixed; top: 62px; left: 0; bottom: 0; background: var(--primary); padding: 1.5rem 0; overflow-y: auto; }
+    .sidebar-label { display: block; margin: 0 1.5rem .75rem; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .12em; font-size: .72rem; }
+    .sidebar-link { display: flex; align-items: center; gap: .75rem; padding: .75rem 1.5rem; color: rgba(255,255,255,.78); font-size: .92rem; text-decoration: none; border-left: 3px solid transparent; transition: all .18s ease; }
+    .sidebar-link:hover, .sidebar-link.active { color: #fff; background: rgba(200,151,58,.15); border-left-color: var(--accent); }
+    .sidebar-link i { font-size: 1rem; }
+    .main-wrap { margin-left: var(--sidebar-w); padding: 2rem; }
+    .back-btn { display: inline-flex; align-items: center; gap: .5rem; color: var(--primary); text-decoration: none; font-weight: 600; margin-bottom: 1.25rem; }
+    .back-btn:hover { color: var(--accent); }
+    .page-header h1 { font-family: 'Inter', Arial, sans-serif; font-size: 2rem; margin-bottom: .5rem; }
+    .page-header p { color: var(--muted); margin-bottom: 1.5rem; }
+    .section-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.05); margin-bottom: 1.5rem; }
+    .section-card h5 { font-size: 1.05rem; font-weight: 700; color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: .75rem; }
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+    .info-item label { display: block; margin-bottom: .5rem; font-size: .85rem; font-weight: 600; color: var(--text); }
+    .info-item .value { padding: .85rem 1rem; border-radius: 10px; background: #f4f4f6; color: var(--text); min-height: 55px; }
+    .info-item .value.empty { color: var(--muted); font-style: italic; }
+    .status-badge { display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .85rem; border-radius: 8px; font-size: .85rem; font-weight: 700; }
+    .status-badge.pending { background: #fef3c7; color: #92400e; }
+    .status-badge.approved { background: #d1fae5; color: #065f46; }
+    .status-badge.rejected { background: #fee2e2; color: #991b1b; }
+    .approval-timeline { display: grid; gap: 1rem; }
+    .approval-item { padding: 1rem; border-radius: 10px; background: #f8f9fb; border-left: 4px solid var(--accent); }
+    .approval-item strong { display: block; margin-bottom: .35rem; font-size: .95rem; }
+    .approval-item .officer, .approval-item .timestamp { color: var(--muted); font-size: .88rem; }
+    .approval-item .comments { margin-top: .75rem; padding: .8rem 1rem; border-radius: 10px; background: #fff; border: 1px solid #e6e6e6; }
+    .btn-group-action { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+    .btn-action { flex: 1 1 180px; min-width: 150px; border: none; border-radius: 10px; padding: .95rem 1.2rem; font-weight: 700; font-size: .95rem; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+    .btn-action:hover { transform: translateY(-1px); }
+    .btn-approve { background: #059669; color: #fff; }
+    .btn-reject { background: #dc2626; color: #fff; }
+    .btn-secondary-action { background: transparent; border: 1px solid #cbd5e1; color: var(--text); }
+    .comparison-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+    .alert-custom { display: none; align-items: flex-start; gap: .75rem; padding: 1rem; border-radius: 12px; margin-bottom: 1rem; }
+    .alert-custom.show { display: flex; }
+    .alert-success { background: #e6f4ee; color: #065f46; border: 1px solid #c7efdc; }
+    .alert-danger { background: #fde8e8; color: #991b1b; border: 1px solid #f5c2c7; }
+    .toast-stack { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: grid; gap: .75rem; }
+    @media (max-width: 900px) { .comparison-grid { grid-template-columns: 1fr; } }
+    .toast-item { padding: .95rem 1rem; border-radius: 10px; background: #fff; border-left: 4px solid var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,.08); display: flex; align-items: center; gap: .75rem; }
+    .toast-item.success { border-left-color: #059669; }
+    .toast-item.error { border-left-color: #dc2626; }
+    @media (max-width: 900px) { .main-wrap { margin-left: 0; padding: 1rem; } .sidebar { position: static; width: 100%; height: auto; min-height: 0; } .info-grid { grid-template-columns: 1fr; } .btn-group-action { flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <div class="navbar-top">
+    <div class="navbar-brand-text">Land<span>Verify</span> ZM</div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <div class="nav-info"><strong id="nav-name">Officer</strong><br><small id="nav-role">Senior Officer</small></div>
+      <div class="user-avatar" id="nav-avatar" aria-label="Current user"></div>
+      <a href="#" class="nav-link" onclick="showLogoutConfirm(event)" style="color: rgba(255,255,255,.75); text-decoration:none;"><i class="bi bi-box-arrow-right"></i>&nbsp;<span style="vertical-align:middle">Logout</span></a>
+    </div>
+  </div>
+  <div class="sidebar">
+    <span class="sidebar-label">Senior Officer Panel</span>
+    <a href="dashboard.html" class="sidebar-link active"><i class="bi bi-person-check"></i> Approvals</a>
+    <a href="audit-log.html" class="sidebar-link"><i class="bi bi-journal-text"></i> Blockchain Audit</a>
+    <a href="../index.html" class="sidebar-link"><i class="bi bi-search"></i> Verify Parcel</a>
+  </div>
+  <div class="main-wrap">
+    <a href="dashboard.html" class="back-btn"><i class="bi bi-chevron-left"></i>Back to Dashboard</a>
+    <div class="page-header">
+      <h1>Transfer Request Details</h1>
+      <p>Review the selected transfer request alongside the registered parcel record.</p>
+    </div>
+    <div id="alert-container"></div>
+    <div id="mismatchCard" class="alert-custom alert-danger">
+      <i class="bi bi-exclamation-triangle-fill" style="font-size:1.2rem; margin-top:3px;"></i>
+      <div>
+        <strong>Mismatch detected</strong>
+        <p id="mismatchMessage" style="margin:.5rem 0 0 0; color:inherit;">This transfer contains inconsistencies with the registered parcel record and approval is suspended until resolved.</p>
+        <ul id="mismatchReasons" style="margin:0.75rem 0 0 1rem; padding-left:1.25rem; color:inherit;"></ul>
+      </div>
+    </div>
+    <div class="comparison-grid">
+      <div class="section-card">
+        <h5><i class="bi bi-file-earmark-text"></i> Transfer Request</h5>
+        <div class="summary-grid">
+          <div class="info-item"><label>Request ID</label><div class="value" id="reqId">—</div></div>
+          <div class="info-item"><label>Parcel Number</label><div class="value" id="parcelNumber">—</div></div>
+          <div class="info-item"><label>Seller</label><div class="value" id="sellerName">—</div></div>
+          <div class="info-item"><label>Buyer</label><div class="value" id="buyerName">—</div></div>
+          <div class="info-item"><label>Price (ZMW)</label><div class="value" id="agreedPrice">—</div></div>
+          <div class="info-item"><label>Status</label><div class="value" id="statusBadge">—</div></div>
+          <div class="info-item"><label>Submitted At</label><div class="value" id="metaLine">—</div></div>
+        </div>
+        <div style="margin-top:1.5rem;"><label style="font-weight:600;font-size:.9rem;color:var(--text);margin-bottom:.5rem;display:block;">Transfer Reason</label><div class="value" id="transferReason">—</div></div>
+        <div style="margin-top:1.5rem;"><label style="font-weight:600;font-size:.9rem;color:var(--text);margin-bottom:.5rem;display:block;">Supporting Documents</label><div class="value" id="supportingDocs">—</div></div>
+      </div>
+      <div class="section-card">
+        <h5><i class="bi bi-building"></i> Registered Parcel Record</h5>
+        <div class="summary-grid">
+          <div class="info-item"><label>Title Deed</label><div class="value" id="parcelTitleDeedNumber">—</div></div>
+          <div class="info-item"><label>Province</label><div class="value" id="parcelProvince">—</div></div>
+          <div class="info-item"><label>Location</label><div class="value" id="parcelLocationAddress">—</div></div>
+          <div class="info-item"><label>Land Use</label><div class="value" id="parcelLandUse">—</div></div>
+          <div class="info-item"><label>Parcel Area (sqm)</label><div class="value" id="parcelAreaSqm">—</div></div>
+          <div class="info-item"><label>Registered At</label><div class="value" id="parcelRegisteredAt">—</div></div>
+          <div class="info-item"><label>Parcel Status</label><div class="value" id="parcelStatus">—</div></div>
+          <div class="info-item"><label>Current Owner</label><div class="value" id="currentOwnerName">—</div></div>
+          <div class="info-item"><label>Owner NID</label><div class="value" id="currentOwnerMaskedId">—</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="section-card">
+      <h5><i class="bi bi-clock-history"></i> Approval History</h5>
+      <div id="approvalHistory" class="approval-timeline"><div style="color:var(--muted);font-style:italic;">Loading approval history…</div></div>
+    </div>
+      <div class="section-card">
+        <h5><i class="bi bi-diagram-3"></i> Transfer Progress</h5>
+        <div id="transferProgress" class="approval-timeline"><div class="approval-item"><div class="approval-item-card"><strong>✓ Transfer Initiated</strong><div class="officer">Request submitted by Landowner</div></div></div><div class="approval-item"><div class="approval-item-card"><strong>✓ Land Officer Review</strong><div class="officer">Approval received</div></div></div><div class="approval-item"><div class="approval-item-card"><strong>● Senior Officer Decision</strong><div class="officer">Awaiting your decision</div></div></div></div>
+      </div>
+    <div class="section-card">
+      <h5><i class="bi bi-lightning"></i> Actions</h5>
+      <div class="btn-group-action">
+        <button id="approveBtn" class="btn-action btn-approve" style="display:none;"></button>
+        <button id="rejectBtn" class="btn-action btn-reject" style="display:none;">Reject Transfer</button>
+        <button id="viewParcelBtn" class="btn-action btn-secondary-action" style="display:none;">View Parcel</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast-stack" id="toast-container"></div>
+  <script type="module">
+    import { api } from '/js/api.js';
+    import { requireLogin, requireRole, populateNavbar } from '/js/auth.js';
+
+    requireLogin();
+    requireRole(['SENIOR_OFFICER']);
+    populateNavbar();
+
+    const role = localStorage.getItem('lv_role');
+    const requestId = new URL(window.location).searchParams.get('requestId');
+    const approveBtn = document.getElementById('approveBtn');
+    const rejectBtn = document.getElementById('rejectBtn');
+    const viewParcelBtn = document.getElementById('viewParcelBtn');
+    const alertContainer = document.getElementById('alert-container');
+    const mismatchCard = document.getElementById('mismatchCard');
+    const mismatchReasonsList = document.getElementById('mismatchReasons');
+
+    function showToast(message, type='success') {
+      const toast = document.createElement('div');
+      toast.className = `toast-item ${type}`;
+      const icons = { success: 'check-circle', error: 'x-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+      toast.innerHTML = `<i class="bi bi-${icons[type] || 'info-circle'}"></i> ${message}`;
+      document.getElementById('toast-container').appendChild(toast);
+      setTimeout(() => toast.remove(), 4500);
+    }
+
+    function showAlert(message, type='info') {
+      const alert = document.createElement('div');
+      alert.className = `alert-custom alert-${type} show`;
+      const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+      alert.innerHTML = `<i class="bi bi-${icons[type] || 'info-circle'}"></i> <span>${message}</span>`;
+      alertContainer.appendChild(alert);
+      setTimeout(() => alert.remove(), 5000);
+    }
+
+    function renderTransferProgress(status) {
+      const progress = document.getElementById('transferProgress');
+      const seniorApproved = ['APPROVED', 'APPROVED_L2'].includes(status);
+      const rejected = status === 'REJECTED';
+      progress.innerHTML = `<div class="approval-item"><div class="approval-item-card"><strong>✓ Transfer Initiated</strong><div class="officer">Request submitted by Landowner</div></div></div><div class="approval-item"><div class="approval-item-card"><strong>✓ Land Officer Review</strong><div class="officer">Approved by Land Officer</div></div></div><div class="approval-item"><div class="approval-item-card"><strong>${seniorApproved ? '✓' : rejected ? '✕' : '●'} Senior Officer Decision</strong><div class="officer">${seniorApproved ? 'Final approval completed' : rejected ? 'Transfer rejected' : 'Awaiting your decision'}</div></div></div>`;
+    }
+
+    function showLogoutConfirm(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      if (typeof showLogoutConfirmation === 'function') {
+        showLogoutConfirmation(logout || doLogout || (() => window.location.href = '/login.html'));
+      } else if (confirm('Are you sure you want to sign out?')) {
+        if (typeof doLogout === 'function') doLogout();
+        else localStorage.removeItem('lv_token');
+        window.location.href = '/login.html';
+      }
+    }
+
+    async function loadTransferDetails() {
+      if (!requestId) {
+        showAlert('Missing transfer request ID.', 'warning');
+        return;
+      }
+
+      try {
+        const statusRes = await api.transferStatus(requestId);
+        const transfer = statusRes.data || statusRes || {};
+        document.getElementById('reqId').textContent = transfer.requestId || requestId;
+        document.getElementById('parcelNumber').textContent = transfer.parcelNumber || '—';
+        document.getElementById('sellerName').textContent = transfer.sellerName || '—';
+        document.getElementById('buyerName').textContent = transfer.buyerName || '—';
+        document.getElementById('agreedPrice').textContent = transfer.agreedPriceZmw ? `ZMW ${Number(transfer.agreedPriceZmw).toLocaleString()}` : '—';
+        document.getElementById('transferReason').textContent = transfer.transferReason || '—';
+        document.getElementById('supportingDocs').textContent = transfer.supportingDocs || 'No supporting documents provided.';
+        document.getElementById('metaLine').textContent = transfer.submittedAt ? new Date(transfer.submittedAt).toLocaleString() : '—';
+
+        document.getElementById('parcelTitleDeedNumber').textContent = transfer.parcelTitleDeedNumber || '—';
+        document.getElementById('parcelProvince').textContent = transfer.parcelProvince || '—';
+        document.getElementById('parcelLocationAddress').textContent = transfer.parcelLocationAddress || '—';
+        document.getElementById('parcelLandUse').textContent = transfer.parcelLandUse || '—';
+        document.getElementById('parcelAreaSqm').textContent = transfer.parcelAreaSqm != null ? Number(transfer.parcelAreaSqm).toLocaleString() : '—';
+        document.getElementById('parcelRegisteredAt').textContent = transfer.parcelRegisteredAt ? new Date(transfer.parcelRegisteredAt).toLocaleString() : '—';
+        document.getElementById('parcelStatus').textContent = transfer.parcelStatus || '—';
+        document.getElementById('currentOwnerName').textContent = transfer.currentOwnerName || '—';
+        document.getElementById('currentOwnerMaskedId').textContent = transfer.currentOwnerMaskedId || '—';
+
+        const status = (transfer.status || 'UNKNOWN').toUpperCase();
+        renderTransferProgress(status);
+        const statusBadge = document.getElementById('statusBadge');
+        const statusClass = status === 'APPROVED' ? 'approved' : status === 'REJECTED' ? 'rejected' : 'pending';
+        statusBadge.innerHTML = `<span class="status-badge ${statusClass}">${status.replace(/_/g, ' ')}</span>`;
+
+        if (transfer.parcelNumber) {
+          viewParcelBtn.style.display = 'block';
+          viewParcelBtn.onclick = () => window.location.href = `../landowner/parcel-detail.html?parcel=${encodeURIComponent(transfer.parcelNumber)}`;
+        }
+
+        const pendingForSenior = status === 'APPROVED_L1';
+        if (pendingForSenior) {
+          approveBtn.style.display = 'block';
+          rejectBtn.style.display = 'block';
+          approveBtn.textContent = 'Final Approve & Transfer';
+        } else {
+          approveBtn.style.display = 'none';
+          rejectBtn.style.display = 'none';
+        }
+
+        if (transfer.mismatchDetected) {
+          mismatchCard.classList.add('show');
+          mismatchReasonsList.innerHTML = (transfer.mismatchReasons || []).map(reason => `<li>${reason}</li>`).join('') || '<li>No mismatch reasons available.</li>';
+          approveBtn.disabled = true;
+          approveBtn.textContent = 'Approval Suspended';
+          if (!pendingForSenior) {
+            approveBtn.style.display = 'none';
+          }
+        } else {
+          mismatchCard.classList.remove('show');
+          approveBtn.disabled = false;
+        }
+
+        await loadApprovalHistory(requestId);
+      } catch (err) {
+        showAlert(`Unable to load transfer details: ${err.message || err}`, 'error');
+      }
+    }
+
+    async function loadApprovalHistory(id) {
+      try {
+        const auditRes = await api.transferAuditTrail(id);
+        const payload = auditRes.data || auditRes || {};
+        const approvals = Array.isArray(payload.approvals) ? payload.approvals : (Array.isArray(payload) ? payload : []);
+        const list = document.getElementById('approvalHistory');
+        if (!approvals.length) {
+          list.innerHTML = '<div style="color:var(--muted);font-style:italic;">No approval history available.</div>';
+          return;
+        }
+
+        const landOfficerApproval = approvals.find(entry =>
+          (entry.approvalLevel === 1 || entry.level === 1) && (entry.action || '').toUpperCase() === 'APPROVED'
+        );
+
+        const summary = landOfficerApproval ? `
+          <div class="approval-item" style="border-left-color:#059669;">
+            <strong>Land Officer approval received</strong>
+            <div class="officer"><i class="bi bi-person"></i> ${landOfficerApproval.officerName || landOfficerApproval.officer || 'System'} • Staff ID: ${landOfficerApproval.staffId || landOfficerApproval.officerId || '—'}</div>
+            <div class="timestamp"><i class="bi bi-clock"></i> ${landOfficerApproval.approvedAt || landOfficerApproval.timestamp || landOfficerApproval.actionedAt || 'Unknown'}</div>
+            ${landOfficerApproval.comments ? `<div class="comments">${landOfficerApproval.comments}</div>` : ''}
+          </div>
+        ` : '';
+
+        list.innerHTML = summary + approvals.map(entry => `
+          <div class="approval-item">
+            <strong>${entry.action || entry.status || 'Action recorded'}</strong>
+            <div class="officer"><i class="bi bi-person"></i> ${entry.officerName || entry.officer || 'System'}${entry.staffId || entry.officerId ? ` • Staff ID: ${entry.staffId || entry.officerId}` : ''}</div>
+            <div class="timestamp"><i class="bi bi-clock"></i> ${entry.approvedAt || entry.timestamp || entry.actionedAt || 'Unknown'}</div>
+            ${entry.comments ? `<div class="comments">${entry.comments}</div>` : ''}
+          </div>
+        `).join('');
+      } catch (err) {
+        document.getElementById('approvalHistory').innerHTML = '<div style="color:var(--muted);font-style:italic;">Approval history unavailable.</div>';
+      }
+    }
+
+    approveBtn.addEventListener('click', async () => {
+      if (!requestId) return;
+      if (!confirm('Confirm final approval? This will permanently transfer ownership on the blockchain.')) return;
+      approveBtn.disabled = true;
+      try {
+        await api.seniorApprove({ requestId: parseInt(requestId, 10), comments: 'Approved via senior officer detail page' });
+        approveBtn.style.display = 'none';
+        rejectBtn.style.display = 'none';
+        approveBtn.disabled = true;
+        showToast('✓ Final Approval Complete! Ownership transferred on blockchain.', 'success');
+        setTimeout(() => window.location.href = 'dashboard.html', 1200);
+      } catch (err) {
+        approveBtn.disabled = false;
+        showAlert(`Approval failed: ${err.message || err}`, 'error');
+      }
+    });
+
+    rejectBtn.addEventListener('click', async () => {
+      if (!requestId) return;
+      const reason = prompt('Please enter the rejection reason:');
+      if (!reason || !reason.trim()) return;
+      rejectBtn.disabled = true;
+      try {
+        await api.seniorReject({ requestId: parseInt(requestId, 10), reason: reason.trim() });
+        showToast('Transfer rejected successfully.', 'success');
+        setTimeout(() => window.location.href = 'dashboard.html', 1200);
+      } catch (err) {
+        rejectBtn.disabled = false;
+        showAlert(`Rejection failed: ${err.message || err}`, 'error');
+      }
+    });
+
+    loadTransferDetails();
+  </script>
+  <script>
+    function doLogout() {
+      localStorage.removeItem('lv_token');
+      window.location.href = '/login.html';
+    }
+  </script>
+  <style>
+  /* Restored ARMS inline styles */
+  :root{--primary:#0e2240;--gold:#c8a040;--text:#1c2a3a;--bg:#faf7f2;--border:#e8e3d8;--radius:10px}
+  .page-header{background:linear-gradient(135deg,var(--primary),#1a3560);padding:16px;border-radius:10px;color:#fff;border:1px solid rgba(255,255,255,0.1)}
+  .nav-seal{background:url('/images/coat-of-arms.png') center/contain no-repeat}
+  .alert-custom{display:none;padding:10px;border-radius:6px}
+  .alert-custom.alert-success{background:#e6f7ed;color:#1e8c4a;border:1px solid #dff2e3}
+  .alert-custom.alert-danger{background:#fdecea;color:#c0392b;border:1px solid #f7d3d1}
+  .toast-stack{position:fixed;right:18px;bottom:18px;z-index:1200;display:flex;flex-direction:column;gap:8px}
+  .btn-primary-custom{background:var(--gold);color:#fff;padding:8px 12px;border-radius:6px;border:none}
+  .btn-secondary-custom{background:#f3f6fb;color:var(--text);padding:8px 12px;border-radius:6px;border:1px solid var(--border)}
+  .coat-watermark{background:url('/images/coat-of-arms.png') center center no-repeat;opacity:.06}
+  </style>
+</body>
+</html>
+

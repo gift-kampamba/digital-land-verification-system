@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Officer Registration — Land Verification</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="brand">Land<span>Verify</span> ZM</div>
+  <div class="navbar-right">
+    <a href="../public/login.html">Login</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-title">Officer Registration</div>
+    <a href="#" class="active">Register with Code</a>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-title">Complete Your Officer Registration</div>
+
+    <div id="msg"></div>
+
+    <div class="card">
+      <div class="card-title">Registration Details</div>
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="invitationCode">Invitation Code *</label>
+          <input type="text" id="invitationCode" name="invitationCode" placeholder="Enter your invitation code" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fullName">Full Name *</label>
+            <input type="text" id="fullName" name="fullName" placeholder="Your full name" required>
+          </div>
+          <div class="form-group">
+            <label for="nationalId">National ID *</label>
+            <input type="text" id="nationalId" name="nationalId" placeholder="e.g. 123456/78/1" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phoneNumber">Phone Number *</label>
+            <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="09xxxxxxxx" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password *</label>
+            <input type="password" id="password" name="password" placeholder="Min 6 characters" required>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Complete Registration</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('registerForm');
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const payload = {
+      invitationCode: document.getElementById('invitationCode').value.trim(),
+      fullName: document.getElementById('fullName').value.trim(),
+      nationalId: document.getElementById('nationalId').value.trim(),
+      phoneNumber: document.getElementById('phoneNumber').value.trim(),
+      password: document.getElementById('password').value,
+    };
+
+    if (!payload.invitationCode || !payload.fullName || !payload.nationalId || !payload.phoneNumber || !payload.password) {
+      showMessage('Please fill all required fields', 'error');
+      return;
+    }
+
+    if (payload.password.length < 6) {
+      showMessage('Password must be at least 6 characters', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/auth/register-officer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || 'Registration failed');
+      }
+
+      const data = await response.json();
+      const authData = data.data;
+
+      // Save session
+      localStorage.setItem('lv_token', authData.token);
+      localStorage.setItem('lv_email', authData.email);
+      localStorage.setItem('lv_name', authData.fullName);
+      localStorage.setItem('lv_role', authData.role);
+      localStorage.setItem('lv_userId', authData.userId);
+      localStorage.setItem('lv_profile_complete', authData.profileComplete);
+
+      showMessage('Registration successful! Redirecting to dashboard...', 'success');
+
+      setTimeout(() => {
+        window.location.href = 'pages/officer/dashboard.html';
+      }, 2000);
+    } catch (error) {
+      showMessage(error.message || 'Registration failed', 'error');
+    }
+  });
+});
+
+function showMessage(message, type) {
+  const msgDiv = document.getElementById('msg');
+  msgDiv.className = type === 'error' ? 'msg-error' : 'msg-success';
+  msgDiv.textContent = message;
+  msgDiv.style.display = 'block';
+}
+</script>
+</body>
+</html>

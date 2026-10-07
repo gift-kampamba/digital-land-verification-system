@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARMS – Transfer Requests</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+  /* ═══════════════════════════════════════════════════
+     ARMS DESIGN SYSTEM — Navy + Gold, Zambian Palette
+     (same tokens/components as transfer-detail.html, so the
+     two pages read as one product instead of two different apps)
+  ═══════════════════════════════════════════════════ */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+
+  :root{
+    --navy:#0e2240; --navy-mid:#1a3a5c; --navy-xlight:#eaf0fb;
+    --gold:#c8a040; --gold-dark:#9c7a28; --gold-light:#f3e6c4; --gold-xlight:#fbf5e6;
+    --green:#22c55e; --green-dark:#15803d; --green-light:#dcfce7;
+    --red:#ef4444; --red-dark:#991b1b; --red-light:#fdecea;
+    --bg-page:#f4f2ec; --bg-card:#ffffff;
+    --text-primary:#1c2a3a; --text-secondary:#4a5568; --text-muted:#8a94a3;
+    --border:#e2e5ea; --border-mid:#cfd5e0;
+    --font-family:'Inter',Arial,sans-serif; --font-mono:'JetBrains Mono','Courier New',monospace;
+    --radius:8px; --radius-lg:12px;
+    --shadow:0 1px 3px rgba(14,34,64,0.06); --shadow-card:0 2px 10px rgba(14,34,64,0.06);
+    --nav-h:64px; --sidebar-w:220px;
+  }
+
+  body{
+    display:flex; flex-direction:column; background:var(--bg-page);
+    font-family:var(--font-family); font-size:13px; color:var(--text-primary);
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+  }
+
+  /* ── TOP BAR ── */
+  .top-bar{
+    background:var(--navy); color:#fff; display:flex; justify-content:space-between; align-items:stretch;
+    border-bottom:1px solid rgba(255,255,255,0.12); height:var(--nav-h); flex-shrink:0;
+    box-shadow:0 1px 3px rgba(14,34,64,0.08); position:sticky; top:0; z-index:100;
+  }
+  .logo-block{ display:flex; align-items:center; gap:14px; padding:0 24px; min-width:0; height:100%; flex-shrink:0; background:var(--navy); }
+  .logo-emblem{ width:36px; height:36px; border-radius:8px; background:var(--gold); display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; color:var(--navy); flex-shrink:0; overflow:hidden; }
+  .logo-emblem img{ width:100%; height:100%; object-fit:contain; }
+  .logo-text h2{ font-size:12px; font-weight:700; margin:0; line-height:1.35; color:#fff; text-transform:uppercase; letter-spacing:0.4px; }
+  .logo-text p{ font-size:10px; margin:2px 0 0; color:rgba(255,255,255,0.5); line-height:1.3; }
+  .top-right{ display:flex; align-items:center; gap:14px; padding-right:20px; }
+  .user-avatar{ width:32px; height:32px; border-radius:50%; background:var(--gold-light); border:1.5px solid var(--gold); display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700; color:var(--navy); flex-shrink:0; overflow:hidden; position:relative; }
+  .user-avatar img{ width:100%; height:100%; object-fit:cover; display:block; border-radius:50%; }
+  .top-user-name{ font-size:13px; font-weight:600; color:#fff; line-height:1.2; }
+  .top-user-role{ font-size:10.5px; color:rgba(255,255,255,0.7); line-height:1; }
+  .btn-signout{ background:transparent; border:1px solid rgba(255,255,255,0.25); color:#fff; padding:5px 13px; border-radius:var(--radius); font-size:12px; font-weight:500; cursor:pointer; transition:all .15s; font-family:inherit; display:inline-flex; align-items:center; gap:6px; text-decoration:none; }
+  .btn-signout:hover{ background:rgba(255,255,255,0.1); color:#fff; }
+
+  /* ── LAYOUT ── */
+  .dashboard-container{ display:flex; flex:1; min-height:0; }
+
+  /* ── SIDEBAR ── */
+  .sidebar{ width:var(--sidebar-w); background:var(--bg-card); border-right:1px solid var(--border); padding:14px 0 12px; flex-shrink:0; min-height:calc(100vh - var(--nav-h)); overflow-y:auto; display:flex; flex-direction:column; position:sticky; top:var(--nav-h); height:calc(100vh - var(--nav-h)); }
+  .sidebar-section-title{ font-size:9.5px; text-transform:uppercase; letter-spacing:0.09em; color:var(--text-muted); font-weight:700; padding:10px 16px 4px; }
+  .sidebar-item{ display:flex; align-items:center; gap:9px; padding:8px 16px; color:var(--text-secondary); text-decoration:none; font-size:12.5px; transition:all .13s; border-left:2px solid transparent; margin:1px 0; position:relative; }
+  .sidebar-item:hover{ background:var(--gold-xlight); color:var(--navy); }
+  .sidebar-item.active{ background:var(--gold-xlight); color:var(--navy); font-weight:600; border-left-color:var(--gold); }
+  .sidebar-item i{ font-size:14px; width:16px; flex-shrink:0; opacity:.7; }
+  .sidebar-item.active i{ opacity:1; }
+  .sidebar-divider{ height:1px; background:var(--border); margin:8px 14px; }
+  .sidebar-item.signout{ color:var(--red-dark); }
+  .sidebar-item.signout:hover{ background:var(--red-light); }
+  .sidebar-item.signout i{ opacity:1; }
+  .badge-notif{ margin-left:auto; background:var(--gold); color:var(--navy); font-size:10px; font-weight:700; padding:1px 6px; border-radius:99px; }
+
+  /* ── MAIN ── */
+  .main-content{ flex:1; padding:24px 28px; background:var(--bg-page); overflow-x:hidden; }
+
+  /* ── PAGE HEADER ── */
+  .page-header{
+    background:var(--bg-card); border:1px solid var(--border); box-shadow:0 1px 2px rgba(14,34,64,0.04);
+    padding:20px 24px; border-radius:var(--radius-lg); color:var(--navy);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+    margin-bottom:20px;
+  }
+  .page-title{ font-size:19px; font-weight:700; letter-spacing:-0.3px; display:flex; align-items:center; gap:8px; color:var(--navy); }
+  .page-subtitle{ font-size:12px; color:var(--text-secondary); margin-top:4px; }
+  .action-buttons{ display:flex; gap:10px; flex-wrap:wrap; }
+  .btn-export, .btn-register{
+    display:inline-flex; align-items:center; gap:6px; padding:9px 16px;
+    border-radius:var(--radius); font-size:12.5px; font-weight:600; text-decoration:none;
+    cursor:pointer; transition:all .15s; border:1px solid var(--border-mid); font-family:inherit;
+  }
+  .btn-export{ background:var(--bg-card); color:var(--text-secondary); }
+  .btn-export:hover{ background:var(--bg-page); color:var(--navy); }
+  .btn-register{ background:var(--gold); color:var(--navy); border-color:var(--gold); }
+  .btn-register:hover{ background:#d8b158; box-shadow:0 4px 12px rgba(200,160,64,0.35); }
+
+  /* ── FILTER CARD ── */
+  .filter-card{
+    background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg);
+    box-shadow:0 1px 2px rgba(14,34,64,0.04); padding:16px 18px; display:flex; gap:16px; flex-wrap:wrap;
+    margin-bottom:18px; align-items:flex-end;
+  }
+  .filter-group{ display:flex; flex-direction:column; gap:6px; flex:1; min-width:200px; }
+  .filter-group label{ font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); display:flex; align-items:center; gap:5px; }
+  .filter-group select, .filter-group input{
+    padding:9px 12px; border:1px solid var(--border-mid); border-radius:var(--radius);
+    font-size:12.5px; font-family:inherit; color:var(--text-primary); background:var(--bg-page);
+  }
+  .filter-group select:focus, .filter-group input:focus{ outline:none; border-color:var(--gold); background:#fff; }
+  .btn-custom-refresh{
+    display:inline-flex; align-items:center; gap:6px; padding:9px 16px;
+    border-radius:var(--radius); font-size:12.5px; font-weight:600; border:1px solid var(--border-mid);
+    background:var(--bg-card); color:var(--text-secondary); cursor:pointer; transition:all .15s; font-family:inherit;
+    white-space:nowrap;
+  }
+  .btn-custom-refresh:hover{ background:var(--bg-page); border-color:var(--gold); color:var(--navy); }
+
+  /* ── TABLE CARD ── */
+  .table-card{ background:var(--bg-card); border:1px solid var(--border); border-radius:6px; box-shadow:0 1px 2px rgba(14,34,64,0.04); overflow:hidden; }
+  .table-header{ display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--border); }
+  .table-header h6{ font-size:13.5px; font-weight:600; color:var(--navy); display:flex; align-items:center; gap:8px; margin:0; }
+  .table-header #recordsCount{ font-size:11.5px; color:var(--text-muted); font-weight:500; }
+  .table-responsive{ overflow-x:auto; }
+  table.table{ width:100%; border-collapse:collapse; font-size:12.5px; margin:0; }
+  table.table thead th{
+    text-align:left; padding:11px 18px; font-size:10px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--text-muted); background:var(--bg-page); border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  table.table tbody td{ padding:13px 18px; border-bottom:1px solid var(--border); color:var(--text-primary); vertical-align:middle; }
+  table.table tbody tr:last-child td{ border-bottom:none; }
+  table.table tbody tr:hover{ background:var(--bg-page); }
+  .ref-link{ color:var(--navy); font-weight:600; font-family:var(--font-mono); text-decoration:none; }
+  .ref-link:hover{ color:var(--gold-dark); text-decoration:underline; }
+
+  /* ── STATUS BADGES ── */
+  .status-badge{ display:inline-flex; align-items:center; gap:5px; padding:4px 11px; border-radius:99px; font-size:10px; font-weight:700; letter-spacing:.03em; white-space:nowrap; }
+  .status-pending{ background:var(--gold-light); color:var(--gold-dark); border:1px solid #e8d098; }
+  .status-l2{ background:var(--navy-xlight); color:var(--navy-mid); border:1px solid #c8d8ee; }
+  .status-approved{ background:var(--green-light); color:var(--green-dark); border:1px solid #bbf7d0; }
+  .status-rejected{ background:var(--red-light); color:var(--red-dark); border:1px solid #fecaca; }
+  .status-transferred{ background:#e0e7ff; color:#3730a3; border:1px solid #c7d2fe; }
+
+  /* ── ACTION BUTTONS (table) ── */
+  .btn-action{
+    display:inline-flex; align-items:center; gap:5px; padding:6px 11px; border-radius:6px;
+    font-size:11.5px; font-weight:600; border:1px solid var(--border-mid); background:var(--bg-card);
+    color:var(--text-secondary); cursor:pointer; transition:all .15s; font-family:inherit; margin-right:6px;
+  }
+  .btn-action:hover{ background:var(--bg-page); border-color:var(--gold); color:var(--navy); }
+  .btn-action.review-btn{ background:var(--navy); color:#fff; border-color:var(--navy); }
+  .btn-action.review-btn:hover{ background:var(--navy-mid); }
+
+  /* ── ALERTS ── */
+  .alert-custom{ padding:11px 16px; border-radius:var(--radius); margin-bottom:14px; align-items:center; gap:10px; font-size:12.5px; }
+  .alert-custom.show{ display:flex; }
+
+  /* ── TOASTS ── */
+  .toast-container{ position:fixed; right:18px; bottom:18px; z-index:1200; display:flex; flex-direction:column; gap:8px; }
+  .toast-msg{
+    background:var(--bg-card); border-left:4px solid var(--navy); padding:12px 16px;
+    border-radius:var(--radius); font-size:12.5px; box-shadow:0 4px 14px rgba(14,34,64,.18);
+    max-width:340px; display:flex; align-items:center; gap:8px; color:var(--text-primary);
+  }
+  .toast-msg.success{ border-left-color:var(--green-dark); }
+  .toast-msg.error{ border-left-color:var(--red-dark); }
+  .toast-msg.info{ border-left-color:var(--navy-mid); }
+
+  /* ── FOOTER ── */
+  .footer{
+    display:flex; justify-content:space-between; align-items:center; padding:14px 28px;
+    border-top:1px solid var(--border); background:var(--bg-card); font-size:11px; color:var(--text-muted);
+  }
+  .footer-session{ display:flex; align-items:center; gap:6px; }
+  .session-dot{ width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 0 3px var(--green-light); }
+
+  /* Extras kept from the source markup */
+  .nav-seal{background:url('/images/coat-of-arms.png') center/contain no-repeat}
+  .coat-watermark{background:url('/images/coat-of-arms.png') center center no-repeat;opacity:.06}
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px){
+    .sidebar{ display:none; }
+    .main-content{ padding:16px; }
+    .page-header{ flex-direction:column; align-items:flex-start; }
+  }
+  </style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../../images/coat-of-arms.png" alt="Zambian Coat of Arms" class="nav-seal" width="42" height="42" />
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar" id="userAvatarInitials">SN</div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="topUserName">Sydney Nkumbila</div>
+      <div class="top-user-role" id="topUserDetails">Land Officer</div>
+    </div>
+    <button class="btn-signout" id="signOutBtn">Sign Out</button>
+  </div>
+</div>
+
+<!-- ── LAYOUT ── -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Main Menu</div>
+    <a href="/pages/officer/dashboard.html"        class="sidebar-item"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="/pages/officer/parcel-registry.html"   class="sidebar-item"><i class="bi bi-collection"></i> Parcel Registry</a>
+    <a href="/pages/officer/register-parcel.html"   class="sidebar-item"><i class="bi bi-plus-circle"></i> Register Parcel</a>
+    <a href="/pages/officer/transfer-requests.html" class="sidebar-item active"><i class="bi bi-arrow-left-right"></i> Transfer Requests</a>
+    <a href="/pages/officer/parcel-status.html"  class="sidebar-item"><i class="bi bi-x-circle"></i> Rejected Parcels</a>
+    <a href="/pages/officer/notifications.html"     class="sidebar-item">
+      <i class="bi bi-bell"></i> Notifications
+      <span class="badge-notif" id="sidebarNotifCount" style="display:none">0</span>
+    </a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Reports</div>
+    <a href="monthly-report.html" class="sidebar-item" id="monthlyReportBtn"><i class="bi bi-file-earmark-bar-graph"></i> Monthly Report</a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Account</div>
+    <a href="/pages/officer/manage-profile.html" class="sidebar-item"><i class="bi bi-person-circle"></i> My Profile</a>
+
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" id="signOutSidebarBtn"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title"><i class="bi bi-arrow-left-right"></i> Transfer Requests</div>
+      </div>
+      <div class="action-buttons">
+        <button class="btn-export" id="exportTopBtn"><i class="bi bi-download"></i> Export</button>
+        <a href="/pages/officer/dashboard.html" class="btn-register"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+      </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="filter-card">
+      <div class="filter-group">
+        <label><i class="bi bi-funnel"></i> Status Filter</label>
+        <select id="statusFilter">
+          <option value="">All Statuses</option>
+          <option value="SUBMITTED">Pending Review</option>
+          <option value="UNDER_REVIEW">Under Review</option>
+          <option value="APPROVED_L1">L2 Review (Approved L1)</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label><i class="bi bi-search"></i> Search</label>
+        <input type="text" id="searchTransfer" placeholder="Parcel / Seller / Buyer ...">
+      </div>
+      <div class="filter-group" style="flex:0; min-width:auto;">
+        <label style="opacity:0; pointer-events:none; user-select:none;">action</label>
+        <button class="btn-custom-refresh" id="refreshBtn"><i class="bi bi-arrow-repeat"></i> Refresh</button>
+      </div>
+    </div>
+
+    <!-- Transfer Requests Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <h6><i class="bi bi-arrow-left-right"></i> Transfer Requests List</h6>
+        <span id="recordsCount"></span>
+      </div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Ref. No.</th>
+              <th>Parcel / Location</th>
+              <th>Seller</th>
+              <th>Buyer</th>
+              <th>Date Submitted</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="transfersBody">
+            <tr><td colspan="7" class="text-center text-muted py-4">Loading transfer requests…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script type="module">
+  import { api } from '/js/api.js';
+  import { requireLogin, getSession, logout, showLogoutConfirmation } from '/js/auth.js';
+
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast-msg ${type}`;
+    toast.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle-fill' : type === 'error' ? 'exclamation-triangle-fill' : 'info-circle-fill'}"></i> ${message}`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    try {
+      return new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    } catch { return dateStr; }
+  }
+
+  function getStatusBadge(status) {
+    const map = {
+      'SUBMITTED':    { label: 'PENDING',      cls: 'status-pending',     icon: 'bi-clock' },
+      'UNDER_REVIEW': { label: 'UNDER REVIEW', cls: 'status-pending',     icon: 'bi-clock-history' },
+      'APPROVED_L1':  { label: 'L2 REVIEW',    cls: 'status-l2',          icon: 'bi-arrow-up-circle' },
+      'APPROVED':     { label: 'APPROVED',     cls: 'status-approved',    icon: 'bi-check-circle' },
+      'REJECTED':     { label: 'REJECTED',     cls: 'status-rejected',    icon: 'bi-x-circle' },
+      'TRANSFERRED':  { label: 'TRANSFERRED',  cls: 'status-transferred', icon: 'bi-check2-all' }
+    };
+    const s = map[status] || { label: status || 'PENDING', cls: 'status-pending', icon: 'bi-question-circle' };
+    return `<span class="status-badge ${s.cls}"><i class="bi ${s.icon}" style="font-size:10px"></i> ${s.label}</span>`;
+  }
+
+  let allTransfers = [];
+
+  function renderTransfers(transfers) {
+    const tbody = document.getElementById('transfersBody');
+    if (!transfers.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No transfer requests found</td></tr>';
+      document.getElementById('recordsCount').innerText = '0 records';
+      return;
+    }
+    tbody.innerHTML = transfers.map(t => `
+      <tr>
+        <td><a href="/pages/officer/transfer-detail.html?requestId=${t.requestId || t.id}" class="ref-link">${t.requestId || t.id || 'N/A'}</a></td>
+        <td>${t.parcelNumber || t.parcel?.number || 'N/A'}</td>
+        <td>${t.sellerName || t.seller?.name || 'N/A'}</td>
+        <td>${t.buyerName || t.buyer?.name || 'N/A'}</td>
+        <td>${formatDate(t.submittedAt || t.createdAt || t.date)}</td>
+        <td>${getStatusBadge(t.status)}</td>
+        <td>
+          <button class="btn-action view-btn" data-id="${t.requestId || t.id}"><i class="bi bi-eye"></i> View</button>
+          <button class="btn-action review-btn" data-id="${t.requestId || t.id}"><i class="bi bi-pencil-square"></i> Review</button>
+        </td>
+      </tr>
+    `).join('');
+    document.getElementById('recordsCount').innerText = `${transfers.length} record(s)`;
+
+    document.querySelectorAll('.view-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        if (id) window.location.href = `/pages/officer/transfer-detail.html?requestId=${id}`;
+      });
+    });
+    document.querySelectorAll('.review-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        if (id) window.location.href = `/pages/officer/transfer-detail.html?requestId=${id}`;
+      });
+    });
+  }
+
+  function filterTransfers() {
+    const status = document.getElementById('statusFilter').value;
+    const search = document.getElementById('searchTransfer').value.toLowerCase();
+    let filtered = [...allTransfers];
+    if (status) filtered = filtered.filter(t => t.status === status);
+    if (search) filtered = filtered.filter(t =>
+      (t.parcelNumber || '').toLowerCase().includes(search) ||
+      (t.sellerName || '').toLowerCase().includes(search) ||
+      (t.buyerName || '').toLowerCase().includes(search) ||
+      (t.requestId || '').toLowerCase().includes(search)
+    );
+    renderTransfers(filtered);
+  }
+
+  async function loadTransfers() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const statusParam = urlParams.get('status');
+      let result;
+      if (statusParam) {
+        result = await api.officerTransfers(statusParam);
+      } else {
+        result = await api.pendingTransfers();
+      }
+      allTransfers = result.data || [];
+      // If a status query param was provided, preselect the status filter
+      if (statusParam) {
+        const sf = document.getElementById('statusFilter');
+        if (sf) sf.value = statusParam;
+      }
+      renderTransfers(allTransfers);
+    } catch (error) {
+      console.error('Load transfers error:', error);
+      showToast('Failed to load transfers: ' + error.message, 'error');
+      allTransfers = [];
+      renderTransfers([]);
+    }
+  }
+
+  async function updateTopBar() {
+    try {
+      requireLogin();
+      const session = getSession();
+      const userName = session.fullName || session.name || 'Sydney Nkumbila';
+      const userRole = session.role ? session.role.replace(/_/g, ' ') : 'Land Officer';
+      document.getElementById('topUserName').textContent = userName;
+      document.getElementById('topUserDetails').textContent = userRole;
+
+      const av = document.getElementById('userAvatarInitials');
+      const profileResult = await api.getMyProfile();
+      const profile = profileResult?.data || profileResult || {};
+      const savedPhoto = profile.photoPath || session.photoPath || localStorage.getItem('lv_photo') || '';
+      if (profile.photoPath) localStorage.setItem('lv_photo', profile.photoPath);
+      if (savedPhoto) {
+        const photoUrl = savedPhoto.startsWith('http') || savedPhoto.startsWith('/') ? savedPhoto : `/uploads/${savedPhoto}`;
+        if (av) av.innerHTML = `<img src="${photoUrl}" alt="Profile photo" />`;
+      } else {
+        const initials = userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        if (av) av.textContent = initials;
+      }
+
+      document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-GB', {
+        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+      });
+
+      try {
+        const notifResult = await api.officerUnreadNotificationCount?.();
+        const count = notifResult?.data?.count ?? notifResult?.data ?? 0;
+        const sn = document.getElementById('sidebarNotifCount');
+        if (sn) { sn.textContent = count > 0 ? count : ''; sn.style.display = count > 0 ? 'inline' : 'none'; }
+      } catch(e) { /* silent */ }
+    } catch(e) { console.warn('Session error', e); }
+  }
+
+  function doSignOut(e) {
+    e.preventDefault();
+    showLogoutConfirmation(logout);
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    await updateTopBar();
+    await loadTransfers();
+
+    document.getElementById('statusFilter').addEventListener('change', filterTransfers);
+    document.getElementById('searchTransfer').addEventListener('keyup', filterTransfers);
+    document.getElementById('refreshBtn').addEventListener('click', async () => {
+      await loadTransfers();
+      showToast('Transfer list refreshed', 'success');
+    });
+
+    document.getElementById('exportTopBtn')?.addEventListener('click', () => showToast('Export feature coming soon', 'info'));
+    document.getElementById('exportDataBtn')?.addEventListener('click', (e) => { e.preventDefault(); showToast('Export feature coming soon', 'info'); });
+    document.getElementById('signOutBtn')?.addEventListener('click', doSignOut);
+    document.getElementById('signOutSidebarBtn')?.addEventListener('click', doSignOut);
+  });
+</script>
+
+</body>
+</html>

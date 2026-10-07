@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flagged Requests – ARMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    :root {
+      --navy:          #0e2240;
+      --navy-mid:      #1a3560;
+      --navy-light:    #e8edf6;
+      --navy-xlight:   #f4f6fb;
+      --gold:          #c8a040;
+      --gold-mid:      #b8902e;
+      --gold-dark:     #9a7420;
+      --gold-light:    #fdf6e3;
+      --gold-xlight:   #fefbf3;
+      --text-primary:  #111827;
+      --text-secondary:#4b5568;
+      --text-muted:    #8a94a6;
+      --border:        #e8e3d8;
+      --border-mid:    #d6ceba;
+      --bg-page:       #faf7f2;
+      --bg-card:       #ffffff;
+      --radius:        6px;
+      --radius-lg:     10px;
+      --shadow-sm:     0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+      --shadow-card:   0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+      --sidebar-w:     200px;
+      --header-h:      66px;
+      /* investigation palette — warm rose, distinct from dashboard */
+      --rose:          #9d174d;
+      --rose-mid:      #be185d;
+      --rose-light:    #fce7f3;
+      --rose-border:   #fbcfe8;
+      --rose-dark:     #831843;
+    }
+    body {
+      display: flex; flex-direction: column;
+      background: var(--bg-page);
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 13px; color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      background: var(--bg-card);
+      display: flex; justify-content: space-between; align-items: stretch;
+      border-bottom: 1px solid var(--border);
+      height: var(--header-h); flex-shrink: 0;
+      box-shadow: var(--shadow-sm); position: relative; z-index: 50;
+    }
+    .logo-block {
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 24px; min-width: 360px; height: 100%;
+      flex-shrink: 0; background: var(--navy);
+    }
+     .logo-emblem {
+     width: 40px; height: 40px; border-radius: 8px;
+     background: var(--gold); display: flex; align-items: center;
+     justify-content: center; flex-shrink: 0; overflow: hidden;
+    }
+    .logo-emblem img {
+     width: 100%; height: 100%; object-fit: cover;
+    }
+    .logo-text h2 { font-size: 12.5px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+    .logo-text p  { font-size: 10.5px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+    .top-right { display: flex; align-items: center; gap: 14px; padding-right: 20px; }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--gold-light); border: 1.5px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--navy);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .top-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+    .top-user-role { font-size: 10.5px; color: var(--text-muted); line-height: 1; }
+    .btn-signout {
+      background: transparent; border: 1px solid var(--border-mid);
+      color: var(--text-secondary); padding: 5px 13px;
+      border-radius: var(--radius); font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .btn-signout:hover { background: var(--bg-page); color: var(--text-primary); }
+
+    /* ── LAYOUT ── */
+    .dashboard-container { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 14px 0 12px; flex-shrink: 0; height: 100%;
+      overflow-y: auto; display: flex; flex-direction: column;
+    }
+    .sidebar-section-title {
+      font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--text-muted); font-weight: 700; padding: 10px 16px 4px;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 16px; color: var(--text-secondary);
+      text-decoration: none; font-size: 12.5px;
+      transition: all 0.13s; border-left: 2px solid transparent; margin: 1px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .sidebar-item:hover { background: var(--gold-xlight); color: var(--navy); }
+    .sidebar-item.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+    .sidebar-item i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+    .sidebar-item.active i { opacity: 1; }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+    .sidebar-item.signout { color: #ef4444; }
+    .sidebar-item.signout:hover { background: #fef2f2; }
+    .sidebar-item.signout i { opacity: 1; }
+    .flag-count {
+      margin-left: auto; background: var(--rose-mid); color: #fff;
+      font-size: 10px; font-weight: 700; min-width: 18px; height: 18px;
+      border-radius: 99px; display: inline-flex; align-items: center;
+      justify-content: center; padding: 0 5px;
+    }
+    .flag-count.hidden { display: none; }
+
+    /* ── MAIN ── */
+    .main-content {
+      flex: 1; min-height: 0; padding: 0;
+      overflow-y: auto; overflow-x: hidden; background: var(--bg-page);
+      display: flex; flex-direction: column;
+    }
+
+    /* ── INVESTIGATION HEADER BAND ── */
+    /* Full-width rose band — the signature element, distinct from dashboard */
+    .invest-header {
+      background: linear-gradient(135deg, #0e2240 0%, #1a3560 60%, #335a8a 100%);
+      padding: 20px 28px 18px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .invest-header-left { display: flex; align-items: center; gap: 14px; }
+
+    .invest-icon-wrap {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .invest-icon-wrap i { font-size: 20px; color: #fff; }
+
+    .invest-header-text h1 {
+      font-size: 17px; font-weight: 700; color: #fff;
+      letter-spacing: -0.2px; margin-bottom: 3px;
+    }
+    .invest-header-text p {
+      font-size: 11.5px; color: rgba(255,255,255,0.65); line-height: 1.4;
+    }
+
+    /* Inline stats strip — not cards, just labelled numbers in a row */
+    .invest-stats {
+      display: flex; align-items: center; gap: 0;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .invest-stat {
+      padding: 10px 20px;
+      text-align: center;
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+    .invest-stat:last-child { border-right: none; }
+    .invest-stat-num {
+      font-size: 1.5rem; font-weight: 800; color: #fff;
+      line-height: 1; font-variant-numeric: tabular-nums;
+    }
+    .invest-stat-label {
+      font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.55); margin-top: 3px; white-space: nowrap;
+    }
+
+    /* ── CAUTION RIBBON ── */
+    .caution-ribbon {
+      background: #fff7ed;
+      border-bottom: 1px solid #fed7aa;
+      padding: 9px 28px;
+      display: flex; align-items: center; gap: 10px;
+      font-size: 12px; color: #9a3412;
+      flex-shrink: 0;
+    }
+    .caution-ribbon i { font-size: 13px; flex-shrink: 0; }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      padding: 12px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    .filter-group { display: flex; align-items: center; gap: 8px; flex: 1; flex-wrap: wrap; }
+
+    .filter-search {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-card); border: 1px solid var(--border-mid);
+      border-radius: var(--radius); padding: 0 12px; height: 34px;
+      min-width: 220px; flex: 1; max-width: 320px;
+    }
+    .filter-search i { color: var(--text-muted); font-size: 13px; flex-shrink: 0; }
+    .filter-search input {
+      border: none; outline: none; background: transparent;
+      font-size: 12.5px; font-family: inherit; color: var(--text-primary); width: 100%;
+    }
+    .filter-search input::placeholder { color: var(--text-muted); }
+
+    .filter-select {
+      height: 34px; border: 1px solid var(--border-mid); border-radius: var(--radius);
+      padding: 0 10px; font-size: 12px; font-family: inherit;
+      color: var(--text-secondary); background: var(--bg-card); cursor: pointer; outline: none;
+    }
+    .filter-select:focus { border-color: var(--rose-mid); }
+
+    .btn-ghost {
+      height: 34px; padding: 0 13px; border-radius: var(--radius);
+      border: 1px solid var(--border-mid); background: var(--bg-card);
+      font-size: 12px; font-family: inherit; color: var(--text-secondary);
+      cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-ghost:hover { background: var(--bg-page); color: var(--text-primary); }
+
+    .btn-navy {
+      height: 34px; padding: 0 14px; border-radius: var(--radius);
+      border: none; background: var(--navy); color: #fff;
+      font-size: 12px; font-family: inherit; font-weight: 600;
+      cursor: pointer; transition: background 0.15s; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-navy:hover { background: var(--navy-mid); }
+
+    /* ── TABLE ── */
+    .table-wrap { flex: 1; overflow: auto; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead { position: sticky; top: 0; z-index: 2; }
+    thead th {
+      background: var(--rose-light);
+      color: var(--rose);
+      font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; padding: 10px 16px;
+      border-bottom: 2px solid var(--rose-border);
+      white-space: nowrap; text-align: left;
+    }
+
+    tbody td {
+      padding: 12px 16px; font-size: 12.5px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary); vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+
+    /* Each row has a left accent stripe */
+    tbody tr td:first-child { border-left: 3px solid var(--rose-border); }
+    tbody tr:hover td { background: var(--rose-light); }
+    tbody tr:hover td:first-child { border-left-color: var(--rose-mid); }
+
+    /* ── BADGES ── */
+    .parcel-pill {
+      display: inline-flex; padding: 2px 8px; border-radius: var(--radius);
+      background: var(--navy-xlight); border: 1px solid var(--navy-light);
+      font-size: 11px; font-weight: 600; color: var(--navy-mid);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .st-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 9px; border-radius: 99px;
+      font-size: 10.5px; font-weight: 700; white-space: nowrap;
+    }
+    .st-flag { background: var(--rose-light); color: var(--rose); border: 1px solid var(--rose-border); }
+    .st-ok   { background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0; }
+    .st-rej  { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    /* reason pill */
+    .reason-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--rose-light); border: 1px solid var(--rose-border);
+      color: var(--rose); border-radius: var(--radius);
+      padding: 3px 9px; font-size: 11.5px; font-weight: 500;
+      max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .reason-pill i { flex-shrink: 0; font-size: 10px; }
+
+    /* ── ACTION BUTTONS ── */
+    .action-wrap { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+    .btn-act {
+      height: 28px; padding: 0 10px; border: none; border-radius: var(--radius);
+      font-size: 11.5px; font-weight: 600; cursor: pointer;
+      transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px;
+      font-family: inherit; white-space: nowrap;
+    }
+    .btn-approve { background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0; }
+    .btn-approve:hover { background: #059669; color: #fff; border-color: #059669; }
+    .btn-reject  { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .btn-reject:hover  { background: #dc2626; color: #fff; border-color: #dc2626; }
+    .btn-view    { background: var(--navy-xlight); color: var(--navy); border: 1px solid var(--navy-light); }
+    .btn-view:hover    { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    /* ── SPINNER / EMPTY ── */
+    .spinner {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2.5px solid var(--rose-border); border-top-color: var(--rose-mid);
+      animation: spin 0.7s linear infinite; display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); font-size: 13px; }
+    .empty-state i { font-size: 32px; margin-bottom: 10px; display: block; color: var(--rose-border); }
+    .empty-state strong { display: block; color: var(--text-secondary); margin-bottom: 4px; }
+
+    /* ── OVERLAY & MODAL ── */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(14,34,64,0.5);
+      z-index: 2000; display: none; align-items: center; justify-content: center;
+    }
+    .modal-box {
+      background: var(--bg-card); border-radius: var(--radius-lg);
+      width: 520px; max-width: 95vw;
+      box-shadow: 0 24px 64px rgba(14,34,64,0.22);
+      max-height: 90vh; overflow-y: auto;
+      border-top: 4px solid transparent;
+    }
+    .modal-box-lg { width: 680px; }
+    .modal-hdr {
+      padding: 16px 20px; display: flex; align-items: center;
+      justify-content: space-between; border-bottom: 1px solid var(--border);
+    }
+    .modal-hdr-navy { background: var(--navy); border-radius: calc(var(--radius-lg) - 1px) calc(var(--radius-lg) - 1px) 0 0; }
+    .modal-title { font-size: 14px; font-weight: 600; color: var(--navy); margin: 0; }
+    .modal-close {
+      width: 28px; height: 28px; border-radius: var(--radius);
+      border: 1px solid var(--border-mid); background: transparent;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); font-size: 16px; transition: all 0.15s;
+    }
+    .modal-close:hover { background: var(--bg-page); color: var(--navy); }
+    .modal-close-white { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.8); }
+    .modal-close-white:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .modal-body { padding: 20px; }
+    .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+    .form-label-arm { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; display: block; }
+    .form-control-arm {
+      width: 100%; border: 1px solid var(--border-mid); border-radius: var(--radius);
+      padding: 8px 12px; font-size: 13px; font-family: inherit;
+      color: var(--text-primary); background: var(--bg-card); outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-control-arm:focus { border-color: var(--rose-mid); }
+    .form-hint { font-size: 11px; color: var(--text-muted); margin-top: 5px; }
+    .form-group { margin-bottom: 16px; }
+
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .detail-field { background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; }
+    .detail-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 700; margin-bottom: 3px; }
+    .detail-val   { font-size: 13px; font-weight: 600; color: var(--navy); }
+    .detail-val.mono { font-family: 'JetBrains Mono', monospace; font-weight: 400; font-size: 11.5px; word-break: break-all; color: var(--text-secondary); }
+    .detail-full { grid-column: 1/-1; }
+    .detail-field.flagged-field { background: var(--rose-light); border-color: var(--rose-border); }
+    .detail-field.flagged-field .detail-label { color: var(--rose); }
+    .detail-field.flagged-field .detail-val   { color: var(--rose-dark); }
+
+    .inline-alert { padding: 10px 14px; border-radius: var(--radius); font-size: 12px; margin-bottom: 14px; display: flex; align-items: flex-start; gap: 8px; }
+    .inline-alert i { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+    .ia-warning { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #e8d098; }
+    .ia-rose    { background: var(--rose-light); color: var(--rose); border: 1px solid var(--rose-border); }
+
+    /* ── TOAST ── */
+    .toast-wrap { position: fixed; top: 80px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+    .toast-item {
+      padding: 11px 16px; border-radius: var(--radius-lg); font-size: 12.5px; font-weight: 500;
+      display: flex; align-items: center; gap: 9px;
+      box-shadow: 0 4px 20px rgba(14,34,64,0.15); min-width: 280px; pointer-events: auto;
+      animation: slideIn 0.25s ease;
+    }
+    .toast-item i { font-size: 15px; flex-shrink: 0; }
+    .t-ok  { background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0; }
+    .t-err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .t-wrn { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #e8d098; }
+    @keyframes slideIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--bg-card); color: var(--text-muted);
+      padding: 10px 24px; display: flex; justify-content: space-between; align-items: center;
+      font-size: 11px; border-top: 1px solid var(--border); flex-shrink: 0;
+    }
+    .session-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+    .btn-gold {
+      height: 36px; padding: 0 20px; border-radius: var(--radius);
+      border: none; background: var(--gold); color: var(--navy);
+      font-size: 13px; font-family: inherit; font-weight: 600;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .btn-gold:hover { background: var(--gold-mid); }
+    .btn-cancel {
+      height: 36px; padding: 0 16px; border-radius: var(--radius);
+      border: 1px solid var(--border-mid); background: var(--bg-card);
+      font-size: 13px; font-family: inherit; color: var(--text-secondary);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-cancel:hover { background: var(--bg-page); color: var(--navy); }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .invest-stats { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../images/coat-of-arms.png" alt="Coat of Arms"/>
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar">
+      <img id="headerPhoto" alt=""/>
+      <span id="headerInitials" aria-label="Current user"></span>
+    </div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="nav-name"></div>
+      <div class="top-user-role" id="nav-role"></div>
+    </div>
+    <button class="btn-signout" onclick="confirmAndLogout(event)">Sign Out</button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Senior Officer Panel</div>
+    <a href="dashboard.html"          class="sidebar-item"><i class="bi bi-hammer"></i> Senior Approvals</a>
+    <a href="district-oversight.html" class="sidebar-item"><i class="bi bi-map"></i> District Oversight</a>
+    <a href="flagged.html"            class="sidebar-item active">
+      <i class="bi bi-flag-fill"></i> Flagged
+      <span class="flag-count hidden" id="sidebarFlagCount">0</span>
+    </a>
+    <a href="audit-log.html"          class="sidebar-item"><i class="bi bi-shield-lock"></i> Blockchain Audit</a>
+    <div class="sidebar-divider"></div>
+    <a href="monthly-reports.html"class="sidebar-item"><i class="bi bi-file-earmark-text"></i> Monthly Reports</a>
+    <a href="notifications.html"class="sidebar-item"><i class="bi bi-bell"></i> Notifications</a>
+    <div class="sidebar-divider"></div>
+    <a href="manage-profile.html"     class="sidebar-item"><i class="bi bi-person-gear"></i> Manage Profile</a>
+    <a href="../../index.html"        class="sidebar-item"><i class="bi bi-search"></i> Verify Parcel</a>
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" onclick="confirmAndLogout(event);return false;"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <!-- INVESTIGATION HEADER BAND (replaces page-header + KPI cards) -->
+    <div class="invest-header">
+      <div class="invest-header-left">
+        <div class="invest-icon-wrap"><i class="bi bi-flag-fill"></i></div>
+        <div class="invest-header-text">
+          <h1>Flagged Requests — Investigation Queue</h1>
+          <p>Requests marked suspicious by Senior Officers. Each case must be reviewed and resolved before the transfer can proceed.</p>
+        </div>
+      </div>
+      <!-- Inline stats — numbers in a row, not cards -->
+      <div class="invest-stats">
+        <div class="invest-stat">
+          <div class="invest-stat-num" id="statTotal">—</div>
+          <div class="invest-stat-label">Total Flagged</div>
+        </div>
+        <div class="invest-stat">
+          <div class="invest-stat-num" id="statOpen">—</div>
+          <div class="invest-stat-label">Open</div>
+        </div>
+        <div class="invest-stat">
+          <div class="invest-stat-num" id="statResolved">—</div>
+          <div class="invest-stat-label">Resolved</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAUTION RIBBON -->
+    <div class="caution-ribbon">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span><strong>Handle with care.</strong> Approving a flagged request requires written justification and is logged on the blockchain audit trail. Rejections are permanent.</span>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="filter-group">
+        <div class="filter-search">
+          <i class="bi bi-search"></i>
+          <input type="text" id="searchInput" placeholder="Search parcel, seller, buyer, reason…" oninput="applyFilters()"/>
+        </div>
+        <select class="filter-select" id="districtFilter" onchange="applyFilters()">
+          <option value="">All Districts</option>
+        </select>
+        <button class="btn-ghost" onclick="clearFilters()"><i class="bi bi-x-lg"></i> Clear</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <button class="btn-ghost" onclick="exportCSV()"><i class="bi bi-download"></i> Export CSV</button>
+        <button class="btn-navy"  onclick="loadFlagged()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ref. ID</th>
+            <th>Parcel</th>
+            <th>District</th>
+            <th>Seller</th>
+            <th>Buyer</th>
+            <th>Flag Reason</th>
+            <th>Flagged</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tblFlagged">
+          <tr><td colspan="9" style="text-align:center;padding:48px;">
+            <div class="spinner"></div>
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /dashboard-container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div style="display:flex;align-items:center;gap:6px;">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<!-- ACTION MODAL -->
+<div class="overlay" id="actionModal">
+  <div class="modal-box" id="actionBox">
+    <div class="modal-hdr">
+      <h5 class="modal-title" id="actionTitle">Confirm Action</h5>
+      <button class="modal-close" onclick="closeActionModal()"><i class="bi bi-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="actionReqId"/>
+      <input type="hidden" id="actionType"/>
+      <div id="actionAlertBox"></div>
+      <div class="form-group">
+        <label class="form-label-arm" id="commentsLabel">Comments <span style="color:#ef4444;">*</span></label>
+        <textarea class="form-control-arm" id="actionComments" rows="4" placeholder="Enter your justification…" style="resize:vertical;"></textarea>
+        <div class="form-hint" id="commentsHint"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeActionModal()">Cancel</button>
+      <button class="btn-gold" id="actionConfirmBtn" onclick="submitAction()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="detailModal">
+  <div class="modal-box modal-box-lg">
+    <div class="modal-hdr modal-hdr-navy">
+      <h5 class="modal-title" style="color:#fff;display:flex;align-items:center;gap:8px;">
+        <i class="bi bi-file-text"></i> Transfer Request Details
+      </h5>
+      <button class="modal-close modal-close-white" onclick="document.getElementById('detailModal').style.display='none'"><i class="bi bi-x"></i></button>
+    </div>
+    <div class="modal-body" id="detailContent"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+import { api } from '/js/api.js';
+import { requireLogin, populateNavbar, logout, updateSession } from '/js/auth.js';
+
+requireLogin();
+const userRole = localStorage.getItem('lv_role');
+const allowedRoles = ['SENIOR_OFFICER', 'SYSTEM_ADMIN'];
+if (!allowedRoles.includes(userRole)) {
+  alert('Access Denied: This page is only available to Senior Officers or System Administrators.');
+  window.location.href = '/login.html?error=invalid_role&role=' + encodeURIComponent(userRole);
+}
+populateNavbar();
+window.doLogout = logout;
+
+const BASE = '';
+let allFlagged = [];
+
+function toast(msg, type = 'success') {
+  const icons = { success: 'bi-check-circle-fill', error: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill' };
+  const cls   = { success: 't-ok', error: 't-err', warning: 't-wrn' };
+  const el = document.createElement('div');
+  el.className = `toast-item ${cls[type]}`;
+  el.innerHTML = `<i class="bi ${icons[type]}"></i><span>${msg}</span>`;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(() => el.remove(), 5000);
+}
+
+async function loadHeader() {
+  try {
+    const token = localStorage.getItem('lv_token');
+    const res = await fetch(`${BASE}/api/auth/profile/me`, { headers: { 'Authorization': 'Bearer ' + token } });
+    if (!res.ok) return;
+    const { data: p } = await res.json();
+    updateSession(p);
+    if (p.email) localStorage.setItem('lv_email', p.email);
+    const name = p.fullName || p.username || 'M';
+    document.getElementById('nav-name').textContent = name;
+    document.getElementById('nav-role').textContent = (p.role||'').replace(/_/g,' ');
+    document.getElementById('headerInitials').textContent = name.charAt(0).toUpperCase();
+    if (p.photoPath) {
+      const img = document.getElementById('headerPhoto');
+      img.src = `${BASE}/uploads/${p.photoPath}`;
+      img.onload = () => {
+        img.classList.add('profile-photo-ready');
+        document.getElementById('headerInitials').style.display = 'none';
+      };
+      img.onerror = () => { img.style.display='none'; document.getElementById('headerInitials').style.display='block'; };
+    }
+  } catch(e) { console.error(e); }
+}
+
+async function loadFlagged() {
+  document.getElementById('tblFlagged').innerHTML =
+    '<tr><td colspan="9" style="text-align:center;padding:48px;"><div class="spinner"></div></td></tr>';
+  try {
+    const res = await api.seniorTransfers('FLAGGED');
+    const all = res.data || [];
+    allFlagged = all.filter(r => r.flagged || r.status === 'FLAGGED');
+    allFlagged.forEach(r => { if (!r.district) r.district = 'Unknown'; });
+    updateStats();
+    populateDistrictFilter();
+    renderTable();
+  } catch(e) {
+    document.getElementById('tblFlagged').innerHTML =
+      `<tr><td colspan="9"><div class="empty-state"><i class="bi bi-exclamation-circle"></i><strong>Failed to load</strong>${e.message}</div></td></tr>`;
+  }
+}
+window.loadFlagged = loadFlagged;
+
+function updateStats() {
+  const total    = allFlagged.length;
+  const resolved = allFlagged.filter(r => r.status === 'APPROVED' || r.status === 'REJECTED').length;
+  const open     = total - resolved;
+  document.getElementById('statTotal').textContent    = total;
+  document.getElementById('statOpen').textContent     = open;
+  document.getElementById('statResolved').textContent = resolved;
+  const sc = document.getElementById('sidebarFlagCount');
+  sc.textContent = total;
+  sc.classList.toggle('hidden', total === 0);
+}
+
+function populateDistrictFilter() {
+  const districts = [...new Set(allFlagged.map(r=>r.district).filter(Boolean))].sort();
+  document.getElementById('districtFilter').innerHTML = '<option value="">All Districts</option>' +
+    districts.map(d=>`<option value="${d}">${d}</option>`).join('');
+}
+
+function renderTable() {
+  const search   = (document.getElementById('searchInput').value||'').toLowerCase();
+  const district = document.getElementById('districtFilter').value;
+
+  const filtered = allFlagged.filter(r => {
+    const ms = !search   || [r.parcelNumber, r.sellerName, r.buyerName, r.district, r.flagReason].some(v=>v&&v.toLowerCase().includes(search));
+    const md = !district || r.district === district;
+    return ms && md;
+  });
+
+  if (!filtered.length) {
+    document.getElementById('tblFlagged').innerHTML =
+      `<tr><td colspan="9"><div class="empty-state">
+        <i class="bi bi-flag"></i>
+        <strong>No flagged requests</strong>
+        ${search||district ? 'No records match your current filters.' : 'All requests are clean — nothing to investigate.'}
+      </div></td></tr>`;
+    return;
+  }
+
+  document.getElementById('tblFlagged').innerHTML = filtered.map(r => `
+    <tr>
+      <td style="font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace;font-size:12px;">#${r.requestId}</td>
+      <td><span class="parcel-pill">${r.parcelNumber}</span></td>
+      <td style="color:var(--text-secondary);">${r.district||'—'}</td>
+      <td>${r.sellerName}</td>
+      <td>${r.buyerName}</td>
+      <td><span class="reason-pill"><i class="bi bi-flag-fill"></i>${r.flagReason||'Suspicious activity'}</span></td>
+      <td style="color:var(--text-muted);font-size:12px;">${r.flaggedAt?new Date(r.flaggedAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—'}</td>
+      <td>${sBadge(r.status)}</td>
+      <td>
+        <div class="action-wrap">
+          <button class="btn-act btn-view"    onclick="viewDetail(${r.requestId})"><i class="bi bi-eye"></i> View</button>
+          <button class="btn-act btn-reject"  onclick="openAction(${r.requestId},'reject')"><i class="bi bi-x"></i> Reject</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function sBadge(s) {
+  const m = { APPROVED:'st-ok', REJECTED:'st-rej', FLAGGED:'st-flag', APPROVED_L1:'st-flag' };
+  const l = { APPROVED:'APPROVED', REJECTED:'REJECTED', FLAGGED:'FLAGGED', APPROVED_L1:'UNDER REVIEW' };
+  return `<span class="st-badge ${m[s]||'st-flag'}">${l[s]||s.replace(/_/g,' ')}</span>`;
+}
+
+window.applyFilters = renderTable;
+window.clearFilters = function() {
+  document.getElementById('searchInput').value='';
+  document.getElementById('districtFilter').value='';
+  renderTable();
+};
+
+window.viewDetail = function(id) {
+  const r = allFlagged.find(x=>x.requestId===id);
+  if (!r) return;
+  document.getElementById('detailContent').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-field"><div class="detail-label">Request ID</div><div class="detail-val">#${r.requestId}</div></div>
+      <div class="detail-field"><div class="detail-label">Status</div><div class="detail-val">${sBadge(r.status)}</div></div>
+      <div class="detail-field"><div class="detail-label">Parcel Number</div><div class="detail-val"><span class="parcel-pill">${r.parcelNumber}</span></div></div>
+      <div class="detail-field"><div class="detail-label">District</div><div class="detail-val">${r.district||'—'}</div></div>
+      <div class="detail-field"><div class="detail-label">Seller</div><div class="detail-val">${r.sellerName}</div></div>
+      <div class="detail-field"><div class="detail-label">Buyer</div><div class="detail-val">${r.buyerName}</div></div>
+      <div class="detail-field"><div class="detail-label">Agreed Price (ZMW)</div><div class="detail-val">K ${r.agreedPriceZmw?Number(r.agreedPriceZmw).toLocaleString():'—'}</div></div>
+      <div class="detail-field"><div class="detail-label">Flagged At</div><div class="detail-val">${r.flaggedAt?new Date(r.flaggedAt).toLocaleString():'—'}</div></div>
+      <div class="detail-field detail-full flagged-field">
+        <div class="detail-label">Flag Reason</div>
+        <div class="detail-val">${r.flagReason||'No reason recorded'}</div>
+      </div>
+      ${r.blockchainTxHash?`<div class="detail-field detail-full"><div class="detail-label">Blockchain TX Hash</div><div class="detail-val mono">${r.blockchainTxHash}</div></div>`:''}
+    </div>
+    <div class="action-wrap" style="margin-top:20px;">
+      <button class="btn-act btn-reject"  style="height:34px;padding:0 16px;font-size:12.5px;" onclick="document.getElementById('detailModal').style.display='none';openAction(${r.requestId},'reject')"><i class="bi bi-x"></i> Reject</button>
+    </div>
+    <div style="text-align:right;margin-top:16px;">
+      <button class="btn-cancel" onclick="document.getElementById('detailModal').style.display='none'">Close</button>
+    </div>`;
+  document.getElementById('detailModal').style.display='flex';
+};
+
+window.openAction = function(id, type) {
+  document.getElementById('actionReqId').value = id;
+  document.getElementById('actionType').value  = type;
+  document.getElementById('actionComments').value = '';
+  document.getElementById('actionAlertBox').innerHTML = '';
+
+  const box   = document.getElementById('actionBox');
+  const title = document.getElementById('actionTitle');
+  const btn   = document.getElementById('actionConfirmBtn');
+
+  if (type === 'approve') {
+    box.style.borderTopColor = '#059669';
+    title.innerHTML = '<i class="bi bi-check-circle-fill" style="color:#059669;margin-right:8px;"></i>Approve Flagged Request';
+    btn.style.cssText = 'height:36px;padding:0 20px;border-radius:6px;border:none;background:#059669;color:#fff;font-size:13px;font-family:inherit;font-weight:600;cursor:pointer;';
+    btn.textContent = 'Confirm Approval';
+    document.getElementById('commentsLabel').innerHTML = 'Justification <span style="color:#ef4444;">*</span>';
+    document.getElementById('commentsHint').textContent = 'Required. Your written justification will be recorded on the blockchain audit trail.';
+    document.getElementById('actionAlertBox').innerHTML = '<div class="inline-alert ia-rose"><i class="bi bi-exclamation-triangle-fill"></i><span>You are approving a previously flagged request. Ensure all concerns have been fully resolved before proceeding.</span></div>';
+  } else {
+    box.style.borderTopColor = '#dc2626';
+    title.innerHTML = '<i class="bi bi-x-circle-fill" style="color:#dc2626;margin-right:8px;"></i>Reject Transfer';
+    btn.style.cssText = 'height:36px;padding:0 20px;border-radius:6px;border:none;background:#dc2626;color:#fff;font-size:13px;font-family:inherit;font-weight:600;cursor:pointer;';
+    btn.textContent = 'Confirm Rejection';
+    document.getElementById('commentsLabel').innerHTML = 'Rejection Reason <span style="color:#ef4444;">*</span>';
+    document.getElementById('commentsHint').textContent = 'This action is permanent. Clearly state why this flagged transfer is being rejected.';
+    document.getElementById('actionAlertBox').innerHTML = '';
+  }
+  document.getElementById('actionModal').style.display='flex';
+};
+window.closeActionModal = () => document.getElementById('actionModal').style.display='none';
+
+window.submitAction = async function() {
+  const id      = parseInt(document.getElementById('actionReqId').value);
+  const type    = document.getElementById('actionType').value;
+  const comments= document.getElementById('actionComments').value.trim();
+  if (!comments) { toast('A written justification is required.','error'); return; }
+
+  const btn  = document.getElementById('actionConfirmBtn');
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-arrow-repeat" style="animation:spin 0.7s linear infinite;display:inline-block;margin-right:6px;"></i>Processing…';
+
+  try {
+    if (type==='approve') {
+      await api.seniorApprove({ requestId:id, comments });
+      toast('Flagged request approved — ownership transferred on blockchain.','success');
+    } else {
+      await api.seniorReject({ requestId:id, reason:comments });
+      toast('Flagged request permanently rejected.','warning');
+    }
+    closeActionModal();
+    await loadFlagged();
+  } catch(e) {
+    toast(e.message||'Action failed.','error');
+  } finally {
+    btn.disabled=false; btn.textContent=orig;
+  }
+};
+
+window.exportCSV = function() {
+  const h = ['ID','Parcel','District','Seller','Buyer','Flag Reason','Flagged At','Status'];
+  const rows = allFlagged.map(r=>[
+    r.requestId, r.parcelNumber, r.district||'', r.sellerName, r.buyerName,
+    `"${(r.flagReason||'').replace(/"/g,'""')}"`,
+    r.flaggedAt?new Date(r.flaggedAt).toLocaleDateString():'', r.status
+  ]);
+  const a = document.createElement('a');
+  a.href = 'data:text/csv,'+encodeURIComponent([h,...rows].map(x=>x.join(',')).join('\n'));
+  a.download = `flagged-requests-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('CSV exported.','success');
+};
+
+loadHeader();
+loadFlagged();
+</script>
+</body>
+</html>

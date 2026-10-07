@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LandVerify ZM — Parcel Detail</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+
+    :root {
+      --navy:          #0e2240;
+      --navy-mid:      #1a3560;
+      --navy-light:    #e8edf6;
+      --navy-xlight:   #f4f6fb;
+      --gold:          #c8a040;
+      --gold-mid:      #b8902e;
+      --gold-dark:     #9a7420;
+      --gold-light:    #fdf6e3;
+      --gold-xlight:   #fefbf3;
+      --success:       #1d7a50;
+      --danger:        #b83232;
+      --pending:       #b45309;
+      --text-primary:  #111827;
+      --text-secondary:#4b5568;
+      --text-muted:    #8a94a6;
+      --border:        #e8e3d8;
+      --border-mid:    #d6ceba;
+      --bg-page:       #faf7f2;
+      --bg-card:       #ffffff;
+      --radius:        6px;
+      --radius-lg:     10px;
+      --shadow-sm:     0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+      --shadow-card:   0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+      --sidebar-w:     200px;
+      --header-h:      66px;
+    }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── TOP BAR ── */
+    .navbar-top {
+      background: var(--bg-card);
+      display: flex; justify-content: space-between; align-items: stretch;
+      border-bottom: 1px solid var(--border);
+      height: var(--header-h);
+      box-shadow: var(--shadow-sm);
+      position: sticky; top: 0; z-index: 1040;
+      padding: 0;
+    }
+    .logo-block {
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 24px; min-width: 340px; height: 100%;
+      flex-shrink: 0; background: var(--navy);
+    }
+    .logo-emblem {
+      width: 40px; height: 40px; border-radius: 8px;
+      background: var(--gold); display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; overflow: hidden;
+    }
+    .logo-emblem img { width: 100%; height: 100%; object-fit: contain; }
+    .logo-text h2 { font-size: 12.5px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+    .logo-text p  { font-size: 10.5px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+    .top-right { display: flex; align-items: center; gap: 14px; padding-right: 20px; }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--gold-light); border: 1.5px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--navy); flex-shrink: 0;
+      overflow: hidden; position: relative;
+    }
+    .user-avatar img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; border-radius: 50%; }
+    .navbar-top .nav-link {
+      color: var(--text-secondary); font-size: 12px; font-weight: 500;
+      border: 1px solid var(--border-mid); border-radius: var(--radius);
+      padding: 5px 13px; text-decoration: none; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .navbar-top .nav-link:hover { background: var(--bg-page); color: var(--text-primary); }
+
+    /* ── LAYOUT ── */
+    .app-container { display: flex; min-height: calc(100vh - var(--header-h)); }
+
+    .sidebar { width: 200px; padding: 14px 0 12px; }
+    .sidebar-label { padding: 10px 16px 4px; color: var(--text-muted); font-size: 9.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+    .sidebar-link { display: flex; align-items: center; gap: 9px; margin: 1px 0; padding: 8px 16px; border-left: 2px solid transparent; border-radius: 0 8px 8px 0; color: var(--text-secondary); text-decoration: none; font-size: 12.5px; transition: all .13s; }
+    .sidebar-link:hover, .sidebar-link.active { background: var(--gold-xlight); color: var(--navy); }
+    .sidebar-link.active { border-left-color: var(--gold); font-weight: 600; }
+    .sidebar-link i { width: 16px; font-size: 14px; opacity: .7; }
+    .sidebar-link.active i { opacity: 1; }
+    .main-wrap { flex: 1; min-width: 0; padding: 24px 28px; background: var(--bg-page); overflow-x: hidden; }
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 22px; background: transparent !important; padding: 0 !important; border: 0 !important; color: var(--text-primary) !important; }
+    .page-header h1 { color: var(--navy); font-size: 20px; font-weight: 700; }
+    .page-header p { color: var(--text-secondary); font-size: 12.5px; }
+    .section-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; margin-bottom: 18px; }
+    .section-card-header { padding: 13px 20px; background: var(--bg-card); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .section-card-header h5 { color: var(--navy); font-size: 13.5px; font-weight: 600; }
+    .parcel-nav-badge { margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px; display: inline-grid; place-items: center; border-radius: 99px; background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; }
+
+    /* ── SIDEBAR ── */
+    :root {
+      --page-bg: var(--bg-page);
+      --surface: var(--bg-card);
+      --navy: var(--navy);
+      --gold: var(--gold);
+      --text-primary: var(--text-primary);
+      --text-secondary: var(--text-secondary);
+      --text-muted: var(--text-muted);
+      --border: var(--border);
+      --font-family: 'Inter', Arial, sans-serif;
+      --radius: var(--radius);
+      --shadow: var(--shadow-card);
+      --header-h: var(--header-h);
+      --sidebar-w: var(--sidebar-w);
+    }
+
+    .section-card-body { padding: 20px; }
+
+    /* ── DETAIL GRID ── */
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; }
+    .detail-item .d-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
+    .detail-item .d-value { font-size: 12.5px; font-weight: 600; color: var(--text-primary); margin-top: 3px; word-break: break-word; }
+    .owner-photo-detail { width: 128px; height: 128px; border-radius: 6px; object-fit: cover; border: 2px solid var(--gold); background: var(--navy-xlight); }
+
+    /* ── TABS ── */
+    .nav-tabs { border-bottom: 1px solid var(--border); }
+    .nav-tabs .nav-link {
+      color: var(--text-muted); border: none; font-weight: 500; font-size: 12.5px;
+      border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 8px 4px; margin-right: 20px;
+    }
+    .nav-tabs .nav-link.active { color: var(--navy); border-bottom-color: var(--gold); background: transparent; font-weight: 600; }
+
+    /* ── TIMELINE ── */
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before {
+      content: ''; position: absolute; left: .5rem; top: 0; bottom: 0;
+      width: 2px; background: var(--border);
+    }
+    .timeline-item { position: relative; margin-bottom: 1.25rem; }
+    .timeline-dot {
+      position: absolute; left: -1.73rem; top: .25rem;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--gold); border: 2.5px solid #fff;
+      box-shadow: 0 0 0 2px var(--gold);
+    }
+    .timeline-dot.current { background: var(--navy); box-shadow: 0 0 0 2px var(--navy); }
+    .timeline-card {
+      background: var(--bg-page); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px 16px;
+    }
+    .timeline-card .t-name { font-weight: 600; font-size: 12.5px; color: var(--navy); }
+    .timeline-card .t-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+    .timeline-card .t-meta strong { color: var(--navy); font-weight: 600; }
+
+    /* ── BADGES ── */
+    .badge-status {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 99px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+    }
+    .badge-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+    .bs-active   { background: #f0fdf4; color: var(--success); border: 1px solid #bbf7d0; }
+    .bs-active::before { background: var(--success); }
+    .bs-pending  { background: var(--gold-light); color: var(--pending); border: 1px solid #e8d098; }
+    .bs-pending::before { background: var(--pending); }
+    .bs-rejected { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+    .bs-rejected::before { background: var(--danger); }
+    .bs-archived { background: var(--navy-xlight); color: var(--navy-mid); border: 1px solid #c8d8ee; }
+    .bs-archived::before { background: var(--navy-mid); }
+
+    /* ── BUTTONS ── */
+    .btn-primary-custom {
+      background: var(--gold); color: var(--navy);
+      border: none; border-radius: var(--radius); padding: 7px 16px;
+      font-size: 12px; font-weight: 600; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary-custom:hover { background: var(--gold-mid); color: var(--navy); }
+    .btn-outline-custom {
+      background: transparent; color: var(--text-secondary);
+      border: 1px solid var(--border-mid); border-radius: var(--radius);
+      padding: 7px 16px; font-size: 12px; font-weight: 500; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-outline-custom:hover { background: var(--bg-page); color: var(--navy); border-color: var(--gold); }
+
+    /* ── TOAST ── */
+    .toast-stack { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast-item {
+      background: var(--navy); color: #fff;
+      padding: 10px 16px; border-radius: var(--radius);
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12.5px; font-weight: 500;
+      box-shadow: 0 4px 14px rgba(14,34,64,0.25);
+      animation: slideUp .3s ease; max-width: 340px;
+      border-left: 3px solid var(--gold);
+    }
+    .toast-item.success { border-left-color: #22c55e; }
+    .toast-item.error   { border-left-color: #ef4444; }
+    .toast-item.info    { border-left-color: var(--gold); }
+    @keyframes slideUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════ NAVBAR ════════════════════════════ -->
+<nav class="navbar navbar-top">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../../images/coat-of-arms.png" alt="Zambian Coat of Arms" width="40" height="40">
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar" id="nav-avatar" aria-label="Current user"></div>
+    <div style="text-align:left;">
+      <div style="font-size:13px;font-weight:600;color:var(--text-primary);line-height:1.2" id="nav-name">Loading profile...</div>
+      <div style="font-size:10.5px;color:var(--text-muted);line-height:1" id="nav-role">Landowner</div>
+    </div>
+    <a href="#" class="nav-link" onclick="showLogoutConfirm(event)"><i class="bi bi-box-arrow-right"></i>Sign Out</a>
+  </div>
+</nav>
+
+<!-- ════════════════════════════ LAYOUT ════════════════════════════ -->
+<div class="app-container">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Navigation</div>
+    <a href="my-parcels.html" class="sidebar-link active">
+      <i class="bi bi-grid-1x2"></i> My Parcels
+    </a>
+    <a href="notifications.html" class="sidebar-link">
+      <i class="bi bi-bell"></i> Notifications <span class="parcel-nav-badge" id="notificationCount" hidden></span>
+    </a>
+    <a href="parcels-list.html" class="sidebar-link">
+      <i class="bi bi-search"></i> Parcel Search
+    </a>
+    <a href="transfer.html" class="sidebar-link">
+      <i class="bi bi-arrow-left-right"></i> Initiate Transfer
+    </a>
+    <a href="transfer-requests.html" class="sidebar-link">
+      <i class="bi bi-clock-history"></i> My Transfer Requests
+    </a>
+    <a href="title-deeds.html" class="sidebar-link">
+      <i class="bi bi-file-earmark-text"></i> Title Deeds
+    </a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">Account</div>
+    <a href="profile.html" class="sidebar-link">
+      <i class="bi bi-person-gear"></i> Manage Profile
+    </a>
+    <a href="#" class="sidebar-link">
+      <i class="bi bi-shield-lock"></i> Security
+    </a>
+    <a href="../../index.html" class="sidebar-link">
+      <i class="bi bi-search"></i> Verify a Parcel
+    </a>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-wrap">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div>
+        <h1><i class="bi bi-map" style="color:var(--gold); margin-right:9px;"></i>Parcel Detail</h1>
+        <p id="parcelSubtitle">View complete parcel information</p>
+      </div>
+      <a href="my-parcels.html" class="back-btn">
+        <i class="bi bi-arrow-left"></i>Back to My Parcels
+      </a>
+    </div>
+
+    <!-- PARCEL INFO CARD -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <div>
+          <h5 id="parcelHeaderTitle">Parcel Information</h5>
+          <p style="font-size:11px;color:var(--text-muted);margin:4px 0 0 0" id="parcelNumber">—</p>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-primary-custom" id="viewTitleDeedBtn" onclick="viewTitleDeed()" style="display:none;">
+            <i class="bi bi-file-earmark-text"></i>View Title Deed
+          </button>
+          <button class="btn-outline-custom" onclick="window.location.href='transfer.html'">
+            <i class="bi bi-arrow-left-right"></i>Initiate Transfer
+          </button>
+        </div>
+      </div>
+      <div class="section-card-body">
+        <!-- TABS -->
+        <ul class="nav nav-tabs mb-4" id="parcelTabs">
+          <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-detail">Details</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-history">Ownership History</a></li>
+        </ul>
+        <div class="tab-content">
+          <!-- DETAIL TAB -->
+          <div class="tab-pane fade show active" id="tab-detail">
+            <div class="detail-grid" id="parcelDetailGrid">
+              <div class="text-center py-5 text-muted">Loading parcel details...</div>
+            </div>
+          </div>
+          <!-- HISTORY TAB -->
+          <div class="tab-pane fade" id="tab-history">
+            <p class="text-muted mb-3" style="font-size:11.5px">Complete chain of ownership from original registration.</p>
+            <div class="timeline" id="ownershipTimeline">
+              <div class="text-center py-5 text-muted">Loading ownership history...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TOAST STACK -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// ── GLOBAL DATA ─────────────────────────────────────────────────────────────
+let currentParcel = null;
+let currentUser = null;
+let parcelAuditEvents = [];
+let api = null;
+let getSession = null;
+let logout = null;
+let updateSession = null;
+
+function getPhotoUrl(photoFileName) {
+  if (!photoFileName) return null;
+  if (photoFileName.startsWith('http://') || photoFileName.startsWith('https://')) {
+    return photoFileName;
+  }
+  return photoFileName.startsWith('/uploads/') ? photoFileName : `/uploads/${photoFileName}`;
+}
+
+// ── UTILITY FUNCTIONS ──────────────────────────────────────────────────────
+function showToast(message, type = 'info') {
+  const toastStack = document.getElementById('toastStack');
+  const toast = document.createElement('div');
+  toast.className = `toast-item ${type}`;
+  toast.innerHTML = `<i class="bi bi-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i><span>${message}</span>`;
+  toastStack.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+function showLogoutConfirm(e) {
+  e.preventDefault();
+  if (window.showLogoutConfirmation && window.logout) {
+    window.showLogoutConfirmation(window.logout);
+  } else if (window.logout) {
+    window.logout();
+  } else {
+    window.location.href = '../../index.html';
+  }
+}
+
+// ── LOAD API & SESSION ────────────────────────────────────────────────────
+function loadApiAndSession() {
+  return new Promise((resolve) => {
+    const checkApi = setInterval(() => {
+      if (window.api && window.getSession && window.logout && window.updateSession) {
+        api = window.api;
+        getSession = window.getSession;
+        logout = window.logout;
+        updateSession = window.updateSession;
+        clearInterval(checkApi);
+        resolve();
+      }
+    }, 50);
+    setTimeout(() => clearInterval(checkApi), 5000);
+  });
+}
+
+function initNavbar() {
+  const session = getSession ? getSession() : {};
+  const fullName = session.fullName || 'User';
+  const initials = fullName.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+  const avatar = document.getElementById('nav-avatar');
+  const photoUrl = session.photoPath || localStorage.getItem('lv_photo') || '';
+  if (avatar) {
+    avatar.innerHTML = photoUrl ? `<img src="${photoUrl}" alt="Profile photo">` : initials;
+    const image = avatar.querySelector('img');
+    if (image) image.onerror = () => {
+      localStorage.removeItem('lv_photo');
+      image.remove();
+      avatar.textContent = initials;
+    };
+  }
+  if (document.getElementById('nav-name')) {
+    document.getElementById('nav-name').textContent = fullName;
+  }
+}
+
+// ── GET PARCEL NUMBER FROM URL ────────────────────────────────────────────
+function getParcelNumberFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('parcel');
+}
+
+// ── LOAD PARCEL DETAIL ─────────────────────────────────────────────────────
+async function loadParcelDetail() {
+  const parcelNumber = getParcelNumberFromUrl();
+  if (!parcelNumber) {
+    showToast('Parcel number not specified', 'error');
+    return;
+  }
+
+  try {
+    const dashboardRes = await api.landownerDashboard();
+    const dashboard = dashboardRes.data || {};
+    const parcels = dashboard.parcels || [];
+    currentParcel = parcels.find(p => p.parcelNumber === parcelNumber);
+
+    if (!currentParcel) {
+      showToast('Parcel not found', 'error');
+      return;
+    }
+
+    // Load user data
+    currentUser = {
+      fullName: dashboard.fullName || (getSession ? getSession().fullName : 'User'),
+      email: dashboard.email,
+      phone: dashboard.phoneNumber,
+      address: dashboard.address,
+      gender: dashboard.gender,
+      nationalId: dashboard.nationalId,
+      district: dashboard.district
+    };
+
+    await loadParcelAuditEvents();
+    initNavbar();
+    renderParcelDetail();
+
+  } catch (e) {
+    console.error('Failed to load parcel detail:', e);
+    showToast('Failed to load parcel details: ' + e.message, 'error');
+  }
+}
+
+async function loadNotificationCount() {
+  try {
+    const response = await api.unreadNotificationCount();
+    const count = Number(response?.data || 0);
+    const badge = document.getElementById('notificationCount');
+    if (badge && count > 0) {
+      badge.textContent = count > 99 ? '99+' : count;
+      badge.hidden = false;
+    }
+  } catch (e) {
+    console.warn('Unable to load notification count', e);
+  }
+}
+
+// ── RENDER PARCEL DETAIL ──────────────────────────────────────────────────
+function formatEventTypeLabel(eventType) {
+  return (eventType || 'ACTION').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function getEventBadgeClass(eventType) {
+  if (eventType === 'TRANSFER_APPROVED' || eventType === 'PARCEL_REGISTERED') return 'bs-active';
+  if (eventType === 'TRANSFER_REJECTED') return 'bs-rejected';
+  return 'bs-pending';
+}
+
+function getEventDescription(eventType) {
+  const descriptions = {
+    PARCEL_REGISTERED: 'The parcel was registered and its initial record was written to the ledger.',
+    OWNERSHIP_RECORDED: 'The parcel ownership record was published as an immutable blockchain event.',
+    TRANSFER_INITIATED: 'A transfer request was created and logged for verification.',
+    TRANSFER_APPROVED: 'The transfer was approved and the ownership timeline advanced.',
+    TRANSFER_REJECTED: 'The transfer was rejected and the parcel remained in its previous state.',
+    RECORD_VERIFIED: 'The parcel record and its blockchain history were verified.'
+  };
+  return descriptions[eventType] || 'A parcel lifecycle action was recorded on the blockchain.';
+}
+
+function formatAuditDate(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString();
+}
+
+async function loadParcelAuditEvents() {
+  if (!currentParcel || !currentParcel.parcelId) {
+    parcelAuditEvents = [];
+    return;
+  }
+
+  try {
+    const res = await api.landownerAuditLog(currentParcel.parcelId);
+    const logs = Array.isArray(res?.data) ? res.data : [];
+    parcelAuditEvents = logs
+      .sort((a, b) => new Date(b.recordedAt || 0) - new Date(a.recordedAt || 0));
+  } catch (e) {
+    console.warn('Unable to load parcel blockchain history', e);
+    parcelAuditEvents = [];
+  }
+}
+
+function renderParcelDetail() {
+  if (!currentParcel) return;
+
+  const district = currentParcel.district || currentParcel.ownerDistrict || '—';
+  const province = currentParcel.province || '—';
+  const landUse = currentParcel.landUse || currentParcel.land_use || currentParcel.landUseType || '—';
+  const location = currentParcel.locationAddress || currentParcel.location || '—';
+  const ownerName = currentParcel.ownerFullName || currentParcel.ownerName || currentParcel.owner || '—';
+  const titleDeedRef = currentParcel.titleDeedNumber || currentParcel.titleDeedRef || currentParcel.title_deed_number || currentParcel.titleDeed || '—';
+  const areaValue = currentParcel.areaSqm ?? currentParcel.area_sqm ?? currentParcel.area ?? currentParcel.plotSize ?? null;
+  const areaText = areaValue === null || areaValue === '' || Number.isNaN(Number(areaValue))
+    ? '—'
+    : `${Number(areaValue).toLocaleString()} sqm`;
+  const registeredDate = currentParcel.registeredAt || currentParcel.createdAt || currentParcel.registrationDate || null;
+  const ownerPhoto = currentParcel.ownerPhotoPath ? `<img class="owner-photo-detail" src="${getPhotoUrl(currentParcel.ownerPhotoPath)}" alt="Registered owner photograph">` : 'No photograph recorded';
+
+  // Update header
+  document.getElementById('parcelNumber').textContent = currentParcel.parcelNumber;
+  document.getElementById('parcelSubtitle').textContent = `${province} • ${district}`;
+
+  // Show title deed button if available
+  if (currentParcel.parcelId) {
+    document.getElementById('viewTitleDeedBtn').style.display = '';
+  }
+
+  const latestEvent = parcelAuditEvents[0];
+  const deedLink = getParcelTitleDeedUrl(currentParcel.parcelNumber);
+  const titleDeedDisplay = deedLink
+    ? `<a href="${deedLink}" target="_blank" rel="noopener" style="color:var(--navy);font-weight:600;text-decoration:none">${titleDeedRef}</a>`
+    : titleDeedRef;
+
+  const fields = [
+    ['Parcel Number', currentParcel.parcelNumber || '—'],
+    ['Title Deed', titleDeedDisplay],
+    ['Province', province],
+    ['District', district],
+    ['Location', location],
+    ['Area', areaText],
+    ['Land Use', landUse],
+    ['Status', `<span class="badge-status ${getParcelStatusClass(currentParcel.status)}">${currentParcel.status || 'Active'}</span>`],
+    ['Registered', registeredDate ? new Date(registeredDate).toLocaleDateString() : '—'],
+    ['Owner', ownerName],
+    ['Owner Photograph', ownerPhoto],
+    ['Owner Registration Consent', currentParcel.ownerSignature ? 'Signed and recorded' : 'Not recorded'],
+    ['Owner Email', currentParcel.ownerEmail || '—'],
+    ['Owner Phone', currentParcel.ownerPhone || '—'],
+    ['Owner National ID', currentParcel.ownerNationalId || '—'],
+    ['Blockchain Activity', parcelAuditEvents.length ? `${parcelAuditEvents.length} event${parcelAuditEvents.length === 1 ? '' : 's'} · latest ${formatEventTypeLabel(latestEvent?.eventType)}` : 'No blockchain events on record yet'],
+    ['Last Blockchain Update', latestEvent ? formatAuditDate(latestEvent.recordedAt) : '—']
+  ];
+
+  document.getElementById('parcelDetailGrid').innerHTML = fields.map(([label, value]) =>
+    `<div class="detail-item"><div class="d-label">${label}</div><div class="d-value">${value}</div></div>`
+  ).join('');
+
+  const timelineItems = parcelAuditEvents.length
+    ? parcelAuditEvents.map((event, index) => `
+        <div class="timeline-item">
+          <div class="timeline-dot ${index === 0 ? 'current' : ''}"></div>
+          <div class="timeline-card">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <div class="t-name">${formatEventTypeLabel(event.eventType)}</div>
+              <span class="badge-status ${getEventBadgeClass(event.eventType)}" style="font-size:9.5px">${formatEventTypeLabel(event.eventType)}</span>
+            </div>
+            <div class="t-meta">${getEventDescription(event.eventType)}</div>
+            <div class="t-meta"><i class="bi bi-clock-history me-1"></i>${formatAuditDate(event.recordedAt)}</div>
+            <div class="t-meta"><strong>Tx:</strong> ${event.transactionHash ? event.transactionHash.substring(0, 18) + '…' : 'Pending / unavailable'}</div>
+          </div>
+        </div>`).join('')
+    : `
+        <div class="timeline-item">
+          <div class="timeline-dot current"></div>
+          <div class="timeline-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="t-name">${currentParcel.ownerFullName || currentUser.fullName || 'Current Owner'}</div>
+              <span class="badge-status bs-active" style="font-size:9.5px">Current Owner</span>
+            </div>
+            <div class="t-meta"><i class="bi bi-calendar3 me-1"></i>Registered ${currentParcel.registeredAt ? new Date(currentParcel.registeredAt).toLocaleDateString() : '—'}</div>
+            <div class="t-meta">No blockchain lifecycle events have been recorded for this parcel yet.</div>
+          </div>
+        </div>`;
+
+  document.getElementById('ownershipTimeline').innerHTML = `
+    <div class="d-flex justify-content-between align-items-center gap-2 mb-3 flex-wrap">
+      <div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:700">Parcel lifecycle</div>
+        <div style="font-size:13px;color:var(--navy);font-weight:600">${parcelAuditEvents.length ? `${parcelAuditEvents.length} verified blockchain action${parcelAuditEvents.length === 1 ? '' : 's'}` : 'Awaiting blockchain activity'}</div>
+      </div>
+      ${currentParcel.parcelId ? `<a href="../senior-officer/audit-log.html?parcelId=${currentParcel.parcelId}" class="btn-outline-custom"><i class="bi bi-shield-lock"></i>Open full audit log</a>` : ''}
+    </div>
+    <div class="timeline">${timelineItems}</div>
+  `;
+}
+
+function getParcelStatusClass(status) {
+  const classes = {
+    'ACTIVE': 'bs-active',
+    'PENDING': 'bs-pending',
+    'ARCHIVED': 'bs-archived',
+    'TRANSFERRED': 'bs-archived'
+  };
+  return classes[status] || 'bs-archived';
+}
+
+function getParcelTitleDeedUrl(parcelNumber) {
+  if (!currentParcel?.parcelId) return null;
+  return `/api/landowner/title-deed/${encodeURIComponent(currentParcel.parcelNumber)}`;
+}
+
+async function viewTitleDeed() {
+  const url = getParcelTitleDeedUrl(currentParcel?.parcelNumber);
+  if (url) {
+    const deedWindow = window.open('', '_blank');
+    if (deedWindow) deedWindow.document.write('<title>Loading title deed</title><p style="font-family: sans-serif; padding: 24px">Loading title deed...</p>');
+    try {
+      const response = await fetch(url, { headers: { Authorization: `Bearer ${localStorage.getItem('lv_token') || ''}` } });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const blob = await response.blob();
+      if (!blob.size) throw new Error('The title deed response was empty.');
+      const blobUrl = window.URL.createObjectURL(blob);
+      if (deedWindow) {
+        deedWindow.document.title = `Title Deed - ${currentParcel.parcelNumber}`;
+        deedWindow.document.body.innerHTML = `<iframe src="${blobUrl}" title="Title deed" style="width:100%;height:calc(100vh - 48px);border:0"></iframe><a href="${blobUrl}" download="title-deed-${currentParcel.parcelNumber}.pdf" style="display:block;height:48px;padding:14px 20px;font-family:sans-serif">Download title deed</a>`;
+      }
+    } catch (error) {
+      deedWindow?.close();
+      showToast('Failed to open title deed: ' + error.message, 'error');
+    }
+  } else {
+    showToast('Title deed not available', 'error');
+  }
+}
+
+// ── INITIALIZE ────────────────────────────────────────────────────────────
+async function init() {
+  await loadApiAndSession();
+  initNavbar();
+  await loadParcelDetail();
+  await loadNotificationCount();
+}
+
+// Start when page loads
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<!-- ── MODULE LOADER: Import from /js/api.js and /js/auth.js ── -->
+<script type="module">
+  import { api as apiModule } from '/js/api.js';
+  import { requireLogin, getSession as getSessionFn, logout as logoutFn, updateSession as updateSessionFn } from '/js/auth.js';
+
+  api = apiModule;
+  getSession = getSessionFn;
+  logout = logoutFn;
+  updateSession = updateSessionFn;
+  window.api = apiModule;
+  window.getSession = getSessionFn;
+  window.logout = logoutFn;
+  window.updateSession = updateSessionFn;
+
+  try {
+    requireLogin();
+  } catch (error) {
+    console.error('Login requirement failed:', error);
+    window.location.href = '/login.html';
+  }
+</script>
+  <style>
+  /* Restored ARMS inline styles */
+  :root{--primary:#0e2240;--gold:#c8a040;--text:#1c2a3a;--bg:#faf7f2;--border:#e8e3d8;--radius:10px}
+  .page-header{background:linear-gradient(135deg,var(--primary),#1a3560);padding:16px;border-radius:10px;color:#fff;border:1px solid rgba(255,255,255,0.1)}
+  .nav-seal{background:url('/images/coat-of-arms.png') center/contain no-repeat}
+  .alert-custom{display:none;padding:10px;border-radius:6px}
+  .alert-custom.alert-success{background:#e6f7ed;color:#1e8c4a;border:1px solid #dff2e3}
+  .alert-custom.alert-danger{background:#fdecea;color:#c0392b;border:1px solid #f7d3d1}
+  .toast-stack{position:fixed;right:18px;bottom:18px;z-index:1200;display:flex;flex-direction:column;gap:8px}
+  .btn-primary-custom{background:var(--gold);color:#fff;padding:8px 12px;border-radius:6px;border:none}
+  .btn-secondary-custom{background:#f3f6fb;color:var(--text);padding:8px 12px;border-radius:6px;border:1px solid var(--border)}
+  .coat-watermark{background:url('/images/coat-of-arms.png') center center no-repeat;opacity:.06}
+  </style>
+</body>
+</html>

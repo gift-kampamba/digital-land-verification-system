@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blockchain Audit Log – ARMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    :root {
+      --navy:          #0e2240;
+      --navy-mid:      #1a3560;
+      --navy-light:    #e8edf6;
+      --navy-xlight:   #f4f6fb;
+      --gold:          #c8a040;
+      --gold-mid:      #b8902e;
+      --gold-dark:     #9a7420;
+      --gold-light:    #fdf6e3;
+      --gold-xlight:   #fefbf3;
+      --green:         #22c55e;
+      --green-light:   #f0fdf4;
+      --green-dark:    #15803d;
+      --red:           #ef4444;
+      --text-primary:  #111827;
+      --text-secondary:#4b5568;
+      --text-muted:    #8a94a6;
+      --border:        #e8e3d8;
+      --border-mid:    #d6ceba;
+      --bg-page:       #faf7f2;
+      --bg-card:       #ffffff;
+      --radius:        6px;
+      --radius-lg:     10px;
+      --shadow-sm:     0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+      --shadow-card:   0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+      --sidebar-w:     200px;
+      --header-h:      66px;
+    }
+    body {
+      display: flex; flex-direction: column;
+      background: var(--bg-page);
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 13px; color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+      background: var(--bg-card);
+      display: flex; justify-content: space-between; align-items: stretch;
+      border-bottom: 1px solid var(--border);
+      height: var(--header-h); flex-shrink: 0;
+      box-shadow: var(--shadow-sm); position: relative; z-index: 50;
+    }
+    .logo-block {
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 24px; min-width: 360px; height: 100%;
+      flex-shrink: 0; background: var(--navy);
+    }
+    .logo-emblem {
+     width: 40px; height: 40px; border-radius: 8px;
+     background: var(--gold); display: flex; align-items: center;
+     justify-content: center; flex-shrink: 0; overflow: hidden;
+   }
+     .logo-emblem img {
+     width: 100%; height: 100%; object-fit: cover;
+    }
+    .logo-text h2 { font-size: 12.5px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+    .logo-text p  { font-size: 10.5px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+    .top-right { display: flex; align-items: center; gap: 14px; padding-right: 20px; }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--gold-light); border: 1.5px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--navy);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .top-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+    .top-user-role { font-size: 10.5px; color: var(--text-muted); line-height: 1; }
+    .btn-signout {
+      background: transparent; border: 1px solid var(--border-mid);
+      color: var(--text-secondary); padding: 5px 13px;
+      border-radius: var(--radius); font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .btn-signout:hover { background: var(--bg-page); color: var(--text-primary); }
+
+    /* LAYOUT */
+    .dashboard-container { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 14px 0 12px; flex-shrink: 0; height: 100%;
+      overflow-y: auto; display: flex; flex-direction: column;
+    }
+    .sidebar-section-title {
+      font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--text-muted); font-weight: 700; padding: 10px 16px 4px;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 16px; color: var(--text-secondary);
+      text-decoration: none; font-size: 12.5px;
+      transition: all 0.13s; border-left: 2px solid transparent; margin: 1px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .sidebar-item:hover { background: var(--gold-xlight); color: var(--navy); }
+    .sidebar-item.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+    .sidebar-item i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+    .sidebar-item.active i { opacity: 1; }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+    .sidebar-item.signout { color: #ef4444; }
+    .sidebar-item.signout:hover { background: #fef2f2; }
+    .sidebar-item.signout i { opacity: 1; }
+
+    /* MAIN */
+    .main-content {
+      flex: 1; min-height: 0; padding: 24px 28px;
+      overflow-y: auto; overflow-x: hidden; background: var(--bg-page);
+    }
+    .page-header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+    .page-title   { font-size: 20px; font-weight: 600; color: var(--navy); margin-bottom: 4px; letter-spacing: -0.3px; }
+    .page-subtitle{ font-size: 12.5px; color: var(--text-secondary); }
+
+    /* ALERT */
+    .alert-arm { padding: 10px 14px; border-radius: var(--radius); font-size: 12.5px; margin-bottom: 16px; }
+    .alert-danger { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    /* ── BLOCKCHAIN STATS ROW ── */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(5,1fr);
+      gap: 0; margin-bottom: 18px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .stat-cell {
+      display: flex; flex-direction: column; gap: 4px;
+      padding: 16px 18px; border-right: 1px solid var(--border);
+    }
+    .stat-cell:last-child { border-right: none; }
+    .stat-cell .s-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--text-muted); display: flex; align-items: center; gap: 6px;
+    }
+    .stat-cell .s-val { font-size: 17px; font-weight: 800; color: var(--navy); line-height: 1.25; font-variant-numeric: tabular-nums; }
+    .stat-cell .s-val.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; word-break: break-all; }
+    .stat-cell .s-sub { font-size: 10.5px; color: var(--text-muted); }
+    .stat-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; flex-shrink: 0; animation: pulse 1.8s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+    /* TABLE CARD */
+    .table-card {
+      background: var(--bg-card); border-radius: var(--radius-lg);
+      border: 1px solid var(--border); overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .table-header {
+      background: var(--bg-card); border-bottom: 1px solid var(--border);
+      padding: 13px 18px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .table-header-left { display: flex; align-items: center; gap: 8px; }
+    .table-header-left h6 { margin: 0; font-size: 13px; font-weight: 600; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+    .table-header-left h6 i {
+      width: 26px; height: 26px; background: var(--gold-light);
+      border-radius: 6px; display: inline-flex; align-items: center;
+      justify-content: center; font-size: 12px; color: var(--gold-dark);
+    }
+    .record-count {
+      font-size: 11px; color: var(--text-muted);
+      background: var(--bg-page); border: 1px solid var(--border);
+      padding: 2px 10px; border-radius: 99px; white-space: nowrap;
+    }
+    .record-count strong { color: var(--navy); font-weight: 700; }
+    .back-to-log {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--bg-card); color: var(--text-secondary);
+      border: 1px solid var(--border-mid); border-radius: var(--radius);
+      padding: 6px 14px; text-decoration: none; font-size: 12px; font-weight: 600;
+      transition: all 0.15s;
+    }
+    .back-to-log:hover { background: var(--bg-page); color: var(--navy); border-color: var(--gold); }
+
+    /* FILTER BAR */
+    .filter-bar {
+      padding: 12px 18px; border-bottom: 1px solid var(--border);
+      background: var(--bg-page); display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    }
+    .filter-search {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-card); border: 1px solid var(--border-mid);
+      border-radius: var(--radius); padding: 0 12px; height: 34px; flex: 1; min-width: 200px;
+    }
+    .filter-search i { color: var(--text-muted); font-size: 13px; flex-shrink: 0; }
+    .filter-search input {
+      border: none; outline: none; background: transparent;
+      font-size: 12.5px; font-family: inherit; color: var(--text-primary); width: 100%;
+    }
+    .filter-search input::placeholder { color: var(--text-muted); }
+    .filter-select {
+      height: 34px; border: 1px solid var(--border-mid);
+      border-radius: var(--radius); padding: 0 10px;
+      font-size: 12px; font-family: inherit; color: var(--text-secondary);
+      background: var(--bg-card); cursor: pointer; outline: none; min-width: 160px;
+    }
+    .filter-select:focus { border-color: var(--gold); }
+    .btn-clear {
+      height: 34px; padding: 0 14px; border-radius: var(--radius);
+      border: 1px solid var(--border-mid); background: var(--bg-card);
+      font-size: 12px; font-family: inherit; color: var(--text-secondary);
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .btn-clear:hover { background: var(--bg-page); color: var(--navy); }
+
+    /* ── PARCEL TIMELINE MODE (focused view) ── */
+    .parcel-timeline-header {
+      padding: 18px; border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, var(--gold-xlight) 0%, var(--bg-card) 100%);
+    }
+    .parcel-timeline-header .pt-title { font-size: 15px; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 9px; }
+    .parcel-timeline-header .pt-sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+    .pt-list { padding: 18px; display: flex; flex-direction: column; gap: 0; }
+    .pt-step { position: relative; display: flex; gap: 14px; padding-bottom: 20px; }
+    .pt-step:last-child { padding-bottom: 0; }
+    .pt-step::before {
+      content: ''; position: absolute; left: 17px; top: 38px; bottom: 0;
+      width: 2px; background: var(--border);
+    }
+    .pt-step:last-child::before { display: none; }
+    .pt-icon {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; border: 2px solid var(--bg-card); box-shadow: 0 0 0 1px var(--border);
+      z-index: 1; background: var(--bg-card);
+    }
+    .pt-body { flex: 1; min-width: 0; }
+    .pt-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      padding: 12px 14px; cursor: pointer; transition: border-color 0.15s;
+    }
+    .pt-card:hover { border-color: var(--gold); }
+    .pt-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .pt-event-name { font-size: 13px; font-weight: 700; color: var(--navy); }
+    .pt-event-time { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── EXPANDED DETAIL — BLOCK EXPLORER STYLE ── */
+    .detail-row td { padding: 0; border-bottom: 1px solid var(--border); }
+    .detail-inner {
+      display: none; padding: 16px 16px 16px 40px;
+      background: var(--navy-xlight);
+    }
+    .detail-inner.open { display: block; }
+    .explorer-panel {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      overflow: hidden; box-shadow: var(--shadow-sm);
+    }
+    .explorer-panel-head {
+      background: var(--navy); color: #fff; padding: 10px 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    }
+    .explorer-panel-head .ep-title { font-size: 12.5px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .explorer-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+      background: var(--border);
+    }
+    .explorer-field {
+      background: var(--bg-card); padding: 12px 16px; display: flex; flex-direction: column; gap: 4px;
+    }
+    .explorer-field.wide { grid-column: span 3; }
+    .ef-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+    .ef-val { font-size: 12.5px; font-weight: 600; color: var(--navy); word-break: break-word; }
+    .ef-val.mono { font-family: 'JetBrains Mono', monospace; font-weight: 400; font-size: 11.5px; color: var(--text-secondary); word-break: break-all; }
+    .ef-copy-row { display: flex; align-items: center; gap: 8px; }
+    .btn-copy {
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      font-size: 12px; padding: 2px; flex-shrink: 0; transition: color 0.15s;
+    }
+    .btn-copy:hover { color: var(--gold-dark); }
+    .btn-copy.copied { color: var(--green-dark); }
+    .explorer-panel-foot {
+      padding: 10px 16px; border-top: 1px solid var(--border); background: var(--bg-page);
+      display: flex; justify-content: flex-end;
+    }
+    .btn-explorer-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--gold); color: var(--navy); border: none;
+      padding: 7px 14px; border-radius: var(--radius); font-size: 12px; font-weight: 700;
+      text-decoration: none; transition: background 0.15s;
+    }
+    .btn-explorer-link:hover { background: var(--gold-mid); }
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 700;
+    }
+    .status-pill.confirmed { background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0; }
+    .status-pill.pending   { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #e8d098; }
+    .status-pill.failed    { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .status-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* DATA TABLE */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: var(--bg-page); color: var(--text-muted);
+      font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; padding: 9px 14px;
+      border-bottom: 1px solid var(--border); white-space: nowrap; text-align: left;
+    }
+    tbody td {
+      padding: 11px 14px; font-size: 12.5px;
+      border-bottom: 1px solid var(--border); color: var(--text-primary);
+      vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--gold-xlight); }
+
+    /* expand toggle */
+    .expand-btn {
+      background: none; border: none; cursor: pointer; color: var(--text-muted);
+      padding: 0; font-size: 13px; transition: transform 0.2s, color 0.15s;
+      display: flex; align-items: center;
+    }
+    .expand-btn:hover { color: var(--navy); }
+    .expand-btn.open { transform: rotate(90deg); color: var(--gold-dark); }
+
+    /* EVENT BADGES */
+    .ev-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px; border-radius: 99px;
+      font-size: 10.5px; font-weight: 700; white-space: nowrap;
+    }
+    .ev-info      { background: var(--navy-light);  color: var(--navy-mid); border: 1px solid #c5d3e8; }
+    .ev-success   { background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0; }
+    .ev-warning   { background: var(--gold-light);  color: var(--gold-dark); border: 1px solid #e8d098; }
+    .ev-danger    { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .ev-secondary { background: var(--bg-page); color: var(--text-muted); border: 1px solid var(--border); }
+
+    .tx-hash {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: var(--text-muted); max-width: 140px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;
+    }
+    .block-chip {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+      background: var(--navy-xlight); border: 1px solid var(--navy-light);
+      color: var(--navy-mid); padding: 2px 8px; border-radius: var(--radius);
+      display: inline-block;
+    }
+
+    /* PAGINATION */
+    .pagination-bar {
+      padding: 12px 18px; border-top: 1px solid var(--border);
+      background: var(--bg-card); display: flex; justify-content: space-between;
+      align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .page-info { font-size: 12px; color: var(--text-muted); }
+    .page-info strong { color: var(--navy); }
+    .page-btns { display: flex; gap: 4px; }
+    .page-btn {
+      height: 30px; min-width: 30px; padding: 0 8px;
+      border: 1px solid var(--border-mid); border-radius: var(--radius);
+      background: var(--bg-card); font-size: 12px; font-family: inherit;
+      color: var(--text-secondary); cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .page-btn:hover:not(:disabled) { background: var(--gold-xlight); color: var(--navy); border-color: var(--gold); }
+    .page-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); font-weight: 600; }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* SPINNER / EMPTY */
+    .spinner {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2.5px solid var(--border); border-top-color: var(--gold);
+      animation: spin 0.7s linear infinite; display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); font-size: 13px; }
+    .empty-state i { font-size: 32px; margin-bottom: 10px; display: block; opacity: 0.4; }
+
+    /* BADGE OK */
+    .badge-ok {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 99px; font-size: 10.5px; font-weight: 700;
+      background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0;
+    }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
+
+    /* FOOTER */
+    .footer {
+      background: var(--bg-card); color: var(--text-muted);
+      padding: 10px 24px; display: flex; justify-content: space-between;
+      align-items: center; font-size: 11px;
+      border-top: 1px solid var(--border); flex-shrink: 0;
+    }
+    .footer-session { display: flex; align-items: center; gap: 6px; }
+    .session-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+    @media (max-width: 1100px) { .stats-grid { grid-template-columns: repeat(3,1fr); } .stat-cell:nth-child(3) { border-right: none; } }
+    @media (max-width: 768px) { .sidebar { display: none; } .stats-grid { grid-template-columns: repeat(2,1fr); } .explorer-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .explorer-grid { grid-template-columns: 1fr; } .explorer-field.wide { grid-column: span 1; } }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../images/coat-of-arms.png" alt="Coat of Arms"/>
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar" id="headerProfilePic">
+      <img id="headerPhoto"/>
+      <span id="headerInitials" aria-label="Current user"></span>
+    </div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="nav-name"></div>
+      <div class="top-user-role" id="nav-role"></div>
+    </div>
+    <button class="btn-signout" onclick="confirmAndLogout(event)">Sign Out</button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-title">Senior Officer</div>
+    <a href="dashboard.html"          class="sidebar-item"><i class="bi bi-speedometer2"></i> Senior Approvals</a>
+    <a href="district-oversight.html" class="sidebar-item"><i class="bi bi-map"></i> District Oversight</a>
+    <a href="flagged.html"          class="sidebar-item"><i class="bi bi-flag"></i> Flagged</a>
+    <a href="audit-log.html"          class="sidebar-item active"><i class="bi bi-shield-lock"></i> Blockchain Audit Log</a>
+    <a href="monthly-reports.html"          class="sidebar-item"><i class="bi bi-bar-chart"></i> Monthly Reports</a>
+    <a href="notifications.html"        class="sidebar-item"><i class="bi bi-bell"></i> Notifications</a>
+    <div class="sidebar-divider"></div>
+    <a href="manage-profile.html"     class="sidebar-item"><i class="bi bi-person-gear"></i> Manage Profile</a>
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-item signout" onclick="confirmAndLogout(event); return false;"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="pageTitleText">Blockchain Audit Log</div>
+      </div>
+      <div class="badge-ok"><div class="badge-dot"></div> Immutable &amp; Verified</div>
+    </div>
+
+    <div id="msg"></div>
+
+    <!-- ══ BLOCKCHAIN STATISTICS ══ -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-cell">
+        <div class="s-label"><i class="bi bi-collection"></i> Total Transactions</div>
+        <div class="s-val" id="statTotalTx">—</div>
+        <div class="s-sub">Recorded on-chain events</div>
+      </div>
+      <div class="stat-cell">
+        <div class="s-label"><i class="bi bi-box"></i> Latest Block</div>
+        <div class="s-val" id="statLatestBlock">—</div>
+        <div class="s-sub" id="statLatestBlockTime">—</div>
+      </div>
+      <div class="stat-cell">
+        <div class="s-label"><i class="bi bi-file-earmark-code"></i> Smart Contract</div>
+        <div class="s-val" id="statContractStatus" style="color:var(--green-dark);display:flex;align-items:center;gap:6px;"><span class="stat-pulse"></span>Active</div>
+        <div class="s-sub mono" id="statContractAddrShort">—</div>
+      </div>
+      <div class="stat-cell">
+        <div class="s-label"><i class="bi bi-diagram-3"></i> Network</div>
+        <div class="s-val" id="statNetworkName" style="font-size:14px;">—</div>
+        <div class="s-sub" id="statChainId">Chain ID —</div>
+      </div>
+      <div class="stat-cell">
+        <div class="s-label"><i class="bi bi-shield-check"></i> Integrity</div>
+        <div class="s-val" id="statIntegrity" style="color:var(--green-dark);">—</div>
+        <div class="s-sub">Confirmed on-chain</div>
+      </div>
+    </div>
+
+    <div class="table-card">
+
+      <!-- card header -->
+      <div class="table-header" id="cardHeader">
+        <div class="table-header-left">
+          <h6><i class="bi bi-shield-lock"></i> All Blockchain Events</h6>
+          <span class="record-count" id="recordCount">Loading…</span>
+        </div>
+      </div>
+
+      <!-- filter bar (hidden in parcel-focused mode) -->
+      <div class="filter-bar" id="filterBar">
+        <div class="filter-search">
+          <i class="bi bi-search"></i>
+          <input type="text" id="searchInput" placeholder="Search parcel ID, request ID or tx hash…"/>
+        </div>
+        <select class="filter-select" id="eventFilter">
+          <option value="">All event types</option>
+          <option value="PARCEL_REGISTERED">Parcel Registered</option>
+          <option value="OWNERSHIP_RECORDED">Ownership Recorded</option>
+          <option value="TRANSFER_INITIATED">Transfer Initiated</option>
+          <option value="TRANSFER_APPROVED">Transfer Approved</option>
+          <option value="TRANSFER_REJECTED">Transfer Rejected</option>
+          <option value="RECORD_VERIFIED">Record Verified</option>
+          <option value="TITLE_DEED_ISSUED">Title Deed Issued</option>
+        </select>
+        <button class="btn-clear" onclick="clearFilters()"><i class="bi bi-x-circle" style="margin-right:4px;"></i>Clear</button>
+      </div>
+
+      <!-- ══ PARCEL-FOCUSED TIMELINE (shown only when a parcelId is in the URL) ══ -->
+      <div id="parcelTimelineWrap" style="display:none;">
+        <div class="parcel-timeline-header">
+          <div class="pt-title"><i class="bi bi-diagram-3"></i> <span id="ptTitle">Parcel Blockchain Timeline</span></div>
+          <div class="pt-sub" id="ptSub">Complete on-chain history for this parcel, in order.</div>
+        </div>
+        <div class="pt-list" id="ptList"></div>
+      </div>
+
+      <!-- ══ GENERIC TABLE (hidden in parcel-focused mode) ══ -->
+      <div id="genericTableWrap">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:32px;"></th>
+                <th>Log ID</th>
+                <th>Event Type</th>
+                <th>Transaction Hash</th>
+                <th>Block</th>
+                <th>Parcel ID</th>
+                <th>Recorded At</th>
+              </tr>
+            </thead>
+            <tbody id="logTable">
+              <tr><td colspan="8" style="text-align:center;padding:40px;"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- pagination -->
+        <div class="pagination-bar">
+          <div class="page-info" id="pageInfo">—</div>
+          <div class="page-btns" id="pageBtns"></div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /main-content -->
+</div><!-- /dashboard-container -->
+
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<!-- ORIGINAL API LOGIC — UNTOUCHED. UI filtering/pagination/blockchain fields added below. -->
+<script type="module">
+  import { api } from '/js/api.js';
+  import { requireLogin, populateNavbar, getSession, logout } from '/js/auth.js';
+  requireLogin();
+  populateNavbar();
+
+  const session = getSession();
+  const headerPhoto    = document.getElementById('headerPhoto');
+  const headerInitials = document.getElementById('headerInitials');
+  if (session.photoPath) {
+    headerPhoto.src = `/uploads/${session.photoPath}`;
+    headerPhoto.onload = () => {
+      headerPhoto.classList.add('profile-photo-ready');
+      headerInitials.style.display = 'none';
+    };
+  } else {
+    headerInitials.textContent = (session.fullName || session.name || 'O').charAt(0).toUpperCase();
+  }
+
+  window.doLogout = logout;
+
+  /* ══════════════════════════════════════════════════════════════
+     CHAIN CONFIG — replace these with real values once the smart
+     contract is deployed / wire them up from your backend config
+     endpoint (e.g. GET /api/blockchain/config) instead of hardcoding.
+     Per-log overrides (log.network, log.chainId, log.contractAddress,
+     log.explorerUrl) win over these defaults if present.
+  ══════════════════════════════════════════════════════════════ */
+  const CHAIN_CONFIG = {
+    networkName:     'Ethereum (Hardhat Local)',
+    chainId:          31337,
+    contractAddress: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+    // Set to e.g. 'https://sepolia.etherscan.io/tx/' when deployed to a public testnet.
+    // Leave empty for local Hardhat networks — there's no explorer to link to.
+    explorerBaseUrl: ''
+  };
+
+  const eventColors = {
+    PARCEL_REGISTERED:  'info',
+    OWNERSHIP_RECORDED: 'success',
+    TRANSFER_INITIATED: 'warning',
+    TRANSFER_APPROVED:  'success',
+    TRANSFER_REJECTED:  'danger',
+    RECORD_VERIFIED:    'secondary',
+    TITLE_DEED_ISSUED:  'info',
+    OWNERSHIP_UPDATED:  'success'
+  };
+
+  const eventIcons = {
+    PARCEL_REGISTERED:  'bi-patch-check-fill',
+    OWNERSHIP_RECORDED: 'bi-person-check-fill',
+    OWNERSHIP_UPDATED:  'bi-person-check-fill',
+    TRANSFER_INITIATED: 'bi-arrow-left-right',
+    TRANSFER_APPROVED:  'bi-check2-circle',
+    TRANSFER_REJECTED:  'bi-x-circle-fill',
+    RECORD_VERIFIED:    'bi-shield-check',
+    TITLE_DEED_ISSUED:  'bi-file-earmark-text-fill'
+  };
+
+  /* ── UI STATE ── */
+  const PAGE_SIZE = 25;
+  const params = new URLSearchParams(window.location.search);
+  const focusedParcelId = params.get('parcelId') || params.get('parcel') || '';
+  const selectedParcelId = focusedParcelId && /^\d+$/.test(focusedParcelId) ? Number(focusedParcelId) : null;
+  const focusedParcelLabel = params.get('parcelNumber') || (selectedParcelId ? `#${selectedParcelId}` : '');
+  let allLogs     = [];   // raw data from API
+  let filtered    = [];   // after search + filter
+  let currentPage = 1;
+
+  function formatEventLabel(eventType) {
+    return (eventType || 'Action').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  function shortHash(hash, len = 10) {
+    if (!hash) return '—';
+    return hash.length > len * 2 ? `${hash.slice(0, len)}…${hash.slice(-4)}` : hash;
+  }
+
+  function shortAddr(addr) {
+    if (!addr) return '—';
+    return addr.length > 14 ? `${addr.slice(0, 8)}…${addr.slice(-4)}` : addr;
+  }
+
+  function formatBlockchainTimestamp(isoString) {
+    if (!isoString) return { date: '—', time: '—' };
+    const d = new Date(isoString);
+    const date = d.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
+    const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'UTC' }) + ' UTC';
+    return { date, time };
+  }
+
+  function resolveStatus(log) {
+    // Prefer an explicit status field from the API once available.
+    // Falls back to "Confirmed" when a tx hash exists (best-effort until backend sends real status).
+    const raw = (log.status || log.txStatus || '').toUpperCase();
+    if (raw === 'FAILED' || raw === 'REVERTED') return 'failed';
+    if (raw === 'PENDING') return 'pending';
+    if (raw === 'SUCCESS' || raw === 'CONFIRMED' || raw === 'MINED') return 'confirmed';
+    return log.transactionHash ? 'confirmed' : 'pending';
+  }
+
+  function statusPillHtml(log) {
+    const s = resolveStatus(log);
+    const labels = { confirmed: 'Confirmed', pending: 'Pending', failed: 'Failed' };
+    return `<span class="status-pill ${s}"><span class="dot"></span>${labels[s]}</span>`;
+  }
+
+  function explorerLinkHtml(log) {
+    const base = log.explorerUrl ? '' : (CHAIN_CONFIG.explorerBaseUrl || '');
+    const href = log.explorerUrl || (base && log.transactionHash ? `${base}${log.transactionHash}` : '');
+    if (!href) return '';
+    return `<a class="btn-explorer-link" href="${href}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> View on Block Explorer</a>`;
+  }
+
+  /* ── BLOCKCHAIN STATS (TOP OF PAGE) ── */
+  function renderStats() {
+    const total = allLogs.length;
+    const blocks = allLogs.map(l => Number(l.blockNumber)).filter(n => !isNaN(n) && n > 0);
+    const latestBlock = blocks.length ? Math.max(...blocks) : null;
+    const latestLog = latestBlock !== null
+      ? allLogs.find(l => Number(l.blockNumber) === latestBlock)
+      : [...allLogs].sort((a,b) => new Date(b.recordedAt||0) - new Date(a.recordedAt||0))[0];
+
+    const confirmedCount = allLogs.filter(l => resolveStatus(l) === 'confirmed').length;
+    const integrityPct = total ? Math.round((confirmedCount / total) * 100) : 100;
+
+    document.getElementById('statTotalTx').textContent = total.toLocaleString();
+    document.getElementById('statLatestBlock').textContent = latestBlock !== null ? latestBlock.toLocaleString() : '—';
+    document.getElementById('statLatestBlockTime').textContent = latestLog?.recordedAt
+      ? new Date(latestLog.recordedAt).toLocaleString() : 'Awaiting first block';
+
+    const contractAddr = (allLogs[0] && allLogs[0].contractAddress) || CHAIN_CONFIG.contractAddress;
+    document.getElementById('statContractAddrShort').textContent = shortAddr(contractAddr);
+    document.getElementById('statContractAddrShort').title = contractAddr || '';
+
+    const networkName = (allLogs[0] && allLogs[0].network) || CHAIN_CONFIG.networkName;
+    const chainId = (allLogs[0] && allLogs[0].chainId) || CHAIN_CONFIG.chainId;
+    document.getElementById('statNetworkName').textContent = networkName;
+    document.getElementById('statChainId').textContent = `Chain ID ${chainId}`;
+
+    document.getElementById('statIntegrity').textContent = `${integrityPct}% Verified`;
+  }
+
+  /* ── PARCEL-FOCUSED TIMELINE MODE ── */
+  function renderParcelTimeline() {
+    const parcelLogs = allLogs
+      .filter(log => String(log.relatedParcelId) === String(selectedParcelId))
+      .sort((a, b) => new Date(a.recordedAt || 0) - new Date(b.recordedAt || 0)); // chronological
+
+    const label = focusedParcelLabel || (parcelLogs[0]?.relatedParcelNumber) || `#${selectedParcelId}`;
+    document.getElementById('ptTitle').textContent = `Parcel ${label} — Blockchain Timeline`;
+    document.getElementById('pageTitleText').textContent = `Parcel ${label}`;
+    document.getElementById('pageSubtitleText').textContent = 'Blockchain-verified history for this parcel only';
+    document.getElementById('recordCount').innerHTML = `<strong>${parcelLogs.length}</strong> event${parcelLogs.length !== 1 ? 's' : ''}`;
+
+    const list = document.getElementById('ptList');
+    if (!parcelLogs.length) {
+      list.innerHTML = `<div class="empty-state"><i class="bi bi-inbox"></i>No blockchain events recorded for this parcel yet.</div>`;
+      document.getElementById('ptSub').textContent = 'No events found.';
+      return;
+    }
+    document.getElementById('ptSub').textContent = `${parcelLogs.length} on-chain event${parcelLogs.length !== 1 ? 's' : ''}, oldest to most recent.`;
+
+    list.innerHTML = parcelLogs.map((l, idx) => {
+      const icon = eventIcons[l.eventType] || 'bi-circle-fill';
+      const color = eventColors[l.eventType] || 'secondary';
+      const { date, time } = formatBlockchainTimestamp(l.recordedAt);
+      return `
+        <div class="pt-step">
+          <div class="pt-icon ev-${color}"><i class="bi ${icon}"></i></div>
+          <div class="pt-body">
+            <div class="pt-card" onclick="goToDetail('${l.logId}')">
+              <div class="pt-card-head">
+                <div>
+                  <div class="pt-event-name">${formatEventLabel(l.eventType)}</div>
+                  <div class="pt-event-time">${date} · ${time}</div>
+                </div>
+                ${statusPillHtml(l)}
+              </div>
+              <div class="pt-card-hint"><i class="bi bi-file-earmark-text"></i>View full transaction details</div>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  /* ── EXPLORER-STYLE DETAIL PANEL (shared by table + timeline) ── */
+  function buildExplorerPanel(l, detailId, startOpenWrap) {
+    const network = l.network || CHAIN_CONFIG.networkName;
+    const chainId = l.chainId || CHAIN_CONFIG.chainId;
+    const contractAddress = l.contractAddress || CHAIN_CONFIG.contractAddress;
+    const { date, time } = formatBlockchainTimestamp(l.recordedAt);
+    const explorerBtn = explorerLinkHtml(l);
+
+    return `
+      <div class="detail-inner${startOpenWrap ? '' : ''}" id="inner-${detailId}" style="${startOpenWrap ? 'padding:10px 0 0 0;' : ''}">
+        <div class="explorer-panel">
+          <div class="explorer-panel-head">
+            <div class="ep-title"><i class="bi ${eventIcons[l.eventType] || 'bi-circle-fill'}"></i> ${formatEventLabel(l.eventType)}</div>
+            ${statusPillHtml(l)}
+          </div>
+          <div class="explorer-grid">
+            <div class="explorer-field wide">
+              <span class="ef-label"><i class="bi bi-hash"></i>Transaction Hash</span>
+              <div class="ef-copy-row">
+                <span class="ef-val mono">${l.transactionHash || '—'}</span>
+                ${l.transactionHash ? `<button class="btn-copy" title="Copy" onclick="copyToClipboard(this,'${l.transactionHash}')"><i class="bi bi-clipboard"></i></button>` : ''}
+              </div>
+            </div>
+            <div class="explorer-field">
+              <span class="ef-label"><i class="bi bi-box"></i>Block Number</span>
+              <span class="ef-val">${l.blockNumber || '—'}</span>
+            </div>
+            <div class="explorer-field">
+              <span class="ef-label"><i class="bi bi-diagram-3"></i>Network</span>
+              <span class="ef-val" style="font-size:12px;">${network}</span>
+            </div>
+            <div class="explorer-field">
+              <span class="ef-label"><i class="bi bi-hash"></i>Chain ID</span>
+              <span class="ef-val">${chainId}</span>
+            </div>
+            <div class="explorer-field wide">
+              <span class="ef-label"><i class="bi bi-file-earmark-code"></i>Smart Contract</span>
+              <div class="ef-copy-row">
+                <span class="ef-val mono">${contractAddress || '—'}</span>
+                ${contractAddress ? `<button class="btn-copy" title="Copy" onclick="copyToClipboard(this,'${contractAddress}')"><i class="bi bi-clipboard"></i></button>` : ''}
+              </div>
+            </div>
+            <div class="explorer-field">
+              <span class="ef-label"><i class="bi bi-fuel-pump"></i>Gas Used</span>
+              <span class="ef-val">${l.gasUsed ? Number(l.gasUsed).toLocaleString() : '—'}</span>
+            </div>
+            <div class="explorer-field">
+              <span class="ef-label"><i class="bi bi-clock-history"></i>Blockchain Timestamp</span>
+              <span class="ef-val" style="font-size:12px;">${date}<br><span class="ef-val mono" style="font-size:11px;">${time}</span></span>
+            </div>
+            <div class="explorer-field">
+              <span class="ef-label"><i class="bi bi-person-badge"></i>Recorded By</span>
+              <span class="ef-val" style="font-size:12px;">${l.recordedByName || l.recordedBy || '—'}</span>
+            </div>
+            <div class="explorer-field">
+              <span class="ef-label"><i class="bi bi-geo-alt"></i>Parcel</span>
+              <span class="ef-val" style="font-size:12px;">${l.relatedParcelNumber || l.relatedParcelId || '—'}</span>
+            </div>
+            <div class="explorer-field">
+              <span class="ef-label"><i class="bi bi-card-list"></i>Request ID</span>
+              <span class="ef-val" style="font-size:12px;">${l.relatedRequestId || '—'}</span>
+            </div>
+          </div>
+          ${explorerBtn ? `<div class="explorer-panel-foot">${explorerBtn}</div>` : ''}
+        </div>
+      </div>`;
+  }
+
+  window.copyToClipboard = function(btn, text) {
+    if (!navigator.clipboard) return;
+    navigator.clipboard.writeText(text).then(() => {
+      const icon = btn.querySelector('i');
+      icon.className = 'bi bi-check2';
+      btn.classList.add('copied');
+      setTimeout(() => { icon.className = 'bi bi-clipboard'; btn.classList.remove('copied'); }, 1200);
+    });
+  };
+
+  /* ── RENDER (generic full table mode) ── */
+  function renderTable() {
+    const start  = (currentPage - 1) * PAGE_SIZE;
+    const page   = filtered.slice(start, start + PAGE_SIZE);
+    const tbody  = document.getElementById('logTable');
+
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="bi bi-inbox"></i>No matching blockchain events found.</div></td></tr>`;
+      document.getElementById('pageInfo').textContent = '0 results';
+      document.getElementById('pageBtns').innerHTML = '';
+      return;
+    }
+
+    tbody.innerHTML = page.map((l, idx) => {
+      const rowId = `row-${start + idx}`;
+      const icon = eventIcons[l.eventType] || 'bi-circle-fill';
+      return `
+        <tr id="${rowId}" class="data-row" onclick="goToDetail('${l.logId}')">
+          <td><button class="expand-btn" aria-label="View transaction details"><i class="bi bi-box-arrow-up-right"></i></button></td>
+          <td style="font-weight:600;color:var(--navy);">${l.logId}</td>
+          <td><span class="ev-badge ev-${eventColors[l.eventType]||'secondary'}"><i class="bi ${icon}"></i>${l.eventType.replace(/_/g,' ')}</span></td>
+          <td><span class="tx-hash" title="${l.transactionHash||''}">${l.transactionHash ? shortHash(l.transactionHash) : '—'}</span></td>
+          <td>${l.blockNumber ? `<span class="block-chip">${l.blockNumber}</span>` : '—'}</td>
+          <td>${l.relatedParcelNumber || l.relatedParcelId || '—'}</td>
+          <td style="color:var(--text-secondary);">${l.recordedAt ? new Date(l.recordedAt).toLocaleString() : '—'}</td>
+        </tr>`;
+    }).join('');
+
+    /* pagination info */
+    const total = filtered.length;
+    const end   = Math.min(start + PAGE_SIZE, total);
+    document.getElementById('pageInfo').innerHTML =
+      `Showing <strong>${start+1}–${end}</strong> of <strong>${total}</strong> event${total!==1?'s':''}`;
+
+    /* pagination buttons */
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+    let btns = '';
+    btns += `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}><i class="bi bi-chevron-left"></i></button>`;
+    for (let p = 1; p <= totalPages; p++) {
+      if (totalPages > 7 && p > 2 && p < totalPages - 1 && Math.abs(p - currentPage) > 1) {
+        if (p === 3 || p === totalPages - 2) btns += `<button class="page-btn" disabled>…</button>`;
+        continue;
+      }
+      btns += `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+    }
+    btns += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}><i class="bi bi-chevron-right"></i></button>`;
+    document.getElementById('pageBtns').innerHTML = btns;
+  }
+
+  /* ── FILTERING ── */
+  function applyFilters() {
+    const q   = document.getElementById('searchInput').value.trim().toLowerCase();
+    const evt = document.getElementById('eventFilter').value;
+    filtered = allLogs.filter(l => {
+      const matchEvt = !evt || l.eventType === evt;
+      const matchQ   = !q ||
+        (l.relatedParcelId  || '').toString().toLowerCase().includes(q) ||
+        (l.relatedParcelNumber || '').toString().toLowerCase().includes(q) ||
+        (l.relatedRequestId || '').toString().toLowerCase().includes(q) ||
+        (l.transactionHash  || '').toLowerCase().includes(q) ||
+        String(l.logId).includes(q);
+      return matchEvt && matchQ;
+    });
+    currentPage = 1;
+    renderTable();
+  }
+
+  window.goPage = function(p) {
+    const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+    if (p < 1 || p > totalPages) return;
+    currentPage = p;
+    renderTable();
+    document.querySelector('.main-content').scrollTop = 0;
+  };
+
+  window.clearFilters = function() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('eventFilter').value = '';
+    applyFilters();
+  };
+
+  window.goToDetail = function(logId) {
+    const params = new URLSearchParams();
+    params.set('logId', logId);
+    window.location.href = `block-detail.html?${params.toString()}`;
+  };
+
+  document.getElementById('searchInput').addEventListener('input',  applyFilters);
+  document.getElementById('eventFilter').addEventListener('change', applyFilters);
+
+  /* ── MODE SWITCH: parcel-focused timeline vs full audit log ── */
+  function applyViewMode() {
+    if (selectedParcelId) {
+      document.getElementById('filterBar').style.display = 'none';
+      document.getElementById('genericTableWrap').style.display = 'none';
+      document.getElementById('parcelTimelineWrap').style.display = 'block';
+      document.getElementById('cardHeader').innerHTML = `
+        <div class="table-header-left">
+          <h6><i class="bi bi-diagram-3"></i> Parcel Timeline</h6>
+          <span class="record-count" id="recordCount">—</span>
+        </div>
+        <a href="audit-log.html" class="back-to-log"><i class="bi bi-arrow-left"></i>Full Audit Log</a>`;
+      renderParcelTimeline();
+    } else {
+      document.getElementById('filterBar').style.display = 'flex';
+      document.getElementById('genericTableWrap').style.display = 'block';
+      document.getElementById('parcelTimelineWrap').style.display = 'none';
+    }
+  }
+
+  /* ── LOAD (original api call untouched) ── */
+  async function load() {
+    try {
+      const res  = await api.auditLog();
+      allLogs    = (res.data || []).sort((a, b) => {
+        const timeDifference = new Date(b.recordedAt || 0) - new Date(a.recordedAt || 0);
+        return timeDifference || Number(b.logId || 0) - Number(a.logId || 0);
+      });
+      filtered   = [...allLogs];
+
+      renderStats();
+      applyViewMode();
+
+      if (!selectedParcelId) {
+        document.getElementById('recordCount').innerHTML =
+          `<strong>${allLogs.length}</strong> event${allLogs.length !== 1 ? 's' : ''}`;
+        applyFilters();
+      }
+    } catch(e) {
+      document.getElementById('msg').innerHTML =
+        `<div class="alert-arm alert-danger"><i class="bi bi-exclamation-circle" style="margin-right:6px;"></i>${e.message}</div>`;
+      document.getElementById('logTable').innerHTML =
+        `<tr><td colspan="7"><div class="empty-state"><i class="bi bi-wifi-off"></i>Could not load audit log.</div></td></tr>`;
+      document.getElementById('recordCount').textContent = 'Error';
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>

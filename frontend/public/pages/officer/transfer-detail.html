@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transfer Request — Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════════════
+       ARMS DESIGN SYSTEM — Navy + Gold, Zambian Palette
+    ═══════════════════════════════════════════════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    :root {
+      /* Core palette — actual values (previously these referenced themselves
+         and never resolved, so the whole page fell back to browser defaults) */
+      --navy: #0e2240;
+      --navy-mid: #1a3a5c;
+      --navy-xlight: #eaf0fb;
+      --gold: #c8a040;
+      --gold-dark: #9c7a28;
+      --gold-light: #f3e6c4;
+      --gold-xlight: #fbf5e6;
+      --green: #22c55e;
+      --green-dark: #15803d;
+      --green-light: #dcfce7;
+      --red: #ef4444;
+      --red-dark: #991b1b;
+      --red-light: #fdecea;
+
+      --bg-page: #f4f2ec;      /* off-white cream, per ARMS palette */
+      --bg-card: #ffffff;
+      --text-primary: #1c2a3a;
+      --text-secondary: #4a5568;
+      --text-muted: #8a94a3;
+      --border: #e2e5ea;
+      --border-mid: #cfd5e0;
+
+      --font-family: 'Inter', Arial, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --shadow: 0 1px 3px rgba(14,34,64,0.06);
+      --shadow-card: 0 2px 10px rgba(14,34,64,0.06);
+      --nav-h: 64px;
+      --sidebar-w: 220px;
+    }
+
+    body {
+      display: flex; flex-direction: column;
+      background: var(--bg-page);
+      font-family: var(--font-family);
+      font-size: 13px;
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      background: var(--navy);
+      display: flex; justify-content: space-between; align-items: stretch;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      height: var(--nav-h); flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(14,34,64,0.08);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo-block {
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 24px; min-width: 0;
+      height: 100%; flex-shrink: 0; background: var(--navy);
+    }
+    .logo-emblem {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: var(--gold); display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800; color: var(--navy); flex-shrink: 0; overflow: hidden;
+    }
+    .logo-emblem img { width: 100%; height: 100%; object-fit: contain; }
+    .logo-text h2 { font-size: 12px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+    .logo-text p  { font-size: 10px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+
+    .top-right { display: flex; align-items: center; gap: 14px; padding-right: 20px; }
+    .user-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--gold-light); border: 1.5px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11.5px; font-weight: 700; color: var(--navy); flex-shrink: 0;
+      overflow: hidden; position: relative;
+    }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+    .top-user-name { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.2; }
+    .top-user-role { font-size: 10.5px; color: rgba(255,255,255,0.7); line-height: 1; }
+    .btn-signout {
+      background: transparent; border: 1px solid rgba(255,255,255,0.25);
+      color: #fff; padding: 5px 13px;
+      border-radius: var(--radius); font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+      display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+    }
+    .btn-signout:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    /* ── LAYOUT ── */
+    .dashboard-container { display: flex; flex: 1; min-height: 0; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 14px 0 12px; flex-shrink: 0;
+      min-height: calc(100vh - var(--nav-h));
+      overflow-y: auto; display: flex; flex-direction: column;
+      position: sticky; top: var(--nav-h);
+      height: calc(100vh - var(--nav-h));
+    }
+    .sidebar-section-title {
+      font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--text-muted); font-weight: 700; padding: 10px 16px 4px;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 16px; color: var(--text-secondary);
+      text-decoration: none; font-size: 12.5px;
+      transition: all 0.13s; border-left: 2px solid transparent; margin: 1px 0;
+    }
+    .sidebar-item:hover  { background: var(--gold-xlight); color: var(--navy); }
+    .sidebar-item.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+    .sidebar-item i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: 0.7; }
+    .sidebar-item.active i { opacity: 1; }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+    .sidebar-item.signout       { color: var(--red-dark); }
+    .sidebar-item.signout:hover { background: var(--red-light); }
+    .sidebar-item.signout i     { opacity: 1; }
+
+    /* ── MAIN ── */
+    .main-content { flex: 1; padding: 24px 28px; background: var(--bg-page); overflow-x: hidden; }
+
+    .back-btn {
+      background: var(--bg-card); color: var(--text-secondary);
+      border: 1px solid var(--border-mid); border-radius: var(--radius);
+      padding: 7px 15px; font-size: 12.5px; font-weight: 500;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+      transition: all 0.15s; margin-bottom: 16px;
+    }
+    .back-btn:hover { background: var(--bg-page); color: var(--navy); border-color: var(--gold); }
+
+    .page-header { margin-bottom: 20px; }
+    .page-header h1 { font-size: 20px; font-weight: 700; color: var(--navy); letter-spacing: -0.4px; margin-bottom: 3px; }
+    .page-header p { color: var(--text-secondary); font-size: 12.5px; }
+
+    /* ── SECTION CARD ── */
+    .section-card {
+      background: var(--bg-card); border-radius: var(--radius-lg);
+      border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(14,34,64,0.04);
+      padding: 20px 22px; margin-bottom: 18px;
+    }
+    .section-card h5 {
+      font-size: 13.5px; color: var(--navy); font-weight: 600; margin: 0 0 16px;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-card h5 i {
+      width: 28px; height: 28px; background: var(--gold-light); border-radius: 6px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 13px; color: var(--gold-dark); flex-shrink: 0;
+    }
+
+    /* ── DETAIL GRID ── */
+    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .detail-item { display: flex; flex-direction: column; }
+    .detail-item .d-label {
+      font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+      color: var(--text-muted); margin-bottom: 5px;
+    }
+    .detail-item .value {
+      font-size: 12.5px; font-weight: 600; color: var(--text-primary);
+      font-family: var(--font-mono);
+      word-break: break-word; padding: 9px 12px; background: var(--bg-page);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      display: flex; align-items: center;
+      min-height: 36px; flex: 1;
+    }
+    .value.empty { color: var(--text-muted); font-weight: 400; font-style: italic; }
+    .transfer-progress { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+    .progress-stage { padding: 10px; border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-muted); font-size: 11px; }
+    .progress-stage.done { background: var(--green-light); border-color: #bbf7d0; color: var(--green-dark); }
+    .progress-stage.current { background: var(--gold-xlight); border-color: #e8d098; color: var(--gold-dark); }
+    .progress-stage strong { display: block; margin-bottom: 3px; color: inherit; }
+    @media (max-width: 640px) { .transfer-progress { grid-template-columns: 1fr; } }
+    /* Status field gets the same boxed treatment as its siblings */
+    .detail-item .status-field {
+      display: flex; align-items: center;
+      padding: 9px 12px; background: var(--bg-page);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      min-height: 36px; flex: 1;
+    }
+
+    .field-block { margin-top: 18px; }
+    .field-block label {
+      font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+      color: var(--text-muted); margin-bottom: 5px; display: block;
+    }
+
+    /* ── STATUS BADGE (matches doc's own JS class names: pending/approved/rejected) ── */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 11px; border-radius: 99px;
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em;
+    }
+    .status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .status-badge.pending  { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #e8d098; }
+    .status-badge.pending::before  { background: var(--gold); }
+    .status-badge.approved { background: var(--green-light); color: var(--green-dark); border: 1px solid #bbf7d0; }
+    .status-badge.approved::before { background: var(--green); }
+    .status-badge.rejected { background: var(--red-light); color: var(--red-dark); border: 1px solid #fecaca; }
+    .status-badge.rejected::before { background: var(--red); }
+
+    /* ── APPROVAL TIMELINE ── */
+    .approval-timeline { position: relative; padding-left: 28px; }
+    .approval-timeline::before {
+      content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px;
+      width: 2px; background: var(--border); border-radius: 2px;
+    }
+    .approval-item { position: relative; margin-bottom: 14px; }
+    .approval-item::before {
+      content: ''; position: absolute; left: -24px; top: 4px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--gold); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--gold);
+    }
+    .approval-item-card {
+      background: var(--bg-page); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px 14px;
+    }
+    .approval-item-card strong { color: var(--navy); display: block; margin-bottom: 3px; font-size: 12.5px; }
+    .approval-item-card .officer { color: var(--text-muted); font-size: 11px; }
+    .approval-item-card .timestamp { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+    .approval-item-card .comments {
+      color: var(--text-primary); margin-top: 8px; padding: 8px 10px; font-size: 12px;
+      background: #fff; border-radius: 4px; border-left: 2px solid var(--gold);
+    }
+    .empty-state { color: var(--text-muted); font-style: italic; font-size: 12.5px; padding: 6px 0; }
+
+    /* ── TRANSACTION AUTHENTICATION ── */
+    .auth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .auth-item { padding: 12px; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius); }
+    .auth-label { color: var(--text-muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; }
+    .auth-value { color: var(--text-primary); font-size: 12.5px; font-weight: 600; margin-top: 5px; }
+    .auth-value.hash { font-family: var(--font-mono); font-size: 11px; overflow-wrap: anywhere; }
+    .auth-status { display: inline-flex; align-items: center; gap: 5px; }
+    .auth-status.ok { color: var(--green-dark); }
+    .auth-status.wait { color: var(--gold-dark); }
+    .auth-status::before { content: '●'; font-size: 10px; }
+    .auth-status.ok::before { content: '✓'; font-size: 13px; }
+    .auth-record { margin-top: 14px; padding: 13px; border: 1px solid #bbf7d0; border-radius: var(--radius); background: var(--green-light); color: var(--green-dark); }
+    @media (max-width: 640px) { .auth-grid { grid-template-columns: 1fr; } }
+
+    /* ── BUTTONS ── */
+    .btn-group-action {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .btn-group-action:empty { margin-bottom: 0; }
+    .btn-group-secondary {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      padding-top: 14px; border-top: 1px solid var(--border);
+    }
+    .btn-action {
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      padding: 11px 20px; border-radius: var(--radius); font-weight: 600;
+      font-size: 12.5px; cursor: pointer; transition: all 0.15s; border: none;
+      font-family: inherit; flex: 1; min-width: 180px;
+    }
+    .btn-approve { background: var(--green-dark); color: #fff; }
+    .btn-approve:hover { background: #116636; box-shadow: 0 4px 12px rgba(21,128,61,0.3); }
+    .btn-reject { background: var(--red-dark); color: #fff; }
+    .btn-reject:hover { background: #7a1515; box-shadow: 0 4px 12px rgba(153,27,27,0.3); }
+    .btn-secondary-action {
+      background: transparent; color: var(--navy); border: 1px solid var(--border-mid);
+      flex: 1; min-width: 180px;
+    }
+    .btn-secondary-action:hover { background: var(--bg-page); border-color: var(--gold); color: var(--navy); }
+    .btn-action:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── ALERTS ── */
+    .alert-custom {
+      padding: 11px 16px; border-radius: var(--radius); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px; font-size: 12.5px;
+    }
+    .alert-success { background: var(--green-light); color: var(--green-dark); border: 1px solid #bbf7d0; }
+    .alert-danger  { background: var(--red-light); color: var(--red-dark); border: 1px solid #fecaca; }
+    .alert-info    { background: var(--navy-xlight); color: var(--navy-mid); border: 1px solid #c8d8ee; }
+    .alert-warning { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #e8d098; }
+
+    /* ── TOAST ── */
+    .toast-stack { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast-item {
+      background: var(--bg-card); border-left: 4px solid var(--navy);
+      padding: 12px 16px; border-radius: var(--radius); font-size: 12.5px;
+      box-shadow: 0 4px 14px rgba(14,34,64,0.18); max-width: 340px;
+      display: flex; align-items: center; gap: 8px; color: var(--text-primary);
+    }
+    .toast-item.success { border-left-color: var(--green-dark); }
+    .toast-item.error   { border-left-color: var(--red-dark); }
+
+    .spinner-small {
+      display: inline-block; width: 13px; height: 13px;
+      border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .action-modal { position: fixed; inset: 0; z-index: 3000; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(14,34,64,.52); }
+    .action-modal.open { display: flex; }
+    .action-modal-card { width: min(100%, 430px); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 14px 40px rgba(14,34,64,.24); padding: 24px; }
+    .action-modal-icon { width: 42px; height: 42px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--gold-light); color: var(--gold-dark); font-size: 19px; margin-bottom: 13px; }
+    .action-modal-card h3 { color: var(--navy); font-size: 17px; margin: 0 0 7px; }
+    .action-modal-card p { color: var(--text-secondary); font-size: 12.5px; line-height: 1.5; margin: 0 0 20px; }
+    .action-modal-card textarea { width: 100%; min-height: 90px; resize: vertical; border: 1px solid var(--border-mid); border-radius: var(--radius); padding: 10px; font: inherit; color: var(--text-primary); margin-bottom: 16px; }
+    .action-modal-card textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,160,64,.15); }
+    .action-modal-actions { display: flex; justify-content: flex-end; gap: 9px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main-content { padding: 16px; }
+      .btn-group-action { flex-direction: column; }
+      .btn-action, .btn-secondary-action { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── TOP BAR ── -->
+  <div class="top-bar">
+    <div class="logo-block">
+      <div class="logo-emblem">
+        <img src="../../images/coat-of-arms.png" alt="Zambian Coat of Arms">
+      </div>
+      <div class="logo-text">
+        <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+        <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+      </div>
+    </div>
+    <div class="top-right">
+      <div class="user-avatar" id="nav-avatar" aria-label="Current user"></div>
+      <div style="text-align:left;">
+        <div class="top-user-name" id="nav-name">Officer</div>
+        <div class="top-user-role" id="nav-role">Land Officer</div>
+      </div>
+      <a href="#" class="btn-signout" onclick="confirmAndLogout(event)"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </div>
+  </div>
+
+  <div class="dashboard-container">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar">
+      <div class="sidebar-section-title">Main Menu</div>
+      <a href="/pages/officer/dashboard.html"          class="sidebar-item"><i class="bi bi-speedometer2"></i> Dashboard</a>
+      <a href="/pages/officer/parcel-registry.html"    class="sidebar-item"><i class="bi bi-collection"></i> Parcel Registry</a>
+      <a href="/pages/officer/register-parcel.html"    class="sidebar-item"><i class="bi bi-plus-circle"></i> Register Parcel</a>
+      <a href="/pages/officer/transfer-requests.html"  class="sidebar-item active"><i class="bi bi-arrow-left-right"></i> Transfer Requests</a>
+      <a href="/pages/officer/parcel-status.html"   class="sidebar-item"><i class="bi bi-x-circle"></i> Rejected Parcels</a>
+      <a href="/pages/officer/notifications.html"      class="sidebar-item"><i class="bi bi-bell"></i> Notifications</a>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-title">Reports</div>
+      <a href="/pages/officer/monthly-report.html" class="sidebar-item"><i class="bi bi-file-earmark-bar-graph"></i> Monthly Report</a>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-title">Account</div>
+      <a href="/pages/officer/manage-profile.html" class="sidebar-item"><i class="bi bi-person-circle"></i> My Profile</a>
+      <a href="/pages/senior-officer/dashboard.html" class="sidebar-item"><i class="bi bi-person-check"></i> Senior Officer</a>
+      <a href="../index.html" class="sidebar-item"><i class="bi bi-search"></i> Verify Parcel</a>
+
+      <div class="sidebar-divider"></div>
+      <a href="#" class="sidebar-item signout" onclick="confirmAndLogout(event)"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main class="main-content">
+
+      <a href="transfer-requests.html" class="back-btn"><i class="bi bi-chevron-left"></i> Back to Requests</a>
+
+      <div class="page-header">
+        <h1>Transfer Request Details</h1>
+        <p>Review transfer information, approval history, and manage the request.</p>
+      </div>
+
+      <div id="alert-container"></div>
+
+      <!-- TRANSFER DETAILS CARD -->
+      <div class="section-card">
+        <h5><i class="bi bi-file-earmark-text"></i> Transfer Information</h5>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="d-label">Request ID</div>
+            <div class="value" id="reqId">—</div>
+          </div>
+          <div class="detail-item">
+            <div class="d-label">Parcel Number</div>
+            <div class="value" id="parcelNumber">—</div>
+          </div>
+          <div class="detail-item">
+            <div class="d-label">Seller / Current Owner</div>
+            <div class="value" id="sellerName">—</div>
+          </div>
+          <div class="detail-item">
+            <div class="d-label">Buyer / New Owner</div>
+            <div class="value" id="buyerName">—</div>
+          </div>
+          <div class="detail-item">
+            <div class="d-label">Agreed Price (ZMW)</div>
+            <div class="value" id="agreedPrice">—</div>
+          </div>
+          <div class="detail-item">
+            <div class="d-label">Status</div>
+            <div class="status-field" id="statusBadge">—</div>
+          </div>
+        </div>
+
+        <div class="field-block">
+          <label>Transfer Reason / Notes</label>
+          <div class="value" id="transferReason">—</div>
+        </div>
+
+        <div class="field-block">
+          <label>Supporting Documents</label>
+          <div class="value" id="supportingDocs">—</div>
+        </div>
+
+        <div class="field-block">
+          <label>Date Submitted</label>
+          <div class="value" id="metaLine">—</div>
+        </div>
+        <div class="field-block">
+          <label>Transfer Progress</label>
+          <div class="transfer-progress" id="transferProgress">
+            <div class="progress-stage done"><strong>✓ Transfer Initiated</strong>Request submitted</div>
+            <div class="progress-stage current"><strong>● Land Officer Review</strong>Awaiting your decision</div>
+            <div class="progress-stage"><strong>○ Senior Officer Approval</strong>Locked until review</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRANSACTION AUTHENTICATION CARD -->
+      <div class="section-card">
+        <h5><i class="bi bi-shield-check"></i> Transaction Authentication</h5>
+        <div class="field-block" style="margin-top:0;">
+          <label>Cryptographic Authentication</label>
+          <div class="auth-grid">
+            <div class="auth-item" style="grid-column:1 / -1;">
+              <div class="auth-label">Document Hash · SHA-256</div>
+              <div class="auth-value hash" id="documentHashValue">Not recorded</div>
+            </div>
+            <div class="auth-item" style="grid-column:1 / -1;">
+              <div class="auth-label">Hash Status</div>
+              <div class="auth-value" id="documentHashStatus"><span class="auth-status wait">Hash not available</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="field-block">
+          <label>Digital Authentication</label>
+          <div class="auth-grid">
+            <div class="auth-item"><div class="auth-label">Landowner</div><div class="auth-value" id="ownerAuthStatus"><span class="auth-status wait">Awaiting authentication</span></div></div>
+            <div class="auth-item"><div class="auth-label">Land Officer</div><div class="auth-value" id="officerAuthStatus"><span class="auth-status wait">Awaiting approval</span></div></div>
+            <div class="auth-item"><div class="auth-label">Senior Officer</div><div class="auth-value" id="seniorAuthStatus"><span class="auth-status wait">Awaiting approval</span></div></div>
+          </div>
+        </div>
+        <div class="auth-record" id="recordAuthenticity"><strong>Record Authenticity</strong><br><span>Awaiting sufficient authentication evidence</span></div>
+      </div>
+
+      <!-- APPROVAL HISTORY CARD -->
+      <div class="section-card">
+        <h5><i class="bi bi-clock-history"></i> Approval History</h5>
+        <div id="approvalHistory" class="approval-timeline">
+          <div class="empty-state">No approvals recorded yet.</div>
+        </div>
+      </div>
+
+      <!-- ACTION BUTTONS -->
+      <div class="section-card">
+        <h5><i class="bi bi-lightning"></i> Actions</h5>
+        <div class="btn-group-action">
+          <button id="approveBtn" class="btn-action btn-approve" style="display: none;">
+            <i class="bi bi-check-circle"></i> Approve Transfer
+          </button>
+          <button id="rejectBtn" class="btn-action btn-reject" style="display: none;">
+            <i class="bi bi-x-circle"></i> Reject Transfer
+          </button>
+        </div>
+        <div class="btn-group-secondary">
+          <button id="viewParcelBtn" class="btn-action btn-secondary-action">
+            <i class="bi bi-eye"></i> View Full Parcel Details
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-stack" id="toast-container"></div>
+
+  <div class="action-modal" id="actionModal" role="dialog" aria-modal="true" aria-labelledby="actionModalTitle">
+    <div class="action-modal-card">
+      <div class="action-modal-icon"><i class="bi bi-shield-check"></i></div>
+      <h3 id="actionModalTitle">Confirm approval</h3>
+      <p id="actionModalMessage">Are you sure you want to approve this transfer request?</p>
+      <textarea id="actionModalInput" placeholder="Reason for rejection" style="display:none"></textarea>
+      <div class="action-modal-actions">
+        <button type="button" class="btn-action btn-secondary-action" id="actionModalCancel">Cancel</button>
+        <button type="button" class="btn-action btn-approve" id="actionModalConfirm">Approve Transfer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script type="module">
+    import { api } from '/js/api.js';
+    import { requireLogin, populateNavbar } from '/js/auth.js';
+
+    // Enforce login and populate header
+    requireLogin();
+    populateNavbar();
+
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast-item ${type}`;
+      const icons = { success: 'check-circle', error: 'x-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+      toast.innerHTML = `<i class="bi bi-${icons[type] || 'info-circle'}"></i> ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4500);
+    }
+
+    function showAlert(msg, type = 'info') {
+      const container = document.getElementById('alert-container');
+      const alert = document.createElement('div');
+      alert.className = `alert-custom alert-${type} show`;
+      const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+      alert.innerHTML = `<i class="bi bi-${icons[type]}"></i> <span>${msg}</span>`;
+      container.appendChild(alert);
+      setTimeout(() => alert.remove(), 5000);
+    }
+
+    function openActionModal({ title, message, confirmLabel, input = false, icon = 'shield-check' }) {
+      const modal = document.getElementById('actionModal');
+      const inputEl = document.getElementById('actionModalInput');
+      document.getElementById('actionModalTitle').textContent = title;
+      document.getElementById('actionModalMessage').textContent = message;
+      document.getElementById('actionModalConfirm').textContent = confirmLabel;
+      document.querySelector('#actionModal .action-modal-icon i').className = `bi bi-${icon}`;
+      inputEl.style.display = input ? 'block' : 'none';
+      inputEl.value = '';
+      modal.classList.add('open');
+      return new Promise(resolve => {
+        const close = value => {
+          modal.classList.remove('open');
+          document.getElementById('actionModalCancel').removeEventListener('click', cancel);
+          document.getElementById('actionModalConfirm').removeEventListener('click', confirm);
+          modal.removeEventListener('click', backdrop);
+          resolve(value);
+        };
+        const cancel = () => close(null);
+        const confirm = () => close(input ? inputEl.value.trim() : true);
+        const backdrop = event => { if (event.target === modal) cancel(); };
+        document.getElementById('actionModalCancel').addEventListener('click', cancel);
+        document.getElementById('actionModalConfirm').addEventListener('click', confirm);
+        modal.addEventListener('click', backdrop);
+      });
+    }
+
+    // Logout with confirmation (consistent with other pages)
+    function showLogoutConfirm(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      if (typeof showLogoutConfirmation === 'function') {
+        showLogoutConfirmation(logout || doLogout || (() => window.location.href = '/login.html'));
+      } else if (confirm('Are you sure you want to sign out?')) {
+        if (typeof doLogout === 'function') {
+          doLogout();
+        } else {
+          localStorage.removeItem('lv_token');
+          window.location.href = '/login.html';
+        }
+      }
+    }
+
+    function getQueryParam(name) {
+      return new URL(window.location).searchParams.get(name);
+    }
+
+    function setAuthStatus(id, ok, successText, waitingText) {
+      document.getElementById(id).innerHTML = ok
+        ? `<span class="auth-status ok">${successText}</span>`
+        : `<span class="auth-status wait">${waitingText}</span>`;
+    }
+
+    function renderTransferProgress(status) {
+      const stages = document.querySelectorAll('#transferProgress .progress-stage');
+      const landApproved = ['APPROVED_L1', 'APPROVED_L2', 'APPROVED'].includes(status);
+      const seniorApproved = ['APPROVED_L2', 'APPROVED'].includes(status);
+      stages[1].className = `progress-stage ${landApproved ? 'done' : ['SUBMITTED', 'UNDER_REVIEW'].includes(status) ? 'current' : ''}`;
+      stages[1].innerHTML = `<strong>${landApproved ? '✓' : ['SUBMITTED', 'UNDER_REVIEW'].includes(status) ? '●' : '○'} Land Officer Review</strong>${landApproved ? 'Approved' : 'Awaiting your decision'}`;
+      stages[2].className = `progress-stage ${seniorApproved ? 'done' : status === 'APPROVED_L1' ? 'current' : ''}`;
+      stages[2].innerHTML = `<strong>${seniorApproved ? '✓' : status === 'APPROVED_L1' ? '●' : '○'} Senior Officer Approval</strong>${seniorApproved ? 'Approved' : status === 'APPROVED_L1' ? 'Awaiting final decision' : 'Locked until review'}`;
+    }
+
+    function renderAuthentication(transfer, approvals) {
+      const hash = transfer.documentHash || '';
+      document.getElementById('documentHashValue').textContent = hash || 'Not recorded';
+      document.getElementById('documentHashStatus').innerHTML = hash
+        ? '<span class="auth-status ok">Hash recorded</span>'
+        : '<span class="auth-status wait">Hash not available</span>';
+
+      const approved = Array.isArray(approvals) ? approvals.filter(a =>
+        String(a.action || a.status || '').toUpperCase() === 'APPROVED') : [];
+      const landOfficerApproved = approved.some(a => Number(a.approvalLevel) === 1);
+      const seniorOfficerApproved = approved.some(a => Number(a.approvalLevel) === 2);
+      setAuthStatus('ownerAuthStatus', transfer.ownerAuthenticated === true,
+        'Authenticated', 'Awaiting authentication');
+      setAuthStatus('officerAuthStatus', landOfficerApproved,
+        'Approved', 'Awaiting approval');
+      setAuthStatus('seniorAuthStatus', seniorOfficerApproved,
+        'Approved', 'Awaiting approval');
+
+      const record = document.getElementById('recordAuthenticity');
+      if (hash && !transfer.mismatchDetected) {
+        record.innerHTML = '<strong>Record Authenticity</strong><br><span>Evidence recorded; no data mismatch reported</span>';
+      } else if (transfer.mismatchDetected) {
+        record.style.background = 'var(--red-light)';
+        record.style.borderColor = '#fecaca';
+        record.style.color = 'var(--red-dark)';
+        record.innerHTML = '<strong>Record Authenticity</strong><br><span>Review required: data mismatch detected</span>';
+      }
+    }
+
+    const requestId = getQueryParam('requestId');
+    if (!requestId) {
+      showAlert('No transfer request ID provided.', 'warning');
+      document.getElementById('approveBtn').style.display = 'none';
+      document.getElementById('rejectBtn').style.display = 'none';
+    }
+
+    async function loadTransferDetails() {
+      try {
+        if (!requestId) return;
+
+        // Fetch transfer status
+        const statusRes = await api.transferStatus(requestId);
+        const transfer = statusRes.data || statusRes || {};
+
+        // Populate basic details
+        document.getElementById('reqId').textContent = transfer.requestId || requestId;
+        document.getElementById('parcelNumber').textContent = transfer.parcelNumber || '—';
+        document.getElementById('sellerName').textContent = transfer.seller || transfer.sellerName || '—';
+        document.getElementById('buyerName').textContent = transfer.buyer || transfer.buyerName || '—';
+
+        const price = transfer.agreedPriceZmw || transfer.agreePriceZmw || transfer.price;
+        document.getElementById('agreedPrice').textContent = price ? `ZMW ${Number(price).toLocaleString()}` : '—';
+
+        document.getElementById('transferReason').textContent = transfer.transferReason || transfer.reason || '—';
+        const supportingDocs = Array.isArray(transfer.supportingDocuments) ? transfer.supportingDocuments : [];
+        if (supportingDocs.length > 0) {
+          document.getElementById('supportingDocs').innerHTML = supportingDocs.map(doc => {
+            const href = doc.filePath || '#';
+            const label = doc.fileName || 'Supporting document';
+            return `<div style="margin-bottom:6px;"><a href="${href}" target="_blank" rel="noopener noreferrer" style="color:var(--navy);text-decoration:underline;">${label}</a></div>`;
+          }).join('');
+        } else {
+          document.getElementById('supportingDocs').textContent = transfer.supportingDocs || transfer.documents || 'No documents provided';
+        }
+        document.getElementById('metaLine').textContent = transfer.submittedAt || transfer.createdAt || '—';
+
+        // Status badge — map every backend status to a visual bucket.
+        // Backend statuses in practice: SUBMITTED, UNDER_REVIEW, APPROVED_L1,
+        // APPROVED, REJECTED (see officer dashboard's getStatusBadge for the
+        // same mapping used elsewhere in the app).
+        const status = transfer.status || 'SUBMITTED';
+        const statusUpper = status.toUpperCase();
+        renderTransferProgress(statusUpper);
+        renderAuthentication(transfer, []);
+        const actionablStatuses = ['SUBMITTED', 'UNDER_REVIEW'];
+        const statusEl = document.getElementById('statusBadge');
+        const statusClass = statusUpper === 'APPROVED' ? 'approved' :
+                            statusUpper === 'REJECTED' ? 'rejected' : 'pending';
+        statusEl.innerHTML = `<span class="status-badge ${statusClass}">${status.replace(/_/g, ' ')}</span>`;
+
+        const approveBtn = document.getElementById('approveBtn');
+        const rejectBtn = document.getElementById('rejectBtn');
+        approveBtn.style.display = 'none';
+        rejectBtn.style.display = 'none';
+
+        // Show action buttons only while the request is awaiting Level 1 review.
+        if (actionablStatuses.includes(statusUpper)) {
+          approveBtn.style.display = 'inline-flex';
+          rejectBtn.style.display = 'inline-flex';
+        }
+
+        // View parcel button — navigate to the officer parcel detail page
+        if (transfer.parcelNumber) {
+          document.getElementById('viewParcelBtn').onclick = () => {
+            window.location.href = `parcel-detail.html?parcel=${encodeURIComponent(transfer.parcelNumber)}`;
+          };
+        }
+
+        // Fetch and populate approval history
+        try {
+          const auditRes = await api.transferAuditTrail(requestId);
+          const auditPayload = auditRes.data || auditRes;
+          const audits = Array.isArray(auditPayload?.approvals)
+            ? auditPayload.approvals
+            : Array.isArray(auditPayload) ? auditPayload : [];
+          renderAuthentication(transfer, audits);
+          const histEl = document.getElementById('approvalHistory');
+
+          if (!audits || audits.length === 0) {
+            histEl.innerHTML = '<div class="empty-state">No approval actions yet.</div>';
+          } else {
+            histEl.innerHTML = audits.map(audit => `
+              <div class="approval-item">
+                <div class="approval-item-card">
+                  <strong>${audit.action || audit.status || 'ACTION RECORDED'}</strong>
+                  <div class="officer"><i class="bi bi-person"></i> ${audit.officer || audit.officerName || 'System'}</div>
+                  <div class="timestamp"><i class="bi bi-calendar3"></i> ${audit.approvedAt || audit.actionedAt || audit.timestamp || '(no timestamp)'}</div>
+                  ${audit.comments ? `<div class="comments"><strong>Note:</strong> ${audit.comments}</div>` : ''}
+                </div>
+              </div>
+            `).join('');
+          }
+        } catch (auditErr) {
+          console.warn('Could not load audit trail:', auditErr);
+          document.getElementById('approvalHistory').innerHTML = '<div class="empty-state">Audit trail unavailable.</div>';
+        }
+
+      } catch (err) {
+        console.error('Load error:', err);
+        showAlert(`Failed to load transfer details: ${err.message || err}`, 'error');
+        document.getElementById('approveBtn').style.display = 'none';
+        document.getElementById('rejectBtn').style.display = 'none';
+      }
+    }
+
+    // Approve button handler
+    document.getElementById('approveBtn').addEventListener('click', async () => {
+      if (!requestId) return;
+      const confirmed = await openActionModal({
+        title: 'Confirm approval',
+        message: 'Are you sure you want to approve this transfer request?',
+        confirmLabel: 'Approve Transfer'
+      });
+      if (!confirmed) return;
+
+      try {
+        document.getElementById('approveBtn').disabled = true;
+        await api.officerApprove({ requestId: parseInt(requestId, 10), comments: 'Approved via officer UI' });
+        document.getElementById('approveBtn').style.display = 'none';
+        document.getElementById('rejectBtn').style.display = 'none';
+        showAlert('Request approved and sent for further approval.', 'success');
+        setTimeout(() => window.location.href = 'transfer-requests.html', 1800);
+      } catch (err) {
+        document.getElementById('approveBtn').disabled = false;
+        showAlert(`Approval failed: ${err.message || err}`, 'error');
+      }
+    });
+
+    // Reject button handler
+    document.getElementById('rejectBtn').addEventListener('click', async () => {
+      if (!requestId) return;
+      const reason = await openActionModal({
+        title: 'Reject transfer request',
+        message: 'Please provide a reason for rejecting this transfer request.',
+        confirmLabel: 'Reject Transfer',
+        input: true,
+        icon: 'x-circle'
+      });
+      if (!reason || !reason.trim()) return;
+
+      try {
+        document.getElementById('rejectBtn').disabled = true;
+        await api.officerReject({ requestId: parseInt(requestId, 10), reason: reason.trim() });
+        showAlert('Transfer rejected successfully.', 'success');
+        setTimeout(() => window.location.href = 'transfer-requests.html', 1200);
+      } catch (err) {
+        document.getElementById('rejectBtn').disabled = false;
+        showAlert(`Rejection failed: ${err.message || err}`, 'error');
+      }
+    });
+
+    // Load data on page mount
+    loadTransferDetails();
+  </script>
+
+  <script>
+    // Logout function
+    function doLogout() {
+      localStorage.removeItem('lv_token');
+      localStorage.removeItem('lv_user');
+      window.location.href = '/login.html';
+    }
+  </script>
+
+</body>
+</html>

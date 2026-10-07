@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LandVerify ZM — Initiate Transfer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════════════
+       ARMS DESIGN SYSTEM — Initiate Transfer
+       Navy #0e2240 + Gold #c8a040 + Warm off-white #faf7f2
+    ═══════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    :root {
+      --navy:          #0e2240;
+      --navy-mid:      #1a3560;
+      --navy-light:    #e8edf6;
+      --navy-xlight:   #f4f6fb;
+      --gold:          #c8a040;
+      --gold-mid:      #b8902e;
+      --gold-dark:     #9a7420;
+      --gold-light:    #fdf6e3;
+      --gold-xlight:   #fefbf3;
+      --text-primary:  #111827;
+      --text-secondary:#4b5568;
+      --text-muted:    #8a94a6;
+      --border:        #e8e3d8;
+      --border-mid:    #d6ceba;
+      --bg-page:       #faf7f2;
+      --bg-card:       #ffffff;
+      --bg-input:      #fbfaf7;
+      --radius:        6px;
+      --radius-lg:     10px;
+      --shadow-sm:     0 1px 3px rgba(14,34,64,0.06), 0 1px 2px rgba(14,34,64,0.03);
+      --shadow-card:   0 2px 8px rgba(14,34,64,0.07), 0 1px 3px rgba(14,34,64,0.04);
+      --focus-ring:    0 0 0 3px rgba(200,160,64,0.15);
+      --sidebar-w:     200px;
+      --header-h:      66px;
+      --approved-bg:   #ecfdf5;
+      --approved-fg:   #166534;
+      --approved-brd:  #bbf7d0;
+      --rejected-bg:   #fef2f2;
+      --rejected-fg:   #991b1b;
+      --rejected-brd:  #fecaca;
+      --flagged-bg:    #fffaeb;
+      --flagged-fg:    #92400e;
+      --flagged-brd:   #fde68a;
+      --info-bg:       #eff6ff;
+      --info-fg:       #1e40af;
+      --info-brd:      #bfdbfe;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── TOP BAR (STICKY) ── */
+    .top-bar {
+      background: var(--bg-card);
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      border-bottom: 1px solid var(--border);
+      height: var(--header-h);
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: 1050;
+    }
+    .logo-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 24px;
+      min-width: 340px;
+      height: 100%;
+      flex-shrink: 0;
+      background: var(--navy);
+    }
+    .logo-emblem {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .logo-emblem img { width: 100%; height: 100%; object-fit: contain; }
+    .logo-text h2 { font-size: 12.5px; font-weight: 700; margin: 0; line-height: 1.35; color: #fff; text-transform: uppercase; letter-spacing: 0.4px; }
+    .logo-text p  { font-size: 10.5px; margin: 2px 0 0; color: rgba(255,255,255,0.5); line-height: 1.3; }
+
+    .top-right { display: flex; align-items: center; gap: 14px; padding-right: 20px; }
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--gold-light);
+      border: 1.5px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--navy);
+      flex-shrink: 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .user-avatar img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; border-radius: 50%; }
+    .top-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+    .top-user-role { font-size: 10.5px; color: var(--text-muted); line-height: 1; }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 13px;
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius);
+      transition: all .15s;
+    }
+    .nav-link:hover { background: var(--bg-page); color: var(--text-primary); }
+
+    /* ── LAYOUT ── */
+    .dashboard-container {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR (STICKY) ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 14px 0 12px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: var(--header-h);
+      height: calc(100vh - var(--header-h));
+      overflow-y: auto;
+      align-self: flex-start;
+    }
+    .sidebar-section-title {
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--text-muted);
+      font-weight: 700;
+      padding: 10px 16px 4px;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 16px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 12.5px;
+      transition: all .13s;
+      border-left: 2px solid transparent;
+      margin: 1px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .sidebar-link:hover { background: var(--gold-xlight); color: var(--navy); }
+    .sidebar-link.active { background: var(--gold-xlight); color: var(--navy); font-weight: 600; border-left-color: var(--gold); }
+    .sidebar-link i { font-size: 14px; width: 16px; flex-shrink: 0; opacity: .7; }
+    .sidebar-link.active i { opacity: 1; }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+
+    /* ── MAIN CONTENT (SCROLLABLE) ── */
+    .main-content {
+      flex: 1;
+      padding: 24px 28px;
+      background: var(--bg-page);
+      overflow-y: auto;
+      height: calc(100vh - var(--header-h));
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+      padding: 22px 26px;
+      border-radius: var(--radius-lg);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .page-title { font-size: 19px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 9px; }
+    .page-subtitle { margin: 5px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.75); }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.35);
+      white-space: nowrap;
+      transition: background .15s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.12); }
+
+    /* ── CARD / FORM SECTIONS ── */
+    .table-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .table-header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .table-header h6 {
+      margin: 0;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .table-header h6 i {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      background: var(--info-bg);
+      color: var(--info-fg);
+    }
+    .table-body { padding: 22px; }
+
+    .form-section {
+      padding-bottom: 22px;
+      margin-bottom: 22px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .form-section:last-of-type {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .form-section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--navy);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 16px;
+    }
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 11.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .form-label-custom {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+    .form-control-custom, select.form-control-custom {
+      width: 100%;
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius);
+      padding: 9px 12px;
+      font-size: 13px;
+      color: var(--text-primary);
+      background: var(--bg-input);
+      transition: border-color .15s, box-shadow .15s;
+      font-family: inherit;
+    }
+    .form-control-custom:focus, select.form-control-custom:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: var(--focus-ring);
+      background: #fff;
+    }
+    .text-muted-small { font-size: 11.5px; color: var(--text-muted); }
+
+    /* ── BUTTONS ── */
+    .btn-primary-custom {
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      padding: 0 16px;
+      height: 36px;
+      border-radius: var(--radius);
+      font-size: 12.5px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background .15s;
+      font-family: inherit;
+    }
+    .btn-primary-custom:hover { background: var(--gold-mid); }
+    .btn-primary-custom:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary-custom {
+      background: var(--bg-page);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-mid);
+      padding: 0 16px;
+      height: 36px;
+      border-radius: var(--radius);
+      font-size: 12.5px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background .15s;
+      font-family: inherit;
+    }
+    .btn-secondary-custom:hover { background: var(--border); }
+
+    .btn-outline-custom {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-mid);
+      padding: 0 14px;
+      height: 34px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all .15s;
+      font-family: inherit;
+    }
+    .btn-outline-custom:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    .spinner-small {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ALERTS / TOASTS ── */
+    .alert-custom {
+      display: none;
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      font-size: 12.5px;
+      margin-bottom: 16px;
+      border: 1px solid transparent;
+    }
+    .alert-custom.show { display: block; }
+    .alert-custom.alert-success { background: var(--approved-bg); color: var(--approved-fg); border-color: var(--approved-brd); }
+    .alert-custom.alert-danger { background: var(--rejected-bg); color: var(--rejected-fg); border-color: var(--rejected-brd); }
+    .alert-custom.alert-warning { background: var(--flagged-bg); color: var(--flagged-fg); border-color: var(--flagged-brd); }
+    .alert-custom.alert-info { background: var(--info-bg); color: var(--info-fg); border-color: var(--info-brd); }
+
+    .toast-stack { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+    .toast-item {
+      background: var(--navy);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      margin-top: 8px;
+      font-size: 12.5px;
+      box-shadow: 0 4px 14px rgba(14,34,64,0.25);
+      max-width: 340px;
+      border-left: 3px solid var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: slideIn .25s ease;
+    }
+    .toast-item.success { border-left-color: #22c55e; }
+    .toast-item.error { border-left-color: #ef4444; }
+    .toast-item.info { border-left-color: var(--gold); }
+    @keyframes slideIn { from { transform: translateX(60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* ── SUPPORTING DOCUMENTS ── */
+    .doc-upload-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .doc-upload-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 12px;
+    }
+    .doc-name { display: flex; align-items: center; gap: 6px; color: var(--text-primary); }
+    .doc-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      line-height: 1;
+    }
+    .doc-remove:hover { color: var(--rejected-fg); background: var(--rejected-bg); }
+
+    /* ── BUYER SEARCH RESULTS ── */
+    .buyer-result-item {
+      padding: 10px 12px;
+      border-left: 3px solid var(--gold);
+      background: var(--gold-xlight);
+      margin-bottom: 8px;
+      border-radius: var(--radius);
+    }
+    .buyer-result-item .name { font-weight: 600; margin-bottom: 4px; color: var(--text-primary); font-size: 12.5px; }
+    .buyer-result-item .meta { font-size: 11px; color: var(--text-muted); }
+
+    /* ── SIGNATURE BLOCK ── */
+    .signature-block {
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+    }
+    .signature-modal {
+      display: flex;
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      background: rgba(14,34,64,0.55);
+      padding: 20px;
+    }
+    .signature-modal-content {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      width: 100%;
+      max-width: 760px;
+      box-shadow: 0 12px 40px rgba(14,34,64,0.3);
+    }
+    .signature-modal-content h5 { margin: 0; font-size: 14px; color: var(--navy); font-weight: 700; }
+    #buyerSignatureCanvas, #ownerSignatureCanvas { width: 100%; border: 1px solid var(--border-mid); border-radius: var(--radius); background: #fff; touch-action: none; }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .footer-session { display: flex; align-items: center; gap: 6px; }
+    .session-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .page-header { flex-direction: column; align-items: flex-start; }
+      .main-content { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── TOP BAR (STICKY) ── -->
+<div class="top-bar">
+  <div class="logo-block">
+    <div class="logo-emblem">
+      <img src="../../images/coat-of-arms.png" alt="Zambian Coat of Arms" width="40" height="40">
+    </div>
+    <div class="logo-text">
+      <h2>Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</h2>
+      <p>Automated Registry Management System (ARMS) &nbsp;·&nbsp; Land Verify ZM</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="user-avatar" id="nav-avatar-initials" aria-label="Current user"></div>
+    <div style="text-align:left;">
+      <div class="top-user-name" id="nav-name">Loading profile...</div>
+      <div class="top-user-role" id="nav-role">Landowner</div>
+    </div>
+    <button type="button" class="btn-signout" onclick="doLogout(event)"><i class="bi bi-box-arrow-right"></i>Sign Out</button>
+  </div>
+</div>
+
+<!-- ── LAYOUT ── -->
+<div class="dashboard-container">
+  <aside class="sidebar">
+    <div class="sidebar-section-title">Navigation</div>
+    <a href="my-parcels.html" class="sidebar-link"><i class="bi bi-grid-1x2"></i> My Parcels</a>
+    <a href="notifications.html" class="sidebar-link"><i class="bi bi-bell"></i> Notifications</a>
+    <a href="parcels-list.html" class="sidebar-link"><i class="bi bi-map"></i> All Parcels</a>
+    <a href="transfer.html" class="sidebar-link active"><i class="bi bi-arrow-left-right"></i> Initiate Transfer</a>
+    <a href="transfer-requests.html" class="sidebar-link"><i class="bi bi-clock-history"></i> My Transfer Requests</a>
+    <a href="title-deeds.html" class="sidebar-link"><i class="bi bi-file-earmark-text"></i> Title Deeds</a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Account</div>
+    <a href="profile.html" class="sidebar-link"><i class="bi bi-person-gear"></i> Manage Profile</a>
+    <a href="#" class="sidebar-link"><i class="bi bi-shield-lock"></i> Security</a>
+    <a href="../../index.html" class="sidebar-link"><i class="bi bi-search"></i> Verify a Parcel</a>
+  </aside>
+
+  <main class="main-content">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title"><i class="bi bi-arrow-left-right" style="color:var(--gold);"></i>Initiate Ownership Transfer</h1>
+      </div>
+      <a href="my-parcels.html" class="back-btn"><i class="bi bi-arrow-left"></i>Back to My Parcels</a>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <h6><i class="bi bi-file-earmark-arrow-up"></i>Transfer Request Form</h6>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn-outline-custom" onclick="window.location.href='my-parcels.html'"><i class="bi bi-map"></i>My Parcels</button>
+          <button type="button" class="btn-outline-custom" onclick="window.location.href='title-deeds.html'"><i class="bi bi-file-earmark-text"></i>Title Deeds</button>
+        </div>
+      </div>
+
+      <div class="table-body">
+
+      <div id="msg"></div>
+
+      <form class="row g-3">
+
+        <!-- STEP 1 — PARCEL -->
+        <div class="col-12 form-section">
+          <div class="form-section-title"><span class="step-num">1</span>Parcel Being Transferred</div>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label form-label-custom" for="parcelId">Parcel</label>
+              <select class="form-select form-control-custom" id="parcelId">
+                <option value="">Loading your parcels…</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2 — ACCOUNT VERIFICATION -->
+        <div class="col-12 form-section">
+          <div class="form-section-title"><span class="step-num">2</span>Buyer Account Verification</div>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label form-label-custom">Does the buyer already have a registered account?</label>
+              <div class="d-flex gap-3" style="margin-top: 12px; flex-wrap: wrap;">
+                <button type="button" class="btn-primary-custom" onclick="selectBuyerAccountOption(true)" id="btn-existing-account">
+                  <i class="bi bi-check-circle"></i> Yes – Existing Account
+                </button>
+                <button type="button" class="btn-secondary-custom" onclick="selectBuyerAccountOption(false)" id="btn-new-account">
+                  <i class="bi bi-plus-circle"></i> No – New Owner (Not Registered)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2A — SEARCH EXISTING BUYER -->
+        <div class="col-12 form-section" id="existing-buyer-section" style="display: none;">
+          <div class="form-section-title"><span class="step-num">2A</span>Search for Existing Buyer</div>
+          <div class="row g-3">
+            <div class="col-12">
+              <p class="text-muted-small" style="margin-bottom: 12px;">Search for the buyer using their NRC or email address:</p>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label form-label-custom" for="searchBuyerNrc">Buyer NRC Number</label>
+              <input class="form-control form-control-custom" type="text" id="searchBuyerNrc" placeholder="e.g. 123456/78/1">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label form-label-custom" for="searchBuyerEmail">OR Buyer Email</label>
+              <input class="form-control form-control-custom" type="email" id="searchBuyerEmail" placeholder="e.g. beatrice.tembo@example.com">
+            </div>
+            <div class="col-12">
+              <button type="button" class="btn-primary-custom" onclick="searchExistingBuyer()">
+                <i class="bi bi-search"></i> Search for Buyer
+              </button>
+            </div>
+            <div class="col-12" id="search-results" style="display: none;">
+              <div class="alert-custom alert-info show">
+                <strong>Search Results:</strong>
+                <div id="buyer-results-list" style="margin-top: 12px;"></div>
+              </div>
+            </div>
+            <div class="col-12" id="selected-buyer-info" style="display: none;">
+              <div class="alert-custom alert-success show" style="padding: 16px;">
+                <strong>Selected Buyer:</strong>
+                <div style="margin-top: 8px;">
+                  <div><strong>Name:</strong> <span id="selected-buyer-name"></span></div>
+                  <div><strong>Email:</strong> <span id="selected-buyer-email"></span></div>
+                  <div><strong>NRC:</strong> <span id="selected-buyer-nrc"></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2B — NEW BUYER REGISTRATION -->
+        <div class="col-12 form-section" id="new-buyer-section" style="display: none;">
+          <div class="form-section-title"><span class="step-num">2B</span>New Buyer Registration</div>
+          <p class="text-muted-small" style="margin-bottom: 16px;">The buyer's account will be created automatically once the transfer is approved.</p>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label form-label-custom" for="buyerName">Buyer Full Name</label>
+              <input class="form-control form-control-custom" type="text" id="buyerName" placeholder="e.g. Beatrice Tembo">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label form-label-custom" for="buyerIdType">Buyer ID Type</label>
+              <input class="form-control form-control-custom" type="text" id="buyerIdType" placeholder="e.g. NRC, Passport">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label form-label-custom" for="buyerNrc">Buyer NRC Number</label>
+              <input class="form-control form-control-custom" type="text" id="buyerNrc" placeholder="e.g. 123456/78/1">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label form-label-custom" for="buyerPhone">Buyer Phone</label>
+              <input class="form-control form-control-custom" type="text" id="buyerPhone" placeholder="+260 9X XXX XXXX">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label form-label-custom" for="buyerEmail">Buyer Email</label>
+              <input class="form-control form-control-custom" type="email" id="buyerEmail" placeholder="e.g. beatrice.tembo@example.com">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label form-label-custom" for="buyerNationality">Buyer Nationality</label>
+              <input class="form-control form-control-custom" type="text" id="buyerNationality" placeholder="e.g. Zambian">
+            </div>
+            <div class="col-12">
+              <label class="form-label form-label-custom" for="buyerAddress">Buyer Address</label>
+              <input class="form-control form-control-custom" type="text" id="buyerAddress" placeholder="e.g. 12 Freedom Road, Lusaka">
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 3 — TRANSFER TERMS -->
+        <div class="col-12 form-section">
+          <div class="form-section-title"><span class="step-num">3</span>Transfer Terms &amp; Documents</div>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label form-label-custom" for="transferDate">Transfer Date</label>
+              <input class="form-control form-control-custom" type="date" id="transferDate">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label form-label-custom" for="agreedPrice">Agreed Price (ZMW)</label>
+              <input class="form-control form-control-custom" type="number" id="agreedPrice" placeholder="e.g. 150000">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label form-label-custom" for="transferReason">Transfer Reason</label>
+              <input class="form-control form-control-custom" type="text" id="transferReason" placeholder="e.g. Sale of property">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label form-label-custom" for="paymentTerms">Payment Terms</label>
+              <input class="form-control form-control-custom" type="text" id="paymentTerms" placeholder="e.g. 50% upfront, balance on completion">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label form-label-custom" for="supportingDocsBtn">Supporting Documents</label>
+              <div class="d-flex gap-2 align-items-center flex-wrap">
+                <button type="button" class="btn-outline-custom" id="supportingDocsBtn" onclick="document.getElementById('supportingDocsFile').click()">
+                  <i class="bi bi-paperclip"></i> Choose Files
+                </button>
+                <span class="text-muted-small" id="supportingDocsSummary">No files selected</span>
+              </div>
+              <input type="file" id="supportingDocsFile" multiple style="display:none;" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
+              <input type="hidden" id="supportingDocs">
+              <div class="doc-upload-list" id="supportingDocsList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 4 — SIGNATURES -->
+        <div class="col-12 form-section">
+          <div class="form-section-title"><span class="step-num">4</span>Signatures</div>
+          <div class="signature-block">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div>
+                  <label class="form-label form-label-custom">Seller Live Photograph *</label>
+                  <video id="sellerPhotoVideo" class="d-none" autoplay playsinline style="width:100%;max-width:260px;height:170px;object-fit:cover;border:1px solid var(--border-mid);border-radius:var(--radius)"></video>
+                  <div id="sellerPhotoPreview" class="text-muted-small" style="width:100%;max-width:260px;height:170px;display:flex;align-items:center;justify-content:center;border:1px dashed var(--border-mid);border-radius:var(--radius)">No seller photo captured</div>
+                  <canvas id="sellerPhotoCanvas" class="d-none"></canvas>
+                  <div class="d-flex gap-2 mt-2 flex-wrap">
+                    <button type="button" class="btn-outline-custom" onclick="openTransferCamera('seller')"><i class="bi bi-camera-video"></i> Open camera</button>
+                    <button type="button" class="btn-outline-custom d-none" id="sellerPhotoCaptureBtn" onclick="captureTransferPhoto('seller')"><i class="bi bi-camera-fill"></i> Capture</button>
+                  </div>
+                  <input type="file" id="sellerPhotoInput" accept="image/*" capture="user" class="d-none">
+                </div>
+                <div class="mt-3">
+                  <label class="form-label form-label-custom">Landowner Signature</label>
+                  <div class="d-flex gap-2 align-items-center flex-wrap">
+                    <input class="form-control form-control-custom" type="text" id="signature" placeholder="Click to capture digital signature" readonly style="flex:1; min-width:120px;">
+                    <button type="button" class="btn-outline-custom" onclick="signWithMetaMask()">Sign & Submit</button>
+                    <button type="button" class="btn-outline-custom" onclick="openOwnerSignaturePad()">Draw</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label form-label-custom">Buyer Signature</label>
+                <div class="d-flex gap-2 align-items-center flex-wrap">
+                  <input class="form-control form-control-custom" type="text" id="buyerSignature" placeholder="Click a button to capture buyer signature" readonly style="flex:1; min-width:120px;">
+                  <input type="hidden" id="buyerSignatureData">
+                  <button type="button" class="btn-outline-custom" onclick="signBuyerWithMetaMask()">System Sign</button>
+                  <button type="button" class="btn-outline-custom" onclick="openBuyerSignaturePad()">Draw</button>
+                </div>
+                <div id="buyerSignatureSource" class="text-muted-small mt-2" style="display:none;">Buyer signed with drawing pad.</div>
+                <div class="mt-3">
+                  <label class="form-label form-label-custom">Buyer Live Photograph *</label>
+                  <video id="buyerPhotoVideo" class="d-none" autoplay playsinline style="width:100%;max-width:260px;height:170px;object-fit:cover;border:1px solid var(--border-mid);border-radius:var(--radius)"></video>
+                  <div id="buyerPhotoPreview" class="text-muted-small" style="width:100%;max-width:260px;height:170px;display:flex;align-items:center;justify-content:center;border:1px dashed var(--border-mid);border-radius:var(--radius)">No buyer photo captured</div>
+                  <canvas id="buyerPhotoCanvas" class="d-none"></canvas>
+                  <div class="d-flex gap-2 mt-2 flex-wrap">
+                    <button type="button" class="btn-outline-custom" onclick="openTransferCamera('buyer')"><i class="bi bi-camera-video"></i> Open camera</button>
+                    <button type="button" class="btn-outline-custom d-none" id="buyerPhotoCaptureBtn" onclick="captureTransferPhoto('buyer')"><i class="bi bi-camera-fill"></i> Capture</button>
+                  </div>
+                  <input type="file" id="buyerPhotoInput" accept="image/*" capture="user" class="d-none">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 d-flex justify-content-end gap-2">
+          <button type="button" class="btn-secondary-custom" onclick="window.location.href='my-parcels.html'">Cancel</button>
+          <button type="button" class="btn-primary-custom" id="submitBtn" onclick="submitTransfer()">Submit Transfer Request</button>
+        </div>
+      </form>
+      </div>
+    </div>
+
+    <div id="buyerSignatureModal" class="signature-modal" style="display:none;">
+      <div class="signature-modal-content">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="mb-0">Buyer Signature Pad</h5>
+          <button class="btn-outline-custom" onclick="closeBuyerSignaturePad()">Close</button>
+        </div>
+        <p class="text-muted-small mb-3">Draw the buyer's signature using your mouse or touch device, then click Save.</p>
+        <canvas id="buyerSignatureCanvas" width="720" height="240"></canvas>
+        <div class="mt-3 d-flex gap-2">
+          <button type="button" class="btn-outline-custom" onclick="clearBuyerSignatureCanvas()">Clear</button>
+          <button type="button" class="btn-primary-custom" onclick="saveBuyerSignature()">Save Signature</button>
+        </div>
+      </div>
+    </div>
+    <div id="ownerSignatureModal" class="signature-modal" style="display:none;">
+      <div class="signature-modal-content">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="mb-0">Landowner Signature Pad</h5>
+          <button class="btn-outline-custom" onclick="closeOwnerSignaturePad()">Close</button>
+        </div>
+        <p class="text-muted-small mb-3">Draw the landowner's signature using your mouse or touch device, then click Save.</p>
+        <canvas id="ownerSignatureCanvas" width="720" height="240"></canvas>
+        <div class="mt-3 d-flex gap-2">
+          <button type="button" class="btn-outline-custom" onclick="clearOwnerSignatureCanvas()">Clear</button>
+          <button type="button" class="btn-primary-custom" onclick="saveOwnerSignature()">Save Signature</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <span>© 2026 Republic of Zambia · Ministry of Lands &amp; Natural Resources · All rights reserved</span>
+  <div class="footer-session">
+    <div class="session-dot"></div>
+    <span>ARMS v2.4.1 · Session active</span>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+  import { api } from '/js/api.js';
+  import { requireLogin, populateNavbar, logout, showLogoutConfirmation } from '/js/auth.js';
+  import { generateSystemSignature, signTransferMessage } from '/js/web3.js';
+
+  window.doLogout = function(e) {
+    e?.preventDefault?.();
+    if (typeof showLogoutConfirmation === 'function') {
+      showLogoutConfirmation(logout);
+    } else {
+      logout();
+    }
+  };
+
+  window.showToast = function(msg, type = 'info') {
+    const icons = { success:'bi-check-circle-fill', error:'bi-x-circle-fill', info:'bi-info-circle-fill' };
+    const toast = document.createElement('div');
+    toast.className = `toast-item ${type}`;
+    toast.innerHTML = `<i class="bi ${icons[type] || icons.info}" style="font-size:1.1rem;flex-shrink:0"></i><span>${msg}</span>`;
+    const stack = document.getElementById('toastStack');
+    stack.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .3s'; setTimeout(() => toast.remove(), 300); }, 3500);
+  };
+
+  function showMsg(text, type) {
+    const msgBox = document.getElementById('msg');
+    msgBox.innerHTML = `<div class="alert-custom alert-${type} show">${text}</div>`;
+  }
+
+  requireLogin();
+  populateNavbar();
+
+  async function loadParcels() {
+    try {
+      const res = await api.myParcels();
+      const sel = document.getElementById('parcelId');
+      const allParcels = res.data || [];
+      const activeParcels = allParcels.filter(p => p.status === 'ACTIVE');
+      sel.innerHTML = '<option value="">Select a parcel…</option>' +
+        activeParcels.map(p =>
+          `<option value="${p.parcelId}">${p.parcelNumber} — ${p.district}</option>`
+        ).join('');
+      if (activeParcels.length === 0) {
+        showMsg('No active parcels found. Create or activate parcels in your dashboard.', 'warning');
+      }
+    } catch (e) {
+      console.error('Failed to load parcels:', e);
+      showMsg('Failed to load your parcels: ' + e.message, 'danger');
+    }
+  }
+
+  // ===== ACCOUNT VERIFICATION STATE =====
+  let buyerHasExistingAccount = null;
+  let selectedExistingBuyer = null;
+
+  // ===== SUPPORTING DOCUMENTS =====
+  let selectedSupportingFiles = [];
+  const transferPhotos = { seller: null, buyer: null };
+  const transferPhotoStreams = { seller: null, buyer: null };
+
+  function setTransferPhoto(subject, file) {
+    if (!file || !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) {
+      showMsg(`Choose a ${subject} image no larger than 10 MB.`, 'danger');
+      return false;
+    }
+    transferPhotos[subject] = file;
+    const preview = document.getElementById(`${subject}PhotoPreview`);
+    preview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="${subject} live photograph" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius)">`;
+    return true;
+  }
+
+  window.openTransferCamera = async function(subject) {
+    try {
+      transferPhotoStreams[subject] = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+      const video = document.getElementById(`${subject}PhotoVideo`);
+      video.srcObject = transferPhotoStreams[subject];
+      video.classList.remove('d-none');
+      document.getElementById(`${subject}PhotoCaptureBtn`).classList.remove('d-none');
+    } catch (error) {
+      showMsg(`Camera access for the ${subject} photo was unavailable. Please allow camera access and try again.`, 'warning');
+    }
+  };
+
+  window.captureTransferPhoto = function(subject) {
+    const video = document.getElementById(`${subject}PhotoVideo`);
+    const canvas = document.getElementById(`${subject}PhotoCanvas`);
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(blob => {
+      setTransferPhoto(subject, new File([blob], `${subject}-photo-${Date.now()}.jpg`, { type: 'image/jpeg' }));
+      transferPhotoStreams[subject]?.getTracks().forEach(track => track.stop());
+      transferPhotoStreams[subject] = null;
+      video.classList.add('d-none');
+      document.getElementById(`${subject}PhotoCaptureBtn`).classList.add('d-none');
+    }, 'image/jpeg', 0.9);
+  };
+
+  ['seller', 'buyer'].forEach(subject => {
+    document.getElementById(`${subject}PhotoInput`).addEventListener('change', event => {
+      setTransferPhoto(subject, event.target.files?.[0]);
+      event.target.value = '';
+    });
+  });
+
+  function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function renderSupportingDocsList() {
+    const listEl = document.getElementById('supportingDocsList');
+    const summaryEl = document.getElementById('supportingDocsSummary');
+    const hiddenEl = document.getElementById('supportingDocs');
+
+    if (selectedSupportingFiles.length === 0) {
+      listEl.innerHTML = '';
+      summaryEl.textContent = 'No files selected';
+      hiddenEl.value = '';
+      return;
+    }
+
+    summaryEl.textContent = `${selectedSupportingFiles.length} file${selectedSupportingFiles.length > 1 ? 's' : ''} selected`;
+    hiddenEl.value = selectedSupportingFiles.map(f => f.name).join(', ');
+
+    listEl.innerHTML = selectedSupportingFiles.map((f, idx) => `
+      <div class="doc-upload-item">
+        <span class="doc-name"><i class="bi bi-file-earmark-text"></i> ${f.name} <span style="color:var(--text-muted)">(${formatFileSize(f.size)})</span></span>
+        <button type="button" class="doc-remove" onclick="removeSupportingDoc(${idx})" title="Remove"><i class="bi bi-x-lg"></i></button>
+      </div>
+    `).join('');
+  }
+
+  window.removeSupportingDoc = function(idx) {
+    selectedSupportingFiles.splice(idx, 1);
+    renderSupportingDocsList();
+  };
+
+  document.getElementById('supportingDocsFile').addEventListener('change', (e) => {
+    const newFiles = Array.from(e.target.files || []);
+    newFiles.forEach(nf => {
+      const exists = selectedSupportingFiles.some(f => f.name === nf.name && f.size === nf.size);
+      if (!exists) selectedSupportingFiles.push(nf);
+    });
+    renderSupportingDocsList();
+    e.target.value = '';
+  });
+
+  async function captureDigitalSignature({ actorName, targetField, subject, details }) {
+    const parcelSelect = document.getElementById('parcelId');
+    const buyerNrc = document.getElementById('buyerNrc').value.trim()
+                    || (selectedExistingBuyer ? (selectedExistingBuyer.nrc || '') : '');
+
+    if (!parcelSelect.value) {
+      showMsg('Select a parcel first.', 'danger');
+      return;
+    }
+    if (!buyerNrc) {
+      showMsg('Select or enter the buyer NRC information first.', 'danger');
+      return;
+    }
+
+    try {
+      const parcelText = parcelSelect.options[parcelSelect.selectedIndex].text;
+      const sigResult = await generateSystemSignature({
+        actorName,
+        action: 'TRANSFER_APPROVAL',
+        subject,
+        parcelText,
+        details,
+        buyerNrc,
+        signedAt: new Date().toISOString()
+      });
+
+      const signature = sigResult.value;
+      document.getElementById(targetField).value = signature;
+      if (targetField === 'buyerSignature') {
+        document.getElementById('buyerSignatureData').value = signature;
+      }
+      showMsg(`${actorName} signature captured successfully.`, 'success');
+    } catch (e) {
+      console.error('System signing error:', e);
+      showMsg('System signing failed: ' + e.message, 'danger');
+    }
+  }
+
+  window.captureOwnerSignature = function() {
+    return captureDigitalSignature({
+      actorName: 'Landowner',
+      targetField: 'signature',
+      subject: 'owner-transfer-approval',
+      details: 'Owner approval for transfer request'
+    });
+  };
+
+  window.signWithMetaMask = window.captureOwnerSignature;
+
+  window.captureBuyerSignature = function() {
+    return captureDigitalSignature({
+      actorName: 'Buyer',
+      targetField: 'buyerSignature',
+      subject: 'buyer-transfer-approval',
+      details: 'Buyer approval for transfer request'
+    });
+  };
+
+  window.signBuyerWithMetaMask = window.captureBuyerSignature;
+
+  let ownerSignatureCanvas, ownerSignatureCtx, ownerDrawing = false, ownerLastPos = null;
+
+  function initOwnerSignaturePad() {
+    ownerSignatureCanvas = document.getElementById('ownerSignatureCanvas');
+    if (!ownerSignatureCanvas) return;
+    ownerSignatureCtx = ownerSignatureCanvas.getContext('2d');
+    ownerSignatureCtx.lineWidth = 2.5;
+    ownerSignatureCtx.lineCap = 'round';
+    ownerSignatureCtx.strokeStyle = '#0e2240';
+
+    const getPointerPos = event => {
+      const rect = ownerSignatureCanvas.getBoundingClientRect();
+      const point = event.touches ? event.touches[0] : event;
+      return {
+        x: (point.clientX - rect.left) * ownerSignatureCanvas.width / rect.width,
+        y: (point.clientY - rect.top) * ownerSignatureCanvas.height / rect.height
+      };
+    };
+    const startDraw = event => {
+      event.preventDefault();
+      ownerDrawing = true;
+      ownerLastPos = getPointerPos(event);
+    };
+    const draw = event => {
+      if (!ownerDrawing) return;
+      event.preventDefault();
+      const position = getPointerPos(event);
+      ownerSignatureCtx.beginPath();
+      ownerSignatureCtx.moveTo(ownerLastPos.x, ownerLastPos.y);
+      ownerSignatureCtx.lineTo(position.x, position.y);
+      ownerSignatureCtx.stroke();
+      ownerLastPos = position;
+    };
+    const endDraw = () => { ownerDrawing = false; };
+    ownerSignatureCanvas.addEventListener('mousedown', startDraw);
+    ownerSignatureCanvas.addEventListener('touchstart', startDraw, { passive: false });
+    ownerSignatureCanvas.addEventListener('mousemove', draw);
+    ownerSignatureCanvas.addEventListener('touchmove', draw, { passive: false });
+    window.addEventListener('mouseup', endDraw);
+    window.addEventListener('touchend', endDraw);
+  }
+
+  function openOwnerSignaturePad() {
+    document.getElementById('ownerSignatureModal').style.display = 'flex';
+    if (!ownerSignatureCanvas) initOwnerSignaturePad();
+    clearOwnerSignatureCanvas();
+  }
+
+  function closeOwnerSignaturePad() {
+    document.getElementById('ownerSignatureModal').style.display = 'none';
+  }
+
+  function clearOwnerSignatureCanvas() {
+    if (!ownerSignatureCtx) return;
+    ownerSignatureCtx.clearRect(0, 0, ownerSignatureCanvas.width, ownerSignatureCanvas.height);
+  }
+
+  function saveOwnerSignature() {
+    if (!ownerSignatureCanvas || !ownerSignatureCtx) return;
+    const dataUrl = ownerSignatureCanvas.toDataURL('image/png');
+    const pixels = ownerSignatureCtx.getImageData(0, 0, ownerSignatureCanvas.width, ownerSignatureCanvas.height).data;
+    const hasInk = Array.from(pixels).some((value, index) => index % 4 === 3 && value > 0);
+    if (!hasInk) {
+      showMsg('Please draw the landowner signature before saving.', 'danger');
+      return;
+    }
+    document.getElementById('signature').value = dataUrl;
+    closeOwnerSignaturePad();
+    showMsg('Landowner signature saved successfully.', 'success');
+  }
+
+  window.openOwnerSignaturePad = openOwnerSignaturePad;
+  window.closeOwnerSignaturePad = closeOwnerSignaturePad;
+  window.clearOwnerSignatureCanvas = clearOwnerSignatureCanvas;
+  window.saveOwnerSignature = saveOwnerSignature;
+
+  let buyerSignatureCanvas, buyerSignatureCtx, drawing = false, lastPos = null;
+
+  function initBuyerSignaturePad() {
+    buyerSignatureCanvas = document.getElementById('buyerSignatureCanvas');
+    if (!buyerSignatureCanvas) return;
+    buyerSignatureCtx = buyerSignatureCanvas.getContext('2d');
+    buyerSignatureCtx.lineWidth = 2.5;
+    buyerSignatureCtx.lineCap = 'round';
+    buyerSignatureCtx.strokeStyle = '#0e2240';
+
+    function getPointerPos(evt) {
+      const rect = buyerSignatureCanvas.getBoundingClientRect();
+      const point = evt.touches ? evt.touches[0] : evt;
+      return {
+        x: (point.clientX - rect.left) * buyerSignatureCanvas.width / rect.width,
+        y: (point.clientY - rect.top) * buyerSignatureCanvas.height / rect.height
+      };
+    }
+
+    function startDraw(evt) {
+      evt.preventDefault();
+      drawing = true;
+      lastPos = getPointerPos(evt);
+    }
+
+    function draw(evt) {
+      if (!drawing) return;
+      evt.preventDefault();
+      const pos = getPointerPos(evt);
+      buyerSignatureCtx.beginPath();
+      buyerSignatureCtx.moveTo(lastPos.x, lastPos.y);
+      buyerSignatureCtx.lineTo(pos.x, pos.y);
+      buyerSignatureCtx.stroke();
+      lastPos = pos;
+    }
+
+    function endDraw(evt) {
+      if (!drawing) return;
+      evt.preventDefault();
+      drawing = false;
+    }
+
+    buyerSignatureCanvas.addEventListener('mousedown', startDraw);
+    buyerSignatureCanvas.addEventListener('touchstart', startDraw);
+    buyerSignatureCanvas.addEventListener('mousemove', draw);
+    buyerSignatureCanvas.addEventListener('touchmove', draw);
+    window.addEventListener('mouseup', endDraw);
+    window.addEventListener('touchend', endDraw);
+  }
+
+  function openBuyerSignaturePad() {
+    document.getElementById('buyerSignatureModal').style.display = 'flex';
+    if (!buyerSignatureCanvas) initBuyerSignaturePad();
+    const dataUrl = document.getElementById('buyerSignatureData').value;
+    if (dataUrl) {
+      const img = new Image();
+      img.onload = () => buyerSignatureCtx.drawImage(img, 0, 0, buyerSignatureCanvas.width, buyerSignatureCanvas.height);
+      img.src = dataUrl;
+    } else {
+      clearBuyerSignatureCanvas();
+    }
+  }
+
+  function closeBuyerSignaturePad() {
+    document.getElementById('buyerSignatureModal').style.display = 'none';
+  }
+
+  function clearBuyerSignatureCanvas() {
+    if (!buyerSignatureCtx) return;
+    buyerSignatureCtx.clearRect(0, 0, buyerSignatureCanvas.width, buyerSignatureCanvas.height);
+  }
+
+  function saveBuyerSignature() {
+    if (!buyerSignatureCanvas || !buyerSignatureCtx) return;
+    const pixels = buyerSignatureCtx.getImageData(0, 0, buyerSignatureCanvas.width, buyerSignatureCanvas.height).data;
+    const hasInk = Array.from(pixels).some((value, index) => index % 4 === 3 && value > 0);
+    if (!hasInk) {
+      showMsg('Please draw the buyer signature before saving.', 'danger');
+      return;
+    }
+    const dataUrl = buyerSignatureCanvas.toDataURL('image/png');
+    document.getElementById('buyerSignature').value = 'Buyer signature captured';
+    document.getElementById('buyerSignatureData').value = dataUrl;
+    document.getElementById('buyerSignatureSource').style.display = 'block';
+    closeBuyerSignaturePad();
+    showMsg('Buyer signature saved successfully.', 'success');
+  }
+
+  window.openBuyerSignaturePad = openBuyerSignaturePad;
+  window.closeBuyerSignaturePad = closeBuyerSignaturePad;
+  window.clearBuyerSignatureCanvas = clearBuyerSignatureCanvas;
+  window.saveBuyerSignature = saveBuyerSignature;
+
+  // ===== ACCOUNT VERIFICATION FUNCTIONS =====
+
+  window.selectBuyerAccountOption = function(hasExisting) {
+    buyerHasExistingAccount = hasExisting;
+    document.getElementById('existing-buyer-section').style.display = hasExisting ? 'block' : 'none';
+    document.getElementById('new-buyer-section').style.display = hasExisting ? 'none' : 'block';
+
+    document.getElementById('search-results').style.display = 'none';
+    document.getElementById('selected-buyer-info').style.display = 'none';
+    selectedExistingBuyer = null;
+
+    document.getElementById('btn-existing-account').className = hasExisting ? 'btn-primary-custom' : 'btn-secondary-custom';
+    document.getElementById('btn-new-account').className = !hasExisting ? 'btn-primary-custom' : 'btn-secondary-custom';
+
+    showMsg(hasExisting ? 'Search for the existing buyer account.' : 'Fill in the new buyer details.', 'info');
+  };
+
+  window.searchExistingBuyer = async function() {
+    const nrc = document.getElementById('searchBuyerNrc').value.trim();
+    const email = document.getElementById('searchBuyerEmail').value.trim();
+
+    if (!nrc && !email) {
+      showMsg('Please enter either NRC or email to search.', 'danger');
+      showToast('Please enter either NRC or email to search.', 'error');
+      return;
+    }
+
+    try {
+      const searchPayload = {};
+      if (nrc) searchPayload.nrc = nrc;
+      if (email) searchPayload.email = email;
+
+      const res = await fetch('/api/landowner/transfer/search-buyer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('lv_token')}` },
+        body: JSON.stringify(searchPayload)
+      });
+
+      if (!res.ok) {
+        showMsg('Search failed. Please try again.', 'danger');
+        showToast('Search failed. Please try again.', 'error');
+        return;
+      }
+
+      const json = await res.json();
+      const buyers = json.data || [];
+
+      if (buyers.length === 0) {
+        const notFoundMsg = 'Buyer does not exist or the details are incorrect. Please try again by entering the correct details.';
+        showMsg(notFoundMsg, 'warning');
+        showToast(notFoundMsg, 'error');
+        document.getElementById('search-results').style.display = 'none';
+        return;
+      }
+
+      const resultsList = document.getElementById('buyer-results-list');
+      resultsList.innerHTML = buyers.map((buyer, idx) => `
+        <div class="buyer-result-item">
+          <div class="name">${buyer.fullName}</div>
+          <div class="meta">Email: ${buyer.email}</div>
+          <div class="meta">NRC: ${buyer.nationalId || 'N/A'}</div>
+          <button type="button" class="btn-primary-custom" style="margin-top: 8px; height:30px; padding:0 12px; font-size: 11px;"
+                  onclick="selectBuyerFromSearch(${buyer.userId}, '${buyer.fullName}', '${buyer.email}', '${buyer.nationalId}')">
+            Select This Buyer
+          </button>
+        </div>
+      `).join('');
+
+      document.getElementById('search-results').style.display = 'block';
+    } catch (e) {
+      showMsg('Search error: ' + e.message, 'danger');
+      showToast('Search error: ' + e.message, 'error');
+    }
+  };
+
+  window.selectBuyerFromSearch = function(userId, fullName, email, nrc) {
+    selectedExistingBuyer = { userId, fullName, email, nrc };
+    document.getElementById('selected-buyer-name').textContent = fullName;
+    document.getElementById('selected-buyer-email').textContent = email;
+    document.getElementById('selected-buyer-nrc').textContent = nrc || 'N/A';
+    document.getElementById('selected-buyer-info').style.display = 'block';
+    document.getElementById('search-results').style.display = 'none';
+    showMsg('Buyer account selected. You can now proceed to fill transfer details.', 'success');
+  };
+
+  window.submitTransfer = async function() {
+    if (buyerHasExistingAccount === null) {
+      showMsg('Please select whether the buyer has an existing account.', 'danger');
+      return;
+    }
+
+    const parcelId = document.getElementById('parcelId').value;
+    const buyerNrc = document.getElementById('buyerNrc').value.trim();
+    const buyerName = document.getElementById('buyerName').value.trim();
+    const buyerIdType = document.getElementById('buyerIdType').value.trim();
+    const buyerPhone = document.getElementById('buyerPhone').value.trim();
+    const buyerEmail = document.getElementById('buyerEmail').value.trim();
+    const buyerAddress = document.getElementById('buyerAddress').value.trim();
+    const buyerNationality = document.getElementById('buyerNationality').value.trim();
+    const transferDate = document.getElementById('transferDate').value;
+    const paymentTerms = document.getElementById('paymentTerms').value.trim();
+    const transferReason = document.getElementById('transferReason').value.trim();
+    const agreedPrice = document.getElementById('agreedPrice').value;
+    const supportingDocs = document.getElementById('supportingDocs').value.trim();
+    const signature = document.getElementById('signature').value;
+    const buyerSignature = document.getElementById('buyerSignature').value;
+
+    const buyerSignatureData = document.getElementById('buyerSignatureData')?.value || buyerSignature;
+
+    if (buyerHasExistingAccount && !selectedExistingBuyer) {
+      showMsg('Please search and select an existing buyer account.', 'danger');
+      return;
+    }
+
+    if (!parcelId || !transferDate || !agreedPrice || !signature || !buyerSignature
+        || !transferPhotos.seller || !transferPhotos.buyer) {
+      showMsg('Please complete the transfer, capture both signatures, and capture both live photographs.', 'danger');
+      return;
+    }
+
+    const finalBuyerNrc = buyerHasExistingAccount ? selectedExistingBuyer.nrc : buyerNrc;
+    const finalBuyerName = buyerHasExistingAccount ? selectedExistingBuyer.fullName : buyerName;
+    const finalBuyerEmail = buyerHasExistingAccount ? selectedExistingBuyer.email : buyerEmail;
+    const finalBuyerPhone = buyerHasExistingAccount ? '' : buyerPhone;
+    const finalBuyerAddress = buyerHasExistingAccount ? '' : buyerAddress;
+    const finalBuyerNationality = buyerHasExistingAccount ? '' : buyerNationality;
+    const finalBuyerIdType = buyerHasExistingAccount ? '' : buyerIdType;
+
+    if (!finalBuyerNrc || !finalBuyerName || !finalBuyerEmail) {
+      showMsg('Missing required buyer information.', 'danger');
+      return;
+    }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-small"></span>Submitting…';
+
+    try {
+      const payload = {
+        parcelId: parseInt(parcelId, 10),
+        buyerHasExistingAccount: buyerHasExistingAccount,
+        existingBuyerUserId: buyerHasExistingAccount ? selectedExistingBuyer.userId : null,
+        buyerNid: finalBuyerNrc,
+        buyerName: finalBuyerName,
+        buyerIdType: finalBuyerIdType,
+        buyerPhone: finalBuyerPhone,
+        buyerEmail: finalBuyerEmail,
+        buyerAddress: finalBuyerAddress,
+        buyerNationality: finalBuyerNationality,
+        transferDate,
+        paymentTerms,
+        transferReason,
+        agreedPriceZmw: agreedPrice ? Number(agreedPrice) : null,
+        supportingDocs,
+        ownerSignature: signature,
+        buyerSignature: buyerSignatureData
+      };
+
+      const res = await api.initiateTransfer(payload, selectedSupportingFiles, transferPhotos);
+      showMsg('Transfer request submitted successfully. Awaiting review.', 'success');
+
+      try {
+        await api.myTransfers();
+      } catch (e) {
+        console.warn('Warning: could not refresh transfers immediately', e);
+      }
+
+      setTimeout(() => window.location.href = 'my-parcels.html', 800);
+    } catch (e) {
+      showMsg(e.message || 'Submission failed.', 'danger');
+      btn.disabled = false;
+      btn.innerHTML = 'Submit Transfer Request';
+    }
+  };
+
+  loadParcels();
+</script>
+</body>
+</html>

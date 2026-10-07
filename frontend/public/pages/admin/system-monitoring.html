@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>System Monitoring — ARMS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<script type="module" src="/js/auth.js"></script>
+<style>
+  :root {
+    --navy: #0e2240;
+    --navy-dark: #081527;
+    --navy-mid: #1a3560;
+    --gold: #c8a040;
+    --gold-soft: #fdf6e3;
+    --gold-xlight: #fefbf3;
+    --bg-page: #faf7f2;
+    --stone: #f4f6fb;
+    --stone-deep: #e8edf6;
+    --surface: #ffffff;
+    --border: #e8e3d8;
+    --text-primary: #111827;
+    --text-secondary: #4b5568;
+    --text-muted: #8a94a6;
+    --ink-soft: #8a94a6;
+    --green: #2f7a55;
+    --green-bg: #e9f4ee;
+    --amber: #b07d1a;
+    --amber-bg: #fbf0da;
+    --red: #a83232;
+    --red-bg: #fbebeb;
+    --blue: #1a3560;
+    --blue-bg: #eaf0fb;
+    --radius: 4px;
+    --shadow: none;
+    --sidebar-w: 220px;
+    --header-h: 64px;
+    --shell: 1360px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 13.5px;
+    line-height: 1.5;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  .top-bar, .top-bar button, .sidebar, .sidebar a, .nav-group-label, .nav-link { font-family:'Inter', Arial, sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .top-bar {
+    background: var(--navy);
+    color: #fff;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    height: var(--header-h);
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    position: sticky;
+    top: 0;
+    z-index: 2000;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 24px;
+    min-width: 360px;
+    background: var(--navy);
+    height: 100%;
+  }
+
+  .emblem {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 2px solid var(--gold);
+    flex-shrink: 0;
+  }
+
+  .emblem img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 50%;
+  }
+
+  .brand-text .name {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #fff;
+  }
+
+  .brand-text .sub {
+    font-size: 10.5px;
+    color: rgba(255,255,255,0.62);
+    margin-top: 2px;
+  }
+
+  .top-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-right: 20px;
+  }
+
+  .top-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12.5px;
+    color: #fff;
+  }
+
+  .top-user .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--navy);
+    font-weight: 700;
+    font-size: 11px;
+  }
+
+  .btn-signout {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.28);
+    color: #fff;
+    padding: 6px 13px;
+    border-radius: 3px;
+    font: 500 12px 'Inter', Arial, sans-serif;
+    cursor: pointer;
+  }
+  .btn-signout:hover { background: rgba(255,255,255,.1); }
+
+  .layout {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 18px 0 12px;
+    flex-shrink: 0;
+    height: calc(100vh - var(--header-h));
+    overflow-y: auto;
+    position: sticky;
+    top: var(--header-h);
+    z-index: 1500;
+  }
+
+  .nav-group-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    font-weight: 700;
+    padding: 14px 16px 5px;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 16px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 13px;
+    border-left: 3px solid transparent;
+    margin: 0;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    background: var(--gold-xlight);
+    color: var(--navy);
+  }
+
+  .nav-link.active {
+    border-left-color: var(--gold);
+    font-weight: 600;
+    background: #f4f0e7;
+  }
+
+  .nav-icon {
+    width: 16px;
+    text-align: center;
+    font-size: 13.5px;
+    opacity: .7;
+  }
+
+  .main {
+    flex: 1;
+    padding: 28px 32px 60px;
+    background: var(--bg-page);
+    overflow-y: auto;
+    max-width: none;
+  }
+
+  .shell { max-width: var(--shell); margin: 0 auto; }
+
+  .page-header { margin-bottom: 20px; }
+  .page-header h1 {
+    margin: 0 0 4px;
+    font-size: 25px;
+    color: var(--navy);
+    font-weight: 600;
+    letter-spacing: -.015em;
+  }
+  .page-header p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  /* ---- status hero ---- */
+  .status-hero {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--green);
+    border-radius: var(--radius);
+    padding: 13px 18px;
+    margin-bottom: 20px;
+  }
+
+  .status-hero .pulse {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+  }
+
+  .status-hero .txt strong {
+    color: var(--green);
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .status-hero .txt div {
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    margin-top: 2px;
+  }
+
+  .status-hero .timestamp {
+    margin-left: auto;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+
+  /* ---- kpi row: stone band, not boxed cards ---- */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    background: var(--stone);
+    border-top: 2px solid var(--navy);
+    margin-bottom: 22px;
+  }
+
+  .kpi-card {
+    border-right: 1px solid var(--stone-deep);
+    padding: 15px 18px 14px;
+  }
+  .kpi-card:last-child { border-right: 0; }
+
+  .kpi-card-link {
+    color: inherit;
+    display: block;
+    text-decoration: none;
+  }
+  .kpi-card-link:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+  }
+
+  .kpi-top { display: none; }
+  .kpi-icon { display: none; }
+  .kpi-value {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--navy);
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.15;
+    letter-spacing: -.01em;
+    font-variant-numeric: tabular-nums;
+  }
+  #monitoringStatusValue { font-size: 20px; }
+  .kpi-label {
+    margin-top: 6px;
+    color: #4a4740;
+    opacity: .8;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+
+  /* ---- two-column panel grid ---- */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+    align-items: stretch;
+  }
+  .grid-2.wide-first { grid-template-columns: 1.5fr 1fr; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .panel-header h2 {
+    margin: 0;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+
+  .panel-header .meta {
+    color: var(--text-muted);
+    font-size: 11.5px;
+  }
+
+  .panel-body { padding: 16px 18px; flex: 1; }
+  .panel-body.no-pad { padding: 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    text-align: left;
+    padding: 10px 18px;
+    color: #4a4740;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    background: var(--stone);
+    font-size: 11.5px;
+  }
+  tbody td {
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #fbf9f5; }
+
+  .st-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid transparent;
+  }
+  .st-success { background: var(--green-bg); color: var(--green); border-color: #bfe0cf; }
+  .st-warning { background: var(--amber-bg); color: var(--amber); border-color: #efd8a0; }
+  .st-error { background: var(--red-bg); color: var(--red); border-color: #f0c4c4; }
+  .st-info { background: var(--blue-bg); color: var(--navy); border-color: #b8cadf; }
+
+  .hash { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-secondary); }
+
+  .svc-list { list-style: none; margin: 0; padding: 0; }
+  .svc-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .svc-item:last-child { border-bottom: none; }
+  .svc-name { display: flex; align-items: center; gap: 10px; font-weight: 500; color: var(--navy); font-size: 13.5px; }
+  .svc-name::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex: 0 0 auto; }
+  .svc-desc { color: var(--text-muted); font-size: 12px; margin-left: 16px; margin-top: 1px; }
+
+  .alert-item { display: flex; align-items: flex-start; gap: 10px; }
+  .alert-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+
+  .btn.ghost.small {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--navy);
+    padding: 7px 14px;
+    border-radius: 3px;
+    font: 500 12.5px 'Inter', Arial, sans-serif;
+    cursor: pointer;
+  }
+  .btn.ghost.small:hover { border-color: var(--navy); }
+  .btn.ghost.small:disabled { cursor: default; }
+
+  @media (max-width: 1100px) {
+    .kpi-row { grid-template-columns: repeat(2, minmax(160px, 1fr)); }
+    .kpi-card:nth-child(2) { border-right: 0; }
+    .kpi-card:nth-child(-n+2) { border-bottom: 1px solid var(--stone-deep); }
+    .grid-2, .grid-2.wide-first { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="brand">
+    <div class="emblem"><img src="../../images/coat-of-arms.png" alt="Zambian Coat of Arms"></div>
+    <div class="brand-text">
+      <div class="name">Republic of Zambia<br>Ministry of Lands &amp; Natural Resources</div>
+      <div class="sub">Automated Registry Management System (ARMS) · Land Verify ZM</div>
+    </div>
+  </div>
+  <div class="top-bar-right">
+    <div class="top-user">
+      <div class="avatar">SA</div>
+      <span>System Admin</span>
+    </div>
+    <button class="btn-signout" type="button" onclick="confirmAndLogout(event)"><i class="bi bi-box-arrow-right"></i> Sign Out</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="nav-group-label">Overview</div>
+    <a class="nav-link" href="dashboard.html"><span class="nav-icon"><i class="bi bi-speedometer2"></i></span> Dashboard</a>
+    <div class="nav-group-label">Land Management</div>
+    <a class="nav-link" href="/index.html"><span class="nav-icon"><i class="bi bi-search"></i></span> Verify Parcel</a>
+    <a class="nav-link active" href="system-monitoring.html" aria-current="page"><span class="nav-icon"><i class="bi bi-check2-square"></i></span> System Monitoring</a>
+    <a class="nav-link" href="system-alerts.html"><span class="nav-icon"><i class="bi bi-exclamation-triangle"></i></span> System Alerts</a>
+    <div class="nav-group-label">Blockchain</div>
+    <a class="nav-link" href="blockchain-status.html"><span class="nav-icon"><i class="bi bi-link-45deg"></i></span> Blockchain Status</a>
+    <a class="nav-link" href="system-statistics.html"><span class="nav-icon"><i class="bi bi-file-earmark-bar-graph"></i></span> System Statistics</a>
+    <div class="nav-group-label">Administration</div>
+    <a class="nav-link" href="all-users.html"><span class="nav-icon"><i class="bi bi-people"></i></span> Users</a>
+    <a class="nav-link" href="create-user.html"><span class="nav-icon"><i class="bi bi-person-plus"></i></span> Create User</a>
+    <a class="nav-link" href="#" onclick="confirmAndLogout(event); return false;"><span class="nav-icon"><i class="bi bi-box-arrow-right"></i></span> Sign Out</a>
+  </div>
+
+  <div class="main">
+   <div class="shell">
+    <div class="page-header">
+      <h1>System Monitoring</h1>
+    </div>
+
+    <div class="status-hero">
+      <span class="pulse"></span>
+      <div class="txt">
+        <strong id="monitoringStatusTitle">Checking system status...</strong>
+        <div id="monitoringStatusSummary">Loading live service information</div>
+      </div>
+      <div class="timestamp" id="monitoringCheckedAt">Last checked: —</div>
+    </div>
+
+    <div class="kpi-row" aria-label="Operational summary">
+      <a class="kpi-card kpi-card-link" href="system-monitoring.html" aria-label="View system health">
+        <div class="kpi-value" id="monitoringStatusValue">Checking</div>
+        <div class="kpi-label">Service status</div>
+      </a>
+      <a class="kpi-card kpi-card-link" href="all-users.html?status=active" aria-label="View active users">
+        <div class="kpi-value" id="activeUsersStat">—</div>
+        <div class="kpi-label">Active users</div>
+      </a>
+      <a class="kpi-card kpi-card-link" id="warningsCard" href="system-alerts.html" aria-label="View system warnings">
+        <div class="kpi-value" id="warningsStat">—</div>
+        <div class="kpi-label">Open warnings</div>
+      </a>
+      <a class="kpi-card kpi-card-link" href="blockchain-status.html" aria-label="View system activities">
+        <div class="kpi-value" id="activitiesTodayStat">—</div>
+        <div class="kpi-label">Activities today</div>
+      </a>
+    </div>
+
+    <div class="grid-2 wide-first">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>System Services Status</h2>
+          <span class="meta">Auto-refreshes every 60s</span>
+        </div>
+        <ul class="svc-list" id="serviceStatusList">
+          <li class="svc-item"><div>Loading live service status...</div></li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2>System Alerts</h2>
+          <span class="meta" id="alertsSummary">Loading...</span>
+        </div>
+        <div class="panel-body">
+          <div id="alertsContent"><div class="alert-item"><div>Loading live alerts...</div></div></div>
+          <div style="margin-top:14px;">
+            <button class="btn ghost small" id="viewAlertsBtn" type="button">View All Alerts</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Recent System Events</h2>
+          <span class="meta" id="eventsPeriodLabel">Live events</span>
+      </div>
+      <div class="panel-body no-pad">
+        <table>
+          <thead>
+            <tr><th>Time</th><th>Event</th><th>User / Source</th><th>Status</th></tr>
+          </thead>
+          <tbody id="recentEventsBody">
+            <tr><td colspan="4">Loading live events...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+   </div>
+  </div>
+</div>
+</body>
+<script>
+async function loadMonitoring(){
+  const response = await fetch('/api/admin/system-monitoring', { headers:{ Authorization:'Bearer '+localStorage.getItem('lv_token') } });
+  if(!response.ok) throw new Error('Monitoring request failed');
+  const data = (await response.json()).data || {};
+  const warningsCount = Number(data.warnings || 0);
+  const operational = data.status === 'OPERATIONAL';
+
+  const warningsCard = document.getElementById('warningsCard');
+  if (warningsCard) {
+    warningsCard.title = warningsCount > 0 ? 'View system warnings' : 'No active system warnings';
+  }
+
+  const viewAlertsBtn = document.getElementById('viewAlertsBtn');
+  if (viewAlertsBtn) {
+    viewAlertsBtn.disabled = true;
+    viewAlertsBtn.style.opacity = '0.55';
+    viewAlertsBtn.title = 'Use the Warnings card above to view system warnings';
+    viewAlertsBtn.onclick = null;
+  }
+
+  document.getElementById('monitoringStatusTitle').textContent = operational ? 'All core services are operational' : 'System requires attention';
+  document.getElementById('monitoringStatusSummary').textContent = `${operational ? 'Live health check passed' : 'Live health check reported an issue'} · ${warningsCount} warning(s) require attention`;
+  document.getElementById('monitoringCheckedAt').textContent = `Last checked: ${data.checkedAt ? new Date(data.checkedAt).toLocaleString() : '—'}`;
+  document.getElementById('monitoringStatusValue').textContent = data.status === 'OPERATIONAL' ? 'Operational' : (data.status || 'Unknown');
+  document.getElementById('activeUsersStat').textContent = Number(data.activeUsers || 0).toLocaleString();
+  document.getElementById('warningsStat').textContent = warningsCount.toLocaleString();
+  document.getElementById('activitiesTodayStat').textContent = Number(data.activitiesToday || 0).toLocaleString();
+  document.getElementById('alertsSummary').textContent = `${warningsCount} pending`;
+  document.getElementById('serviceStatusList').innerHTML = [
+    ['ARMS Application', data.api, 'Application endpoint'],
+    ['Database', data.database, 'Database connectivity'],
+    ['Authentication Service', data.api, 'Authentication endpoint'],
+    ['Email / Notification Service', 'AVAILABLE', 'Notification subsystem'],
+    ['Document Storage', 'AVAILABLE', 'Configured upload storage'],
+    ['Blockchain Integration', data.blockchain || 'AVAILABLE', 'Blockchain status endpoint']
+  ].map(([name,status,description]) => `<li class="svc-item"><div><div class="svc-name">${name}</div><div class="svc-desc">${description}</div></div><span class="st-badge ${status === 'AVAILABLE' || status === 'CONNECTED' || status === 'OPERATIONAL' ? 'st-success' : 'st-warning'}">${status || 'UNKNOWN'}</span></li>`).join('');
+  const eventsResponse = await fetch('/api/admin/blockchain-status', { headers:{ Authorization:'Bearer '+localStorage.getItem('lv_token') } });
+  const events = ((await eventsResponse.json()).data || {}).recentTransactions || [];
+  document.getElementById('recentEventsBody').innerHTML = events.slice(0, 5).map(event => `<tr><td class="mono">${event.recordedAt ? new Date(event.recordedAt).toLocaleString() : '—'}</td><td>${(event.eventType || 'System event').replaceAll('_',' ')}</td><td>Blockchain audit</td><td><span class="st-badge ${event.onChain === false ? 'st-warning' : 'st-success'}">${event.onChain === false ? 'Pending' : 'Success'}</span></td></tr>`).join('') || '<tr><td colspan="4">No recent events recorded</td></tr>';
+  document.getElementById('alertsContent').innerHTML = warningsCount === 0
+    ? '<div class="alert-item"><span class="alert-dot" style="background:var(--green);"></span><div><div style="font-weight:600;font-size:13px;">No active system warnings</div><div style="color:var(--ink-soft);font-size:12px;margin-top:2px;">All monitored services are reporting normally.</div></div></div>'
+    : `<div class="alert-item"><span class="alert-dot" style="background:var(--amber);"></span><div><div style="font-weight:600;font-size:13px;">${warningsCount} flagged transfer(s) require attention</div><div style="color:var(--ink-soft);font-size:12px;margin-top:2px;">Flagged transfers are reviewed by Senior Officers.</div></div></div>`;
+}
+loadMonitoring().catch(error => console.error(error));
+</script>
+</html>
